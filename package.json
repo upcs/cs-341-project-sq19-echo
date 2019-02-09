@@ -19,5 +19,11 @@
   "homepage": "https://github.com/upcs/cs-341-project-sq19-echo#readme",
   "devDependencies": {
     "jest": "^24.1.0"
-  }
+  },
+  "dependencies": {
+    "code-coverage": "0.0.2"
+  },
+  "keywords": [
+    "sprint1"
+  ]
 }
