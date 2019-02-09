@@ -1,0 +1,23 @@
+{
+  "name": "cs-341-project-sq19-echo",
+  "version": "1.0.0",
+  "description": "sprint1",
+  "main": "server.js",
+  "scripts": {
+    "test": "jest",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/upcs/cs-341-project-sq19-echo.git"
+  },
+  "author": "UPCS_Echo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/upcs/cs-341-project-sq19-echo/issues"
+  },
+  "homepage": "https://github.com/upcs/cs-341-project-sq19-echo#readme",
+  "devDependencies": {
+    "jest": "^24.1.0"
+  }
+}

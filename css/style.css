@@ -1,0 +1,19 @@
+body {
+  background-color: lightblue;
+  alink: black;
+  link: blue;
+}
+
+h1 {
+  color: white;
+  text-align: center;
+}
+
+p {
+  font-family: verdana;
+  font-size: 20px;
+}
+h3 {
+   color: black;
+   font-family: courier;
+}
