@@ -3,6 +3,14 @@
   "version": "1.0.0",
   "description": "sprint1",
   "main": "server.js",
+  "dependencies": {
+    "code-coverage": "^0.0.2",
+    "codecov": "^3.1.0",
+    "jest": "^24.1.0",
+    "jscoverage": "^0.6.0",
+    "nodeunit": "^0.11.3"
+  },
+  "devDependencies": {},
   "scripts": {
     "test": "jest",
     "start": "node server.js"
@@ -11,19 +19,11 @@
     "type": "git",
     "url": "git+https://github.com/upcs/cs-341-project-sq19-echo.git"
   },
-  "author": "UPCS_Echo",
+  "author": "Echo",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/upcs/cs-341-project-sq19-echo/issues"
   },
-  "homepage": "https://github.com/upcs/cs-341-project-sq19-echo#readme",
-  "devDependencies": {
-    "jest": "^24.1.0"
-  },
-  "dependencies": {
-    "code-coverage": "0.0.2"
-  },
-  "keywords": [
-    "sprint1"
-  ]
+  "jest": {  "coverageDirectory": "./coverage/",  "collectCoverage": true },
+  "homepage": "https://github.com/upcs/cs-341-project-sq19-echo#readme"
 }
