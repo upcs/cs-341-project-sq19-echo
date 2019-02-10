@@ -1,0 +1,50 @@
+/*
+ * This is the basic CSS file that goes along with the website that we will be implementing.
+ * We used W3 schools for help with this.
+ * We split up the css files to show that which part was for which homework for clarity.
+*/
+#area-button {
+  background-color: lightblue;
+  color: white;
+  font-size: 20px;
+}
+
+#date-button {
+  background-color: lightblue;
+  color: white;
+  font-size: 20px;
+}
+
+.dropdown {
+  padding: 10px;
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-content {
+  display: none;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
+  z-index: 1;
+}
+
+.dropdown-content a {
+  color: black;
+  padding: 12px 16px;
+  text-decoration: none;
+  display: block;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+.dropdown:hover .dropdown-content {
+  display: block;
+}
+
+.dropdown:hover .dropdown-button {
+  background-color: green;
+}
