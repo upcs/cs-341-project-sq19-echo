@@ -8,6 +8,10 @@ import { Title } from "@angular/platform-browser";
 })
 export class HomeComponent {
   public constructor(private titleService: Title) {
-    titleService.setTitle("Portland Traffic Reform")
+    titleService.setTitle("Portland Traffic Reform");
+  }
+
+  public onClickMe() {
+    alert("hello");
   }
 }

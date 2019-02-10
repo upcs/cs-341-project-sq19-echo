@@ -3,16 +3,23 @@
  * We used W3 schools for help with this.
  * We split up the css files to show that which part was for which homework for clarity.
 */
+
 #area-button {
   background-color: lightblue;
   color: white;
-  font-size: 20px;
+  font-size: 1.2em;
 }
 
 #date-button {
   background-color: lightblue;
   color: white;
-  font-size: 20px;
+  font-size: 1.2em;
+}
+
+#load-button {
+  background-color: lightblue;
+  color: white;
+  font-size: 1.2em;
 }
 
 .dropdown {
