@@ -3,29 +3,18 @@
 
 <h4><u>Traffic Data by Region</u></h4>
 
-<div class="dropdown">
-  <button id="area-button" class="dropdown-button">Portland Area</button>
-  <div class="dropdown-content force-scroll	">
-    <a id="North" href="#">North</a>
-    <a id="South" href="#">South</a>
-    <a id="Northwest" href="#">Northwest</a>
-    <a id="Northeast" href="#">Northeast</a>
-    <a id="Southwest" href="#">Southwest</a>
-    <a id="Southeast" href="#">Southeast</a>
-  </div>
-</div>
+<mat-form-field>
+  <mat-select #areaSelector placeholder="Select Portland Area">
+    <mat-option *ngFor="let area of areas" [value]="area">{{area}}</mat-option>
+  </mat-select>
+</mat-form-field>
 
-<div class="dropdown">
-  <button id="date-button" class="dropdown-button">Year</button>
-  <div class="dropdown-content force-scroll">
-    <a id="1960" href="#">1960</a>
-    <a id="1970" href="#">1970</a>
-    <a id="1980" href="#">1980</a>
-    <a id="1990" href="#">1990</a>
-    <a id="2000" href="#">2000</a>
-    <a id="2010" href="#">2010</a>
-    <a id="current" href="#">Current</a>
-  </div>
-</div>
+<mat-form-field>
+  <mat-select #yearSelector placeholder="Select Year">
+    <mat-option *ngFor="let year of years" [value]="year">{{year}}</mat-option>
+  </mat-select>
+</mat-form-field>
 
-<button id="load-button" (click)="onClickMe()">Load Data</button>
+<button (click)="loadData()">Load Data!</button>
+
+<mat-card>{{selectedMessage}}</mat-card>
