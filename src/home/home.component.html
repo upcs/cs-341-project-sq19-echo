@@ -1,10 +1,7 @@
 <!-- The basic HTML for the web app's homepage. -->
 <h1>Portland Traffic Reform</h1>
 
-<!-- This imports the image that is to be posted into the html -->
-<img src="http://mediad.publicbroadcasting.net/p/wyprmain/files/201712/heavy-traffic-highway-cars.jpg" alt="traffic" height="300">
-
-<h4><u>Traffic Data by Region and Year</u></h4>
+<h4><u>Traffic Data by Region</u></h4>
 
 <mat-form-field>
   <mat-select #areaSelector placeholder="Select Portland Area">
@@ -21,3 +18,5 @@
 <button (click)="loadData()">Load Data!</button>
 
 <mat-card>{{selectedMessage}}</mat-card>
+
+<div id="map"></div>

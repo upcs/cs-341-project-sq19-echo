@@ -4,4 +4,13 @@ mat-form-field {
 
 mat-card {
   width: 500px;
+  margin: 0 auto;
+}
+
+#map {
+  margin: 20px auto;
+  height: 500px;
+  width: 600px;
+  border-radius: 5px;
+  box-shadow: 0 0px 10px 0 rgba(0, 0, 0, 0.2), 0 0px 10px 0 rgba(0, 0, 0, 0.19);
 }
