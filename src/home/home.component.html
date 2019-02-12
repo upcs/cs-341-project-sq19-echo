@@ -19,4 +19,8 @@
 
 <mat-card>{{selectedMessage}}</mat-card>
 
-<div id="map"></div>
+<div id="map"
+     leaflet
+     (leafletMapReady)="onMapReady($event)"
+     [leafletOptions]="options">
+</div>
