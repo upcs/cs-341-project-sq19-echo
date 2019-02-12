@@ -1,8 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {Title} from "@angular/platform-browser";
 import {MatSelect} from "@angular/material";
-import { latLng, tileLayer } from 'leaflet';
-declare let L;
+import { latLng, tileLayer, Map as LeafletMap } from 'leaflet';
 
 @Component({
   selector: 'app-root',
@@ -15,7 +14,7 @@ export class HomeComponent {
   @ViewChild('yearSelector') yearSelector: MatSelect;
   @ViewChild('selectedMessage') selectedMessage: string;
   
-  map: L.Map;
+  map: LeafletMap;
   years: number[] = [1960, 1970, 1980, 1990, 2000, 2010, 2018];
   areas: string[] = ["North", "South", "Northwest", "Northeast", "Southwest", "Southeast"];
 
@@ -38,6 +37,7 @@ export class HomeComponent {
       return;
     }
     this.selectedMessage = `Area ${this.areaSelector.value} and year ${this.yearSelector.value} selected.`;
+
     // change map region of map to be displayed based on selection
     if (this.areaSelector.value == 'Northwest') {
       this.map.flyTo([45.5586, -122.7609], 12.5);
@@ -59,8 +59,8 @@ export class HomeComponent {
     }
   }
 
-  // initialize map
-  onMapReady(map: L.Map) {
+  // initialize Leaflet map.
+  onMapReady(map: LeafletMap) {
     this.map = map;
   }
 }
