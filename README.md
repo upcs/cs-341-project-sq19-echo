@@ -1,5 +1,7 @@
 # Echo
 
+[![Codecov Coverage](https://img.shields.io/codecov/c/github/upcs/cs-341-project-sq19-echo/master.svg?style=flat-square)](https://codecov.io/gh/upcs/cs-341-project-sq19-echo/)
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.1.
 
 ## Development server
