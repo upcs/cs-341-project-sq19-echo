@@ -4,7 +4,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "jest",
+    "test": "jest && codecov",
     "lint": "ng lint"
   },
   "private": true,
@@ -41,8 +41,8 @@
     "@angular/language-service": "~7.2.0",
     "@types/leaflet": "^1.4.1",
     "@types/node": "~8.9.4",
-    "codelyzer": "~4.5.0",
     "codecov": "^3.1.0",
+    "codelyzer": "~4.5.0",
     "jest": "^24.1.0",
     "jest-preset-angular": "^6.0.2",
     "ts-node": "~7.0.0",
