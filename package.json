@@ -4,7 +4,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "jest && codecov",
+    "test": "jest",
     "lint": "ng lint"
   },
   "private": true,
@@ -26,11 +26,11 @@
     "angular-bootstrap-md": "^7.4.0",
     "bootstrap": "^4.2.1",
     "chart.js": "^2.5.0",
+    "codecov": "^3.1.0",
     "core-js": "^2.5.4",
     "hammerjs": "^2.0.8",
     "jquery": "^3.3.1",
     "leaflet": "^1.4.0",
-    "codecov": "^3.1.0",
     "rxjs": "~6.3.3",
     "tslib": "^1.9.0",
     "zone.js": "~0.8.26"
