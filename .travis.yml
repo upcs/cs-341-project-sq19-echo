@@ -1,7 +1,7 @@
 language: node_js
 node_js:
   - node
-install:
+scripts:
   - npm install -g codecov
-script:
+after_success:
   - codecov
