@@ -50,6 +50,8 @@
     "typescript": "~3.2.2"
   },
   "jest": {
+    "coverageDirectory": "./coverage/",
+    "collectCoverage": true,
     "preset": "jest-preset-angular",
     "setupFilesAfterEnv": [
       "<rootDir>/src/setupJest.ts"
