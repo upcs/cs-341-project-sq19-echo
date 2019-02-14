@@ -3,4 +3,5 @@ node_js:
   - node
 install:
   - npm install
-after_success: codecov
+script:
+  - codecov
