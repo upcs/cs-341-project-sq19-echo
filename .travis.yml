@@ -3,5 +3,3 @@ node_js:
   - node
 install:
   - npm install
-script:
-  - codecov
