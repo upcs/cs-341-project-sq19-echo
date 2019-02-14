@@ -55,12 +55,6 @@
     "preset": "jest-preset-angular",
     "setupFilesAfterEnv": [
       "<rootDir>/src/setupJest.ts"
-    ],
-    "collectCoverageFrom": [
-      "src/about/about.component.spec.ts",
-      "src/login/login.component.spec.ts",
-      "src/home/home.component.spec.ts",
-      "src/app/app.component.spec.ts"
     ]
   },
   "description": "[![Codecov Coverage](https://img.shields.io/codecov/c/github/upcs/cs-341-project-sq19-echo/master.svg?style=flat-square)](https://codecov.io/gh/upcs/cs-341-project-sq19-echo/)",
