@@ -4,7 +4,7 @@
     "ng": "ng",
     "start": "ng serve",
     "build": "ng build",
-    "test": "jest",
+    "test": "jest --config jestConfig.json",
     "lint": "ng lint"
   },
   "private": true,
