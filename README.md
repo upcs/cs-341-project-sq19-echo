@@ -4,6 +4,10 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.1.
 
+## Sprint 1 Features
+
+Home page, about page, and login page added. Created an Angular web app. Added an interactive map. Added a menu bar to navigated between pages. Added buttons to load data, map updates on button press.
+
 ## Development server
 
 Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
