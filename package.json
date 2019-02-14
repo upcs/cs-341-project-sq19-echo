@@ -26,7 +26,6 @@
     "angular-bootstrap-md": "^7.4.0",
     "bootstrap": "^4.2.1",
     "chart.js": "^2.5.0",
-    "codecov": "^3.1.0",
     "core-js": "^2.5.4",
     "hammerjs": "^2.0.8",
     "jquery": "^3.3.1",
@@ -42,8 +41,8 @@
     "@angular/language-service": "~7.2.0",
     "@types/leaflet": "^1.4.1",
     "@types/node": "~8.9.4",
-    "codelyzer": "~4.5.0",
     "codecov": "^3.1.0",
+    "codelyzer": "~4.5.0",
     "jest": "^24.1.0",
     "jest-preset-angular": "^6.0.2",
     "ts-node": "~7.0.0",
@@ -56,6 +55,12 @@
     "preset": "jest-preset-angular",
     "setupFilesAfterEnv": [
       "<rootDir>/src/setupJest.ts"
+    ],
+    "collectCoverageFrom": [
+      "src/about/about.component.spec.ts",
+      "src/login/login.component.spec.ts",
+      "src/home/home.component.spec.ts",
+      "src/app/app.component.spec.ts"
     ]
   },
   "description": "[![Codecov Coverage](https://img.shields.io/codecov/c/github/upcs/cs-341-project-sq19-echo/master.svg?style=flat-square)](https://codecov.io/gh/upcs/cs-341-project-sq19-echo/)",
