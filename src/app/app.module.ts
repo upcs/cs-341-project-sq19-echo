@@ -6,9 +6,9 @@ import {MDBBootstrapModule} from 'angular-bootstrap-md';
 import {AppComponent} from './app.component';
 import {AppRoutingModule} from './app-routing.module';
 import {MaterialModule} from "../helpers/material.module";
-import {HomeComponent} from "../home/home.component";
-import {LoginComponent} from "../login/login.component";
-import {AboutComponent} from "../about/about.component";
+import {HomeComponent} from "./home/home.component";
+import {LoginComponent} from "./login/login.component";
+import {AboutComponent} from "./about/about.component";
 
 @NgModule({
   declarations: [

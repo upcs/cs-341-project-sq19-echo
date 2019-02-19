@@ -1,5 +1,6 @@
 import {Component, ElementRef, ViewChild} from '@angular/core';
 import {Title} from "@angular/platform-browser";
+import {mainRoutes} from "./app-routing.module";
 
 @Component({
   selector: 'app-root',
@@ -7,7 +8,7 @@ import {Title} from "@angular/platform-browser";
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  navLabels: string[] = ['home', 'about', 'login'];
+  navLabels: string[] = mainRoutes.map(x => x.path);
 
   @ViewChild('navItemList') navItemList: ElementRef;
 
