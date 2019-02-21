@@ -6,7 +6,7 @@ import {MaterialModule} from "../../helpers/material.module";
 describe('Login Tests', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
+      imports: [RouterTestingModule, MaterialModule],
       declarations: [LoginComponent],
     }).compileComponents();
   }));
