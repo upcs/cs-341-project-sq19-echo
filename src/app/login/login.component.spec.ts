@@ -23,7 +23,7 @@ describe('Login Tests', () => {
     const fixture = TestBed.createComponent(LoginComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('a').text())
+    expect(compiled.querySelector('a').textContent)
       .toContain('Forgot Password?');
   });
 });
