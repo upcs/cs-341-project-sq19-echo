@@ -2,11 +2,12 @@ import {TestBed, async} from '@angular/core/testing';
 import {LoginComponent} from './login.component';
 import {RouterTestingModule} from "@angular/router/testing";
 import {MaterialModule} from "../../helpers/material.module";
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 describe('Login Tests', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule, MaterialModule],
+      imports: [RouterTestingModule, MaterialModule, FormsModule, ReactiveFormsModule],
       declarations: [LoginComponent],
     }).compileComponents();
   }));
