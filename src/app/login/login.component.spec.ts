@@ -3,11 +3,12 @@ import {LoginComponent} from './login.component';
 import {RouterTestingModule} from "@angular/router/testing";
 import {MaterialModule} from "../../helpers/material.module";
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 describe('Login Tests', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule, MaterialModule, FormsModule, ReactiveFormsModule],
+      imports: [RouterTestingModule, MaterialModule, FormsModule, ReactiveFormsModule, BrowserAnimationsModule],
       declarations: [LoginComponent],
     }).compileComponents();
   }));
