@@ -24,6 +24,6 @@ describe('Login Tests', () => {
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
     expect(compiled.querySelector('a').textContent)
-      .toEqual('Forgot Password?');
+      .toMatch('Forgot Password?');
   });
 });
