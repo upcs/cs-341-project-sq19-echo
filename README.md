@@ -1,6 +1,6 @@
 # Echo
 
-[![codecov](https://codecov.io/gh/upcs/cs-341-project-sq19-echo/branch/master/graph/badge.svg)](https://codecov.io/gh/upcs/cs-341-project-sq19-echo)
+[![codecov](https://codecov.io/gh/upcs/cs-341-project-sq19-echo/branch/master/graph/badge.svg)](https://codecov.io/gh/upcs/cs-341-project-sq19-echo) [![Build Status](https://travis-ci.com/upcs/cs-341-project-sq19-echo.svg?branch=master)](https://travis-ci.com/upcs/cs-341-project-sq19-echo)
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.1.
 

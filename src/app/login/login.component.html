@@ -1,61 +1,45 @@
-<h2>Please Login or Create an account</h2>
+<mat-card class="mat-elevation-z4">
+  <mat-tab-group mat-align-tabs="center" dynamicHeight>
+    <mat-tab label="LOGIN">
+      <div class="formContainer">
+        <mat-form-field class="topInputs" appearance="outline">
+            <mat-label>Email</mat-label>
+          <input matInput placeholder="Enter your email" [formControl]="email">
+          <mat-error *ngIf="email.invalid">{{getEmailError()}}</mat-error>
+        </mat-form-field>
 
-<button onclick="document.getElementById('id01').style.display='block'" style="width:auto;">Login</button>
-<button onclick="document.getElementById('id02').style.display='block'" style="width:auto;">Create Account</button>
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput placeholder="Enter your password" type="password" [formControl]="password">
+          <mat-error *ngIf="password.invalid">{{getPasswordError()}}</mat-error>
+        </mat-form-field>
+      </div>
+      <a id="forgotPass">Forgot password?</a>
+      <button mat-raised-button color="primary">Login</button>
+    </mat-tab>
+      
+    <mat-tab label="SIGN UP">
+      <div class="formContainer">
+        <mat-form-field class="topInputs" appearance="outline">
+            <mat-label>Email</mat-label>
+          <input matInput placeholder="Enter your email" [formControl]="email" required>
+          <mat-error *ngIf="email.invalid">{{getEmailError()}}</mat-error>
+        </mat-form-field>
 
-<div id="id01" class="modal">
+        <mat-form-field class="midInputs" appearance="outline">
+          <mat-label>Password</mat-label>
+          <input id="setPass" matInput placeholder="Enter a password" type="password" [formControl]="setPassword" required>
+          <mat-error *ngIf="setPassword.invalid">{{getSetError()}}</mat-error>
+          <mat-hint>Must contain 8 or more characters</mat-hint>
+        </mat-form-field>
 
-  <form class="modal-content animate" action="/action_page.php">
-    <div class="imgcontainer">
-      <span onclick="document.getElementById('id01').style.display='none'" class="close"
-            title="Close Modal">&times;</span>
-    </div>
-
-    <div class="container">
-      <label for="uname"><b>Username</b></label>
-      <input type="text" placeholder="Enter Username" name="uname" required>
-
-      <label for="psw"><b>Password</b></label>
-      <input type="password" placeholder="Enter Password" name="psw" required>
-
-      <button type="submit">Login</button>
-      <label>
-        <input type="checkbox" checked="checked" name="remember"> Remember me
-      </label>
-    </div>
-
-    <div class="container" style="background-color:#f1f1f1">
-      <button type="button" onclick="document.getElementById('id01').style.display='none'" class="cancelbtn">Cancel
-      </button>
-      <span class="psw">Forgot <a href="#">password?</a></span>
-    </div>
-  </form>
-</div>
-
-
-<div id="id02" class="modal">
-  <form class="modal-content animate" action="/action_page.php">
-    <div class="imgcontainer">
-      <span onclick="document.getElementById('id01').style.display='none'" class="close"
-            title="Close Modal">&times;</span>
-    </div>
-
-    <div class="container">
-      <label for="uname"><b>Create New Username</b></label>
-      <input type="text" placeholder="Enter Username" name="uname" required>
-
-      <label for="psw"><b>Create Password</b></label>
-      <input type="password" placeholder="Enter Password" name="psw" required>
-
-      <label for="psw"><b>Re-enter Password</b></label>
-      <input type="password" placeholder="Re-enter Password" name="psw2" required>
-
-      <button type="submit">Login</button>
-    </div>
-
-    <div class="container" style="background-color:#f1f1f1">
-      <button type="button" onclick="document.getElementById('id02').style.display='none'" class="cancelbtn">Cancel
-      </button>
-    </div>
-  </form>
-</div>
+        <mat-form-field appearance="outline">
+            <mat-label>Confirm password</mat-label>
+            <input id="confirmPass" matInput placeholder="Re-enter your password" type="password" [formControl]="password" required>
+            <mat-error *ngIf="password.invalid">{{getPasswordError()}}</mat-error>
+          </mat-form-field>
+      </div>
+      <button mat-raised-button color="primary">Sign up</button>
+    </mat-tab>
+  </mat-tab-group>
+</mat-card>

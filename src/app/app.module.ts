@@ -9,13 +9,21 @@ import {MaterialModule} from "../helpers/material.module";
 import {HomeComponent} from "./home/home.component";
 import {LoginComponent} from "./login/login.component";
 import {AboutComponent} from "./about/about.component";
+import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 
 @NgModule({
   declarations: [
     AppComponent, AboutComponent, HomeComponent, LoginComponent
   ],
   imports: [
-    MDBBootstrapModule.forRoot(), AppRoutingModule, BrowserModule, BrowserAnimationsModule, MaterialModule, LeafletModule.forRoot()
+    MDBBootstrapModule.forRoot(), 
+    AppRoutingModule, 
+    BrowserModule, 
+    BrowserAnimationsModule, 
+    MaterialModule, 
+    LeafletModule.forRoot(),
+    FormsModule,
+    ReactiveFormsModule,
   ],
   providers: [Title],
   bootstrap: [AppComponent]
