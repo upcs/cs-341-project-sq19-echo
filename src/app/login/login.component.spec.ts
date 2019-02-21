@@ -19,11 +19,11 @@ describe('Login Tests', () => {
     expect(loginComponent).toBeTruthy();
   });
 
-  test('should have proper heading', () => {
+  test('should have password recovery option', () => {
     const fixture = TestBed.createComponent(LoginComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h2').textContent)
-      .toContain('Please Login or Create an account');
+    expect(compiled.querySelector('a').text())
+      .toContain('Forgot Password?');
   });
 });
