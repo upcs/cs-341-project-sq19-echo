@@ -4,42 +4,46 @@
       <div class="formContainer">
         <mat-form-field class="topInputs" appearance="outline">
             <mat-label>Email</mat-label>
-          <input matInput placeholder="Enter your email" [formControl]="email">
+          <input id="logEmail" matInput placeholder="Enter your email" [formControl]="email">
           <mat-error *ngIf="email.invalid">{{getEmailError()}}</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
-          <input matInput placeholder="Enter your password" type="password" [formControl]="password">
+          <input id="logPass" matInput placeholder="Enter your password" type="password" [formControl]="password">
           <mat-error *ngIf="password.invalid">{{getPasswordError()}}</mat-error>
         </mat-form-field>
       </div>
       <a id="forgotPass">Forgot password?</a>
-      <button mat-raised-button color="primary">Login</button>
+      <button mat-raised-button color="primary" (click)="login()">Login</button>
+      <br>
+      <mat-card id="invalidLogin">Error, invalid login</mat-card>
     </mat-tab>
       
     <mat-tab label="SIGN UP">
       <div class="formContainer">
         <mat-form-field class="topInputs" appearance="outline">
             <mat-label>Email</mat-label>
-          <input matInput placeholder="Enter your email" [formControl]="email" required>
+          <input (keydown)="signUp($event)" matInput placeholder="Enter your email" [formControl]="email" required>
           <mat-error *ngIf="email.invalid">{{getEmailError()}}</mat-error>
         </mat-form-field>
 
         <mat-form-field class="midInputs" appearance="outline">
           <mat-label>Password</mat-label>
-          <input id="setPass" matInput placeholder="Enter a password" type="password" [formControl]="setPassword" required>
+          <input id="setPass" (keyup)="confirmPasswords()" matInput placeholder="Enter a password" type="password" [formControl]="setPassword" required>
           <mat-error *ngIf="setPassword.invalid">{{getSetError()}}</mat-error>
           <mat-hint>Must contain 8 or more characters</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
             <mat-label>Confirm password</mat-label>
-            <input id="confirmPass" matInput placeholder="Re-enter your password" type="password" [formControl]="password" required>
-            <mat-error *ngIf="password.invalid">{{getPasswordError()}}</mat-error>
+            <input id="confirmPass" (keyup)="confirmPasswords()" matInput placeholder="Re-enter your password" type="password" [formControl]="confirm" required>
+            <mat-error *ngIf="confirm.invalid">{{getConfirmError()}}</mat-error>
           </mat-form-field>
       </div>
-      <button mat-raised-button color="primary">Sign up</button>
+      <button mat-raised-button color="primary" (click)="confirmPasswords()">Sign up</button>
+      <br>
+      <mat-card id="wrongPass">Error, passwords do not match</mat-card>
     </mat-tab>
   </mat-tab-group>
 </mat-card>

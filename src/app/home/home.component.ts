@@ -1,7 +1,8 @@
 import {Component, ViewChild} from '@angular/core';
 import {Title} from "@angular/platform-browser";
 import {MatSelect} from "@angular/material";
-import {latLng, tileLayer, Map as LeafletMap, LatLngExpression} from 'leaflet';
+import {latLng, tileLayer, Map as LeafletMap, LatLngExpression, geoJSON} from 'leaflet';
+import {HttpClient} from '@angular/common/http';
 
 interface Location {
   readonly name: string;
@@ -39,7 +40,7 @@ export class HomeComponent {
     center: latLng([45.5122, -122.6587])
   };
 
-  public constructor(private titleService: Title) {
+  public constructor(private titleService: Title, private http: HttpClient) {
     titleService.setTitle("Portland Traffic Reform");
   }
 
@@ -59,5 +60,8 @@ export class HomeComponent {
   // initialize Leaflet map.
   onMapReady(map: LeafletMap) {
     this.map = map;
+    this.http.get('Traffic_Volume_Counts.json').subscribe((json: any) => {
+      geoJSON(json).addTo(this.map);
+    });
   }
 }

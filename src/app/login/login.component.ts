@@ -1,6 +1,7 @@
 import {Component} from '@angular/core';
 import {Title} from "@angular/platform-browser";
 import {FormControl, Validators, MinLengthValidator} from '@angular/forms';
+import data from './users.json';
 
 @Component({
   selector: 'app-root',
@@ -8,6 +9,8 @@ import {FormControl, Validators, MinLengthValidator} from '@angular/forms';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
+  match: number = 0;
+  json: any = data;
   public constructor(private titleService: Title) {
     titleService.setTitle("Login Page");
   }
@@ -23,10 +26,46 @@ export class LoginComponent {
     return this.password.hasError('required') ? 'You must enter a password' : '';
   }
 
+  confirm = new FormControl('', [Validators.required, Validators.minLength(this.match)]);
+  getConfirmError() {
+    return this.confirm.hasError('required') ? 'You must re-enter your password' :
+        this.confirm.hasError('minlength') ? 'Passwords do not match' : '';
+  }
+
   setPassword = new FormControl('', [Validators.required, Validators.minLength(8)]);
   getSetError() {
     return this.setPassword.hasError('required') ? 'You must enter a password' :
         this.setPassword.hasError('minlength') ? 'Password must have 8 or more characters' : '';
+  }
+
+  signUp(event) {
+    if(event.keyCode == 13) {
+      this.confirmPasswords();
+    }
+  }
+
+  login() {
+    var logEmail: HTMLInputElement = <HTMLInputElement>document.getElementById("logEmail");
+    var logPass: HTMLInputElement = <HTMLInputElement>document.getElementById("logPass");
+
+    if(this.json[logEmail.value] === logPass.value) {
+      alert("Logged in!")
+    }
+  }
+
+  confirmPasswords() {
+    var setPass: HTMLInputElement = <HTMLInputElement>document.getElementById("setPass");
+    var confirmPass: HTMLInputElement = <HTMLInputElement>document.getElementById("confirmPass");
+
+    if(setPass.value === confirmPass.value) {
+      this.json['newUser'] = "456";
+      this.confirm.setValidators([Validators.required, Validators.minLength(0)]);
+      this.confirm.updateValueAndValidity();
+    }
+    else {
+      this.confirm.setValidators([Validators.required, Validators.minLength(1000)]);
+      this.confirm.updateValueAndValidity();
+    }
   }
 
 }
