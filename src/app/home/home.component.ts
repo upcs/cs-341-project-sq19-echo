@@ -1,7 +1,8 @@
 import {Component, ViewChild} from '@angular/core';
 import {Title} from "@angular/platform-browser";
 import {MatSelect} from "@angular/material";
-import {latLng, tileLayer, Map as LeafletMap, LatLngExpression} from 'leaflet';
+import {latLng, tileLayer, Map as LeafletMap, LatLngExpression, geoJSON, marker, layerGroup, LayerGroup} from 'leaflet';
+import {HttpClient} from '@angular/common/http';
 
 interface Location {
   readonly name: string;
@@ -18,6 +19,8 @@ export class HomeComponent {
   @ViewChild('yearSelector') yearSelector: MatSelect;
   @ViewChild('selectedMessage') selectedMessage: string;
   
+  json;
+  bikeTraffic: LayerGroup = layerGroup();
   map: LeafletMap;
   years: number[] = [1960, 1970, 1980, 1990, 2000, 2010, 2018];
   areas: Location[] = [
@@ -39,7 +42,7 @@ export class HomeComponent {
     center: latLng([45.5122, -122.6587])
   };
 
-  public constructor(private titleService: Title) {
+  public constructor(private titleService: Title, private http: HttpClient) {
     titleService.setTitle("Portland Traffic Reform");
   }
 
@@ -59,5 +62,17 @@ export class HomeComponent {
   // initialize Leaflet map.
   onMapReady(map: LeafletMap) {
     this.map = map;
+    this.http.get('assets/Traffic_Volume_Counts.geojson').subscribe((json: any) => {
+      this.json = json;
+      var data = this.json.features;
+      // example of filtering data. For now just filter data to be bike data. This will change later.
+      for(let point of data) {
+        if(point.properties.ExceptType === "Bike Count") {
+          this.bikeTraffic.addLayer(marker([point.geometry.coordinates[1], point.geometry.coordinates[0]]));
+        }
+      }
+      this.bikeTraffic.addTo(this.map);
+      //geoJSON(this.json).addTo(this.map);
+    });
   }
 }

@@ -10,6 +10,7 @@ import {HomeComponent} from "./home/home.component";
 import {LoginComponent} from "./login/login.component";
 import {AboutComponent} from "./about/about.component";
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
+import {HttpClientModule} from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -24,6 +25,7 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
     LeafletModule.forRoot(),
     FormsModule,
     ReactiveFormsModule,
+    HttpClientModule
   ],
   providers: [Title],
   bootstrap: [AppComponent]
