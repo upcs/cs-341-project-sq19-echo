@@ -17,14 +17,13 @@
       <a id="forgotPass">Forgot password?</a>
       <button mat-raised-button color="primary" (click)="login()">Login</button>
       <br>
-      <mat-card id="invalidLogin">Error, invalid login</mat-card>
     </mat-tab>
       
     <mat-tab label="SIGN UP">
       <div class="formContainer">
         <mat-form-field class="topInputs" appearance="outline">
             <mat-label>Email</mat-label>
-          <input (keydown)="signUp($event)" matInput placeholder="Enter your email" [formControl]="email" required>
+          <input id="setEmail" (keydown)="signUpReturn($event)" matInput placeholder="Enter your email" [formControl]="email" required>
           <mat-error *ngIf="email.invalid">{{getEmailError()}}</mat-error>
         </mat-form-field>
 
@@ -41,9 +40,8 @@
             <mat-error *ngIf="confirm.invalid">{{getConfirmError()}}</mat-error>
           </mat-form-field>
       </div>
-      <button mat-raised-button color="primary" (click)="confirmPasswords()">Sign up</button>
+      <button mat-raised-button color="primary" (click)="signUp()">Sign up</button>
       <br>
-      <mat-card id="wrongPass">Error, passwords do not match</mat-card>
     </mat-tab>
   </mat-tab-group>
 </mat-card>

@@ -38,9 +38,21 @@ export class LoginComponent {
         this.setPassword.hasError('minlength') ? 'Password must have 8 or more characters' : '';
   }
 
-  signUp(event) {
+  signUpReturn(event) {
     if(event.keyCode == 13) {
-      this.confirmPasswords();
+      this.signUp();
+    }
+  }
+
+  signUp() {
+    var setPass: HTMLInputElement = <HTMLInputElement>document.getElementById("setPass");
+    var setEmail: HTMLInputElement = <HTMLInputElement>document.getElementById("setEmail");
+    if(this.json.hasOwnProperty(setEmail.value)) {
+      alert("Error, an account has already been created with this email.")
+    }
+    else if(!this.confirm.invalid) {
+      this.json[setEmail.value] = setPass.value;
+      alert("Success!");
     }
   }
 
@@ -49,7 +61,7 @@ export class LoginComponent {
     var logPass: HTMLInputElement = <HTMLInputElement>document.getElementById("logPass");
 
     if(this.json[logEmail.value] === logPass.value) {
-      alert("Logged in!")
+      alert("Logged in!");
     }
   }
 
@@ -58,7 +70,6 @@ export class LoginComponent {
     var confirmPass: HTMLInputElement = <HTMLInputElement>document.getElementById("confirmPass");
 
     if(setPass.value === confirmPass.value) {
-      this.json['newUser'] = "456";
       this.confirm.setValidators([Validators.required, Validators.minLength(0)]);
       this.confirm.updateValueAndValidity();
     }

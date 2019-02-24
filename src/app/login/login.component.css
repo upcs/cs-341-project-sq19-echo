@@ -12,29 +12,11 @@ mat-card {
   margin-bottom: 5px;
 }
 
-#errorMsg {
-  color: #ec2929;
-}
-
 #forgotPass {
   font-size: 12pt;
   color: #673ab7;
   margin-top: 7px;
   float: left;
-}
-
-#invalidLogin {
-  width: 100%;
-  background-color: #f19191;
-  color: #922525;
-  display: none;
-}
-
-#wrongPass {
-  width: 100%;
-  background-color: #f19191;
-  color: #922525;
-  display: none;
 }
 
 button {
