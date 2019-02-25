@@ -1,7 +1,35 @@
 import {Component} from '@angular/core';
 import {Title} from "@angular/platform-browser";
-import {FormControl, Validators, MinLengthValidator} from '@angular/forms';
-import data from './users.json';
+import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {sha512} from "js-sha512";
+import users from "./users.json";
+import {saveAs} from "file-saver";
+import {CookieService} from "ngx-cookie-service";
+
+interface SignUpControls {
+  readonly email: FormControl;
+  readonly password: FormControl;
+  readonly confirmPassword: FormControl;
+}
+
+interface LoginControls {
+  readonly email: FormControl;
+  readonly password: FormControl;
+}
+
+/**
+ * Citation: https://stackoverflow.com/questions/31788681/angular2-validator-which-relies-on-multiple-form-fields
+ */
+function matchingPasswords(passwordKey: string, confirmPasswordKey: string) {
+  return (group: FormGroup): {[key: string]: boolean} => {
+    let password = group.controls[passwordKey];
+    let confirmPassword = group.controls[confirmPasswordKey];
+
+    if (password.value !== confirmPassword.value) {
+      return {mismatchedPasswords: true};
+    }
+  }
+}
 
 @Component({
   selector: 'app-root',
@@ -9,74 +37,77 @@ import data from './users.json';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  match: number = 0;
-  json: any = data;
-  public constructor(private titleService: Title) {
+  MIN_PASSWORD_LENGTH = 8;
+  userAccounts: {[email: string]: string};
+
+  signupControls: SignUpControls = {
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required, Validators.minLength(this.MIN_PASSWORD_LENGTH)]),
+    confirmPassword: new FormControl('', [Validators.required])
+  };
+
+  loginControls: LoginControls = {
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required])
+  };
+
+  signupForm: FormGroup;
+  loginForm: FormGroup;
+
+  public constructor(private titleService: Title, private formBuilder: FormBuilder, private cookie: CookieService) {
     titleService.setTitle("Login Page");
+
+    // Initialize the list of accounts to the current data in the JSON file.
+    this.userAccounts = users;
+
+    this.signupForm = this.formBuilder.group(
+      this.signupControls, {validator: matchingPasswords('password', 'confirmPassword')}
+    );
+    this.loginForm = this.formBuilder.group(this.loginControls);
   }
 
-  email = new FormControl('', [Validators.required, Validators.email]);
-  getEmailError() {
-    return this.email.hasError('required') ? 'You must enter an email' :
-        this.email.hasError('email') ? 'Not a valid email' : '';
+  signUp(): void {
+    let email = this.signupControls.email.value;
+
+    if (this.userAccounts.hasOwnProperty(email)) {
+      alert("An account has already been created with this email.");
+      return;
+    }
+
+    this.userAccounts[email] = sha512(this.signupControls.password.value);
+    LoginComponent.saveUsers(this.userAccounts);
+
+    alert(`Account created with email: ${email}.`);
   }
 
-  password = new FormControl('', [Validators.required]);
-  getPasswordError() {
-    return this.password.hasError('required') ? 'You must enter a password' : '';
-  }
+  getFormError(formControl: FormControl): string {
+    if (formControl.hasError('required')) {
+      return 'This field is required.';
+    }
 
-  confirm = new FormControl('', [Validators.required, Validators.minLength(this.match)]);
-  getConfirmError() {
-    return this.confirm.hasError('required') ? 'You must re-enter your password' :
-        this.confirm.hasError('minlength') ? 'Passwords do not match' : '';
-  }
+    if (formControl.hasError('email')) {
+      return 'Valid email is required.';
+    }
 
-  setPassword = new FormControl('', [Validators.required, Validators.minLength(8)]);
-  getSetError() {
-    return this.setPassword.hasError('required') ? 'You must enter a password' :
-        this.setPassword.hasError('minlength') ? 'Password must have 8 or more characters' : '';
-  }
-
-  signUpReturn(event) {
-    if(event.keyCode == 13) {
-      this.signUp();
+    if (formControl.hasError('minlength')) {
+      return `Minimum password length of ${this.MIN_PASSWORD_LENGTH} required.`;
     }
   }
 
-  signUp() {
-    var setPass: HTMLInputElement = <HTMLInputElement>document.getElementById("setPass");
-    var setEmail: HTMLInputElement = <HTMLInputElement>document.getElementById("setEmail");
-    if(this.json.hasOwnProperty(setEmail.value)) {
-      alert("Error, an account has already been created with this email.")
-    }
-    else if(!this.confirm.invalid) {
-      this.json[setEmail.value] = setPass.value;
-      alert("Success!");
+  login(): void {
+    let email = this.loginControls.email.value;
+    let hashedPassword = sha512(this.loginControls.password.value);
+
+    if (this.userAccounts[email] === hashedPassword) {
+      this.cookie.set("authenticated", email);
+      alert(`User with email ${email} successfully logged in.`);
     }
   }
 
-  login() {
-    var logEmail: HTMLInputElement = <HTMLInputElement>document.getElementById("logEmail");
-    var logPass: HTMLInputElement = <HTMLInputElement>document.getElementById("logPass");
-
-    if(this.json[logEmail.value] === logPass.value) {
-      alert("Logged in!");
-    }
+  static saveUsers(users: {[email: string]: string}): void {
+    saveAs(
+      new Blob([JSON.stringify(users)],{type: "application/json"}),
+      "users.json"
+    );
   }
-
-  confirmPasswords() {
-    var setPass: HTMLInputElement = <HTMLInputElement>document.getElementById("setPass");
-    var confirmPass: HTMLInputElement = <HTMLInputElement>document.getElementById("confirmPass");
-
-    if(setPass.value === confirmPass.value) {
-      this.confirm.setValidators([Validators.required, Validators.minLength(0)]);
-      this.confirm.updateValueAndValidity();
-    }
-    else {
-      this.confirm.setValidators([Validators.required, Validators.minLength(1000)]);
-      this.confirm.updateValueAndValidity();
-    }
-  }
-
 }

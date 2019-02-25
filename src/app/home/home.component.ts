@@ -1,8 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
 import {Title} from "@angular/platform-browser";
 import {MatSelect} from "@angular/material";
-import {latLng, tileLayer, Map as LeafletMap, LatLngExpression, geoJSON, marker, layerGroup, LayerGroup} from 'leaflet';
+import {latLng, tileLayer, Map as LeafletMap, LatLngExpression, marker, layerGroup, LayerGroup} from 'leaflet';
 import {HttpClient} from '@angular/common/http';
+import {Feature, FeatureCollection} from "geojson";
 
 interface Location {
   readonly name: string;
@@ -15,24 +16,30 @@ interface Location {
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
-  @ViewChild('areaSelector') areaSelector: MatSelect;
-  @ViewChild('yearSelector') yearSelector: MatSelect;
-  @ViewChild('selectedMessage') selectedMessage: string;
-  
-  json;
-  bikeTraffic: LayerGroup = layerGroup();
-  map: LeafletMap;
+  @ViewChild('areaSelector')
+  private areaSelector: MatSelect;
+
+  @ViewChild('yearSelector')
+  private yearSelector: MatSelect;
+
+  @ViewChild('selectedMessage')
+  selectedMessage: string;
+
   years: number[] = [1960, 1970, 1980, 1990, 2000, 2010, 2018];
   areas: Location[] = [
-    {name: "North",     coordinate: [45.6075, -122.7236]},
-    {name: "South",     coordinate: [45.4886, -122.6755]},
+    {name: "North", coordinate: [45.6075, -122.7236]},
+    {name: "South", coordinate: [45.4886, -122.6755]},
     {name: "Northwest", coordinate: [45.5586, -122.7609]},
     {name: "Northeast", coordinate: [45.5676, -122.6179]},
     {name: "Southwest", coordinate: [45.4849, -122.7116]},
     {name: "Southeast", coordinate: [45.4914, -122.5930]}
   ];
 
-  options = {
+  private trafficFeatures: Array<Feature>;
+  private bikeTraffic: LayerGroup = layerGroup();
+  private map: LeafletMap;
+
+  leafletOptions = {
     layers: [
       tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
@@ -46,7 +53,7 @@ export class HomeComponent {
     titleService.setTitle("Portland Traffic Reform");
   }
 
-  loadData() {
+  flyToLocation(): void {
     if (this.areaSelector.empty || this.yearSelector.empty) {
       return;
     }
@@ -60,19 +67,22 @@ export class HomeComponent {
   }
 
   // initialize Leaflet map.
-  onMapReady(map: LeafletMap) {
+  onMapReady(map: LeafletMap): void {
     this.map = map;
-    this.http.get('assets/Traffic_Volume_Counts.geojson').subscribe((json: any) => {
-      this.json = json;
-      var data = this.json.features;
-      // example of filtering data. For now just filter data to be bike data. This will change later.
-      for(let point of data) {
-        if(point.properties.ExceptType === "Bike Count") {
-          this.bikeTraffic.addLayer(marker([point.geometry.coordinates[1], point.geometry.coordinates[0]]));
+
+    const trafficUrl = 'https://opendata.arcgis.com/datasets/6ba5258ffea34e878168ddc8cf34f7e3_250.geojson';
+    this.http.get(trafficUrl).subscribe((trafficJson: FeatureCollection) => {
+      this.trafficFeatures = trafficJson.features;
+
+      // Example of filtering data. For now just filter data to be bike data. This will change later.
+      for (let point of this.trafficFeatures) {
+        if (point.properties.ExceptType === "Bike Count") {
+          // The coordinates are reversed in the JSON.
+          let coordinates: number[] = (point.geometry as any).coordinates;
+          this.bikeTraffic.addLayer(marker(coordinates.reverse() as LatLngExpression));
         }
       }
       this.bikeTraffic.addTo(this.map);
-      //geoJSON(this.json).addTo(this.map);
     });
   }
 }

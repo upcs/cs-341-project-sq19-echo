@@ -15,10 +15,10 @@
   </mat-select>
 </mat-form-field>
 
-<button (click)="loadData()">Load Data!</button>
+<button (click)="flyToLocation()">Load Data!</button>
 
 <mat-card>{{selectedMessage}}</mat-card>
 
 <div id="map" leaflet
-     (leafletMapReady)="onMapReady($event)" [leafletOptions]="options">
+     (leafletMapReady)="onMapReady($event)" [leafletOptions]="leafletOptions">
 </div>

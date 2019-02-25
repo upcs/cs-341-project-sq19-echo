@@ -3,10 +3,15 @@ import {AppComponent} from './app.component';
 import {RouterTestingModule} from "@angular/router/testing";
 import {MDBBootstrapModule} from "angular-bootstrap-md";
 
+// Mock the CookieService
+import {CookieService} from 'ngx-cookie-service';
+jest.genMockFromModule('ngx-cookie-service');
+
 describe('App Tests', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
       imports: [MDBBootstrapModule.forRoot(), RouterTestingModule],
+      providers: [CookieService],
       declarations: [AppComponent],
     }).compileComponents();
   }));

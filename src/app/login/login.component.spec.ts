@@ -5,10 +5,17 @@ import {MaterialModule} from "../../helpers/material.module";
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
+// Mock the CookieService
+import {CookieService} from 'ngx-cookie-service';
+jest.genMockFromModule('ngx-cookie-service');
+
 describe('Login Tests', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule, MaterialModule, FormsModule, ReactiveFormsModule, BrowserAnimationsModule],
+      imports: [
+        RouterTestingModule, MaterialModule, FormsModule, ReactiveFormsModule, BrowserAnimationsModule
+      ],
+      providers: [CookieService],
       declarations: [LoginComponent],
     }).compileComponents();
   }));
