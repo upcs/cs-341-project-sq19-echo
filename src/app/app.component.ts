@@ -10,7 +10,8 @@ import {mainRoutes} from "./app-routing.module";
 export class AppComponent {
   navLabels: string[] = mainRoutes.map(x => x.path);
 
-  @ViewChild('navItemList') navItemList: ElementRef;
+  @ViewChild('navItemList')
+  private navItemList: ElementRef;
 
   public constructor(private titleService: Title) {
     titleService.setTitle("Echo App");
