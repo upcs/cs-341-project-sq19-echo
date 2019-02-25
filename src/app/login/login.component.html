@@ -14,12 +14,13 @@
           <mat-error>{{getFormError(loginControls.password)}}</mat-error>
         </mat-form-field>
 
+        <a id="forgotPass">Forgot Password?</a>
         <button [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">Login!</button>
       </form>
     </mat-tab>
       
     <mat-tab label="SIGN UP">
-      <form class="formContainer" [formGroup]="signupForm">
+      <form class="formContainer" (ngSubmit)="signUp()" [formGroup]="signupForm">
         <mat-form-field appearance="outline">
           <mat-label>Email</mat-label>
           <input matInput placeholder="Enter Email" formControlName="email" required>

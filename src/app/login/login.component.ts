@@ -1,6 +1,10 @@
 import {Component} from '@angular/core';
 import {Title} from "@angular/platform-browser";
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {sha512} from "js-sha512";
+import users from "./users.json";
+import {saveAs} from "file-saver";
+import {CookieService} from "ngx-cookie-service";
 
 interface SignUpControls {
   readonly email: FormControl;
@@ -17,7 +21,7 @@ interface LoginControls {
  * Citation: https://stackoverflow.com/questions/31788681/angular2-validator-which-relies-on-multiple-form-fields
  */
 function matchingPasswords(passwordKey: string, confirmPasswordKey: string) {
-  return (group: FormGroup): {[key: string]: any} => {
+  return (group: FormGroup): {[key: string]: boolean} => {
     let password = group.controls[passwordKey];
     let confirmPassword = group.controls[confirmPasswordKey];
 
@@ -34,6 +38,7 @@ function matchingPasswords(passwordKey: string, confirmPasswordKey: string) {
 })
 export class LoginComponent {
   MIN_PASSWORD_LENGTH = 8;
+  userAccounts: {[email: string]: string};
 
   signupControls: SignUpControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -49,8 +54,11 @@ export class LoginComponent {
   signupForm: FormGroup;
   loginForm: FormGroup;
 
-  public constructor(private titleService: Title, private formBuilder: FormBuilder) {
+  public constructor(private titleService: Title, private formBuilder: FormBuilder, private cookie: CookieService) {
     titleService.setTitle("Login Page");
+
+    // Initialize the list of accounts to the current data in the JSON file.
+    this.userAccounts = users;
 
     this.signupForm = this.formBuilder.group(
       this.signupControls, {validator: matchingPasswords('password', 'confirmPassword')}
@@ -58,19 +66,21 @@ export class LoginComponent {
     this.loginForm = this.formBuilder.group(this.loginControls);
   }
 
-  signUp() {
-    let setPass: HTMLInputElement = <HTMLInputElement>document.getElementById("setPass");
-    let setEmail: HTMLInputElement = <HTMLInputElement>document.getElementById("setEmail");
-    if (this.json.hasOwnProperty(setEmail.value)) {
-      alert("Error, an account has already been created with this email.")
-    } else if (!this.confirm.invalid) {
-      this.json[setEmail.value] = setPass.value;
-      alert("Success!");
+  signUp(): void {
+    let email = this.signupControls.email.value;
+
+    if (this.userAccounts.hasOwnProperty(email)) {
+      alert("An account has already been created with this email.");
+      return;
     }
+
+    this.userAccounts[email] = sha512(this.signupControls.password.value);
+    LoginComponent.saveUsers(this.userAccounts);
+
+    alert(`Account created with email: ${email}.`);
   }
 
   getFormError(formControl: FormControl): string {
-    console.log(formControl.errors);
     if (formControl.hasError('required')) {
       return 'This field is required.';
     }
@@ -85,7 +95,19 @@ export class LoginComponent {
   }
 
   login(): void {
-    let logEmail: HTMLInputElement = <HTMLInputElement>document.getElementById("logEmail");
-    let logPass: HTMLInputElement = <HTMLInputElement>document.getElementById("logPass");
+    let email = this.loginControls.email.value;
+    let hashedPassword = sha512(this.loginControls.password.value);
+
+    if (this.userAccounts[email] === hashedPassword) {
+      this.cookie.set("authenticated", email);
+      alert(`User with email ${email} successfully logged in.`);
+    }
+  }
+
+  static saveUsers(users: {[email: string]: string}): void {
+    saveAs(
+      new Blob([JSON.stringify(users)],{type: "application/json"}),
+      "users.json"
+    );
   }
 }
