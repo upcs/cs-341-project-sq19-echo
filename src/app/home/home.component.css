@@ -1,16 +1,28 @@
-mat-form-field {
-  padding: 10px;
+mat-card {
+  width: 850px;
+  margin: 10px auto 20px auto;
 }
 
-mat-card {
-  width: 500px;
-  margin: 0 auto;
+#resetButton {
+  margin-bottom: 15px;
+}
+
+#container {
+  height: 540px;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  float: left;
+}
+
+.formContainer > * {
+  width: 100%;
 }
 
 #map {
-  margin: 20px auto;
   height: 500px;
   width: 600px;
-  border-radius: 5px;
-  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.2), 0 0 10px 0 rgba(0, 0, 0, 0.19);
+  float: right;
 }

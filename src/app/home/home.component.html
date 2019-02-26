@@ -1,24 +1,39 @@
 <!-- The basic HTML for the web app's homepage. -->
 <h1>Portland Traffic Reform</h1>
 
-<h4><u>Traffic Data by Region</u></h4>
+<h4><u>Filter Traffic Data</u></h4>
 
-<mat-form-field>
-  <mat-select #areaSelector placeholder="Select Portland Area">
-    <mat-option *ngFor="let area of areas" [value]="area">{{area.name}}</mat-option>
-  </mat-select>
-</mat-form-field>
+<mat-card id="container" class="mat-elevation-z4">
+  <form class="formContainer">
+    <mat-form-field>
+      <mat-select #areaSelector placeholder="Filter Portland Area">
+        <mat-option *ngFor="let area of areas" [value]="area">{{area.name}}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-<mat-form-field>
-  <mat-select #yearSelector placeholder="Select Year">
-    <mat-option *ngFor="let year of years" [value]="year">{{year}}</mat-option>
-  </mat-select>
-</mat-form-field>
+    <mat-form-field>
+      <mat-select #yearSelector placeholder="Filter Year">
+        <mat-option *ngFor="let year of years" [value]="year">{{year}}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-<button (click)="flyToLocation()">Load Data!</button>
+    <mat-form-field>
+      <mat-select #vehicleSelector placeholder="Filter Vehicle Type">
+        <mat-option *ngFor="let vehicle of vehicles" [value]="vehicle">{{vehicle}}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-<mat-card>{{selectedMessage}}</mat-card>
+    <mat-form-field>
+      <mat-select #densitySelector placeholder="Filter Traffic Density">
+        <mat-option *ngFor="let density of densities" [value]="density">{{density}}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-<div id="map" leaflet
-     (leafletMapReady)="onMapReady($event)" [leafletOptions]="leafletOptions">
-</div>
+    <button id="resetButton" mat-raised-button color="warn" (click)="clearFilters()">Clear Filters</button>
+    <button mat-raised-button color="primary" (click)="filterData()">Filter Data</button>
+  </form>
+
+  <div id="map" class="mat-elevation-z4" leaflet
+      (leafletMapReady)="onMapReady($event)" [leafletOptions]="leafletOptions">
+  </div>
+</mat-card>
