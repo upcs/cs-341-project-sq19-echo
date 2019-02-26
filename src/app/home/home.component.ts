@@ -22,10 +22,14 @@ export class HomeComponent {
   @ViewChild('yearSelector')
   private yearSelector: MatSelect;
 
-  @ViewChild('selectedMessage')
-  selectedMessage: string;
+  @ViewChild('vehicleSelector')
+  private vehicleSelector: MatSelect;
 
-  years: number[] = [1960, 1970, 1980, 1990, 2000, 2010, 2018];
+  @ViewChild('densitySelector')
+  private densitySelector: MatSelect;
+
+
+  years: String[] = ["2018", "2017", "2016", "2015", "2014"];
   areas: Location[] = [
     {name: "North", coordinate: [45.6075, -122.7236]},
     {name: "South", coordinate: [45.4886, -122.6755]},
@@ -34,9 +38,12 @@ export class HomeComponent {
     {name: "Southwest", coordinate: [45.4849, -122.7116]},
     {name: "Southeast", coordinate: [45.4914, -122.5930]}
   ];
+  vehicles: String[] = ["Car", "Bike"];
+  densities: String[] = ["High", "Medium", "Low"];
 
   private trafficFeatures: Array<Feature>;
   private bikeTraffic: LayerGroup = layerGroup();
+  private carTraffic: LayerGroup = layerGroup();
   private map: LeafletMap;
 
   leafletOptions = {
@@ -45,7 +52,7 @@ export class HomeComponent {
         attribution: '&copy; OpenStreetMap contributors'
       })
     ],
-    zoom: 10,
+    zoom: 11,
     center: latLng([45.5122, -122.6587])
   };
 
@@ -53,17 +60,20 @@ export class HomeComponent {
     titleService.setTitle("Portland Traffic Reform");
   }
 
-  flyToLocation(): void {
-    if (this.areaSelector.empty || this.yearSelector.empty) {
-      return;
-    }
-
+  filterData(): void {
     let selectedLocation: Location = this.areaSelector.value;
     let selectedYear: number = this.yearSelector.value;
-    this.selectedMessage = `Area ${selectedLocation.name} and year ${selectedYear} selected.`;
+    let selectedVehicle: String = this.vehicleSelector.value;
+    let selectedDensity: String = this.densitySelector.value;
+    
+    let maxFlow: number;
+    let minFlow: number;
+    let vehicle: String;
 
+    let zoom: number = 12.5;
     // change map region of map to be displayed based on selection
-    this.map.flyTo(selectedLocation.coordinate as LatLngExpression, 12.5);
+    if(selectedLocation.name === "All Locations") zoom = 11;
+    this.map.flyTo(selectedLocation.coordinate as LatLngExpression, zoom);
   }
 
   // initialize Leaflet map.
