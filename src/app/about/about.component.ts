@@ -1,5 +1,5 @@
 import {Component} from '@angular/core';
-import {Title} from "@angular/platform-browser";
+import {Title} from '@angular/platform-browser';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +9,6 @@ import {Title} from "@angular/platform-browser";
 
 export class AboutComponent {
   public constructor(private titleService: Title) {
-    titleService.setTitle("About Page");
+    titleService.setTitle('About Page');
   }
 }

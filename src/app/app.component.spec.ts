@@ -1,7 +1,7 @@
 import {TestBed, async} from '@angular/core/testing';
 import {AppComponent} from './app.component';
-import {RouterTestingModule} from "@angular/router/testing";
-import {MDBBootstrapModule} from "angular-bootstrap-md";
+import {RouterTestingModule} from '@angular/router/testing';
+import {MDBBootstrapModule} from 'angular-bootstrap-md';
 
 // Mock the CookieService
 import {CookieService} from 'ngx-cookie-service';

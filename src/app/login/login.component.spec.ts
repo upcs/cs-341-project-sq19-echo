@@ -1,9 +1,9 @@
 import {TestBed, async} from '@angular/core/testing';
 import {LoginComponent} from './login.component';
-import {RouterTestingModule} from "@angular/router/testing";
-import {MaterialModule} from "../../helpers/material.module";
+import {RouterTestingModule} from '@angular/router/testing';
+import {MaterialModule} from '../../helpers/material.module';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 // Mock the CookieService
 import {CookieService} from 'ngx-cookie-service';

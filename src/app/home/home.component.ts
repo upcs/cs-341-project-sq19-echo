@@ -1,9 +1,9 @@
 import {Component, ViewChild} from '@angular/core';
-import {Title} from "@angular/platform-browser";
-import {MatSelect, MatProgressBar} from "@angular/material";
+import {Title} from '@angular/platform-browser';
+import {MatSelect} from '@angular/material';
 import {latLng, tileLayer, Map as LeafletMap, LatLngExpression, marker, layerGroup, LayerGroup, icon} from 'leaflet';
 import {HttpClient} from '@angular/common/http';
-import {Feature, FeatureCollection} from "geojson";
+import {Feature, FeatureCollection} from 'geojson';
 
 interface Location {
   readonly name: string;
@@ -29,17 +29,17 @@ export class HomeComponent {
   @ViewChild('densitySelector')
   private densitySelector: MatSelect;
 
-  years: String[] = ["2019", "2018", "2017", "2016", "2015", "2014"];
+  years: string[] = ['2019', '2018', '2017', '2016', '2015', '2014'];
   areas: Location[] = [
-    {name: "North", coordinate: [45.6075, -122.7236]},
-    {name: "South", coordinate: [45.4886, -122.6755]},
-    {name: "Northwest", coordinate: [45.5586, -122.7609]},
-    {name: "Northeast", coordinate: [45.5676, -122.6179]},
-    {name: "Southwest", coordinate: [45.4849, -122.7116]},
-    {name: "Southeast", coordinate: [45.4914, -122.5930]}
+    {name: 'North', coordinate: [45.6075, -122.7236]},
+    {name: 'South', coordinate: [45.4886, -122.6755]},
+    {name: 'Northwest', coordinate: [45.5586, -122.7609]},
+    {name: 'Northeast', coordinate: [45.5676, -122.6179]},
+    {name: 'Southwest', coordinate: [45.4849, -122.7116]},
+    {name: 'Southeast', coordinate: [45.4914, -122.5930]}
   ];
-  vehicles: String[] = ["Car", "Bike"];
-  densities: String[] = ["High", "Medium", "Low"];
+  vehicles: string[] = ['Car', 'Bike'];
+  densities: string[] = ['High', 'Medium', 'Low'];
 
   private trafficFeatures: Array<Feature>;
   private allData: LayerGroup = layerGroup();
@@ -71,43 +71,40 @@ export class HomeComponent {
   };
 
   public constructor(private titleService: Title, private http: HttpClient) {
-    titleService.setTitle("Portland Traffic Reform");
+    titleService.setTitle('Portland Traffic Reform');
   }
 
-  // This method is necessary. Why? I don't know. If you can fix it, please do. 
-  // Map only updates if filterData() runs twice, so this is a temporary work around. 
+  // This method is necessary. Why? I don't know. If you can fix it, please do.
+  // Map only updates if filterData() runs twice, so this is a temporary work around.
   callFilter(): void {
     this.filterData();
     this.filterData();
   }
 
   filterData(): void {
-    let selectedLocation: Location = this.areaSelector.empty ? {name: "All", coordinate: [45.5122, -122.6587]} : this.areaSelector.value;
-    let selectedYear: String = this.yearSelector.value;
-    let selectedVehicle: String = this.vehicleSelector.value;
-    let selectedDensity: String = this.densitySelector.value;
+    const selectedLocation: Location = this.areaSelector.empty ? {name: 'All', coordinate: [45.5122, -122.6587]} : this.areaSelector.value;
+    const selectedYear: string = this.yearSelector.value;
+    const selectedVehicle: string = this.vehicleSelector.value;
+    const selectedDensity: string = this.densitySelector.value;
 
-    let zoom: number = this.areaSelector.empty ? 11 : 12.5;
-    
-    let maxFlow: number = 100000;
-    let minFlow: number = 0;
-    let bikesOnly: boolean = selectedVehicle === "Car" ? false : true;
-    let carsOnly: boolean = selectedVehicle === "Bike" ? false : true;
-    let year: String = this.yearSelector.empty ? "-" : selectedYear;
+    const zoom: number = this.areaSelector.empty ? 11 : 12.5;
 
-    if(this.densitySelector.empty) {
+    let maxFlow = 100000;
+    let minFlow = 0;
+    const bikesOnly: boolean = selectedVehicle !== 'Car';
+    const carsOnly: boolean = selectedVehicle !== 'Bike';
+    const year: string = this.yearSelector.empty ? '-' : selectedYear;
+
+    if (this.densitySelector.empty) {
       maxFlow = 100000;
       minFlow = 0;
-    }
-    else if(selectedDensity === "High") {
+    } else if (selectedDensity === 'High') {
       maxFlow = 100000;
       minFlow = 4000;
-    }
-    else if(selectedDensity === "Medium") {
+    } else if (selectedDensity === 'Medium') {
       maxFlow = 4000;
       minFlow = 500;
-    }
-    else {
+    } else {
       maxFlow = 500;
       minFlow = 0;
     }
@@ -115,31 +112,27 @@ export class HomeComponent {
 
     this.allData.clearLayers();
     this.map.removeLayer(this.allData);
-    for(let point of this.trafficFeatures) {
-      let coordinates: number[] = (point.geometry as any).coordinates;
-      if(bikesOnly) {
-        if((point.properties.ExceptType === "Bike Count" || point.properties.Comment === "ONLY BIKES") && point.properties.ADTVolume <= maxFlow && point.properties.ADTVolume > minFlow && point.properties.StartDate.indexOf(year) !== -1) {
-          if(point.properties.ADTVolume > 4000) {
-            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.redIcon}).bindPopup("Daily Volume: "+point.properties.ADTVolume+" Bikes"));
-          }
-          else if(point.properties.ADTVolume > 500) {
-            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.orangeIcon}).bindPopup("Daily Volume: "+point.properties.ADTVolume+" Bikes"));
-          }
-          else {
-            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.greenIcon}).bindPopup("Daily Volume: "+point.properties.ADTVolume+" Bikes"));
+    for (const point of this.trafficFeatures) {
+      const coordinates: number[] = (point.geometry as any).coordinates;
+      if (bikesOnly) {
+        if ((point.properties.ExceptType === 'Bike Count' || point.properties.Comment === 'ONLY BIKES') && point.properties.ADTVolume <= maxFlow && point.properties.ADTVolume > minFlow && point.properties.StartDate.indexOf(year) !== -1) {
+          if (point.properties.ADTVolume > 4000) {
+            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.redIcon}).bindPopup(`Daily Volume: ${point.properties.ADTVolume} Bikes`));
+          } else if (point.properties.ADTVolume > 500) {
+            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.orangeIcon}).bindPopup(`Daily Volume: ${point.properties.ADTVolume} Bikes`));
+          } else {
+            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.greenIcon}).bindPopup(`Daily Volume: ${point.properties.ADTVolume} Bikes`));
           }
         }
       }
-      if(carsOnly) {
-        if((point.properties.ExceptType !== "Bike Count" && point.properties.Comment !== "ONLY BIKES") && point.properties.ADTVolume <= maxFlow && point.properties.ADTVolume > minFlow && point.properties.StartDate.indexOf(year) !== -1) {
-          if(point.properties.ADTVolume > 4000) {
-            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.redIcon}).bindPopup("Daily Volume: "+point.properties.ADTVolume+" Cars"));
-          }
-          else if(point.properties.ADTVolume > 500) {
-            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.orangeIcon}).bindPopup("Daily Volume: "+point.properties.ADTVolume+" Cars"));
-          }
-          else {
-            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.greenIcon}).bindPopup("Daily Volume: "+point.properties.ADTVolume+" Cars"));
+      if (carsOnly) {
+        if ((point.properties.ExceptType !== 'Bike Count' && point.properties.Comment !== 'ONLY BIKES') && point.properties.ADTVolume <= maxFlow && point.properties.ADTVolume > minFlow && point.properties.StartDate.indexOf(year) !== -1) {
+          if (point.properties.ADTVolume > 4000) {
+            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.redIcon}).bindPopup(`Daily Volume: ${point.properties.ADTVolume} Cars`));
+          } else if (point.properties.ADTVolume > 500) {
+            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.orangeIcon}).bindPopup(`Daily Volume: ${point.properties.ADTVolume} Cars`));
+          } else {
+            this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.greenIcon}).bindPopup(`Daily Volume: ${point.properties.ADTVolume} Cars`));
           }
         }
       }
@@ -148,7 +141,7 @@ export class HomeComponent {
     this.map.flyTo(selectedLocation.coordinate as LatLngExpression, zoom);
   }
 
-  clearFilters() : void {
+  clearFilters(): void {
     this.areaSelector.value = '';
     this.yearSelector.value = '';
     this.vehicleSelector.value = '';
@@ -165,22 +158,22 @@ export class HomeComponent {
       this.trafficFeatures = trafficJson.features;
 
       // Example of filtering data. For now just filter data to be bike data. This will change later.
-      for (let point of this.trafficFeatures) {
+      for (const point of this.trafficFeatures) {
         // The coordinates are reversed in the JSON.
-        let coordinates: number[] = (point.geometry as any).coordinates;
-        let vehicleType: String = "Cars";
-        if(point.properties.ExceptType === "Bike Count" || point.properties.Comment === "ONLY BIKES") vehicleType = "Bikes";
-        if(point.properties.ADTVolume > 5000) {
-          this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.redIcon}).bindPopup("Daily Volume: "+point.properties.ADTVolume+" "+vehicleType));
+        const coordinates: number[] = (point.geometry as any).coordinates;
+        let vehicleType = 'Cars';
+        if (point.properties.ExceptType === 'Bike Count' || point.properties.Comment === 'ONLY BIKES') {
+          vehicleType = 'Bikes';
         }
-        else if(point.properties.ADTVolume > 1000) {
-          this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.orangeIcon}).bindPopup("Daily Volume: "+point.properties.ADTVolume+" "+vehicleType));
+        if (point.properties.ADTVolume > 5000) {
+          this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.redIcon}).bindPopup(`Daily Volume: ${point.properties.ADTVolume} ${vehicleType}`));
+        } else if (point.properties.ADTVolume > 1000) {
+          this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.orangeIcon}).bindPopup(`Daily Volume: ${point.properties.ADTVolume} ${vehicleType}`));
+        } else {
+          this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.greenIcon}).bindPopup(`Daily Volume: ${point.properties.ADTVolume} ${vehicleType}`));
         }
-        else {
-          this.allData.addLayer(marker(coordinates.reverse() as LatLngExpression, {riseOnHover: true, icon: this.greenIcon}).bindPopup("Daily Volume: "+point.properties.ADTVolume+" "+vehicleType));
-        }
-        
       }
+
       this.allData.addTo(this.map);
     });
   }

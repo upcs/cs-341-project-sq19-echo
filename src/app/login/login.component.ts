@@ -1,10 +1,10 @@
 import {Component} from '@angular/core';
-import {Title} from "@angular/platform-browser";
+import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
-import {sha512} from "js-sha512";
-import users from "./users.json";
-import {saveAs} from "file-saver";
-import {CookieService} from "ngx-cookie-service";
+import {sha512} from 'js-sha512';
+import users from './users.json';
+import {saveAs} from 'file-saver';
+import {CookieService} from 'ngx-cookie-service';
 
 interface SignUpControls {
   readonly email: FormControl;
@@ -22,13 +22,13 @@ interface LoginControls {
  */
 function matchingPasswords(passwordKey: string, confirmPasswordKey: string) {
   return (group: FormGroup): {[key: string]: boolean} => {
-    let password = group.controls[passwordKey];
-    let confirmPassword = group.controls[confirmPasswordKey];
+    const password = group.controls[passwordKey];
+    const confirmPassword = group.controls[confirmPasswordKey];
 
     if (password.value !== confirmPassword.value) {
       return {mismatchedPasswords: true};
     }
-  }
+  };
 }
 
 @Component({
@@ -55,7 +55,7 @@ export class LoginComponent {
   loginForm: FormGroup;
 
   public constructor(private titleService: Title, private formBuilder: FormBuilder, private cookie: CookieService) {
-    titleService.setTitle("Login Page");
+    titleService.setTitle('Login Page');
 
     // Initialize the list of accounts to the current data in the JSON file.
     this.userAccounts = users;
@@ -66,11 +66,22 @@ export class LoginComponent {
     this.loginForm = this.formBuilder.group(this.loginControls);
   }
 
+  static saveUsers(userList: {[email: string]: string}): void {
+    saveAs(
+      new Blob([
+          JSON.stringify(userList)],
+        {
+          type: 'application/json'
+        }),
+      'users.json'
+    );
+  }
+
   signUp(): void {
-    let email = this.signupControls.email.value;
+    const email = this.signupControls.email.value;
 
     if (this.userAccounts.hasOwnProperty(email)) {
-      alert("An account has already been created with this email.");
+      alert('An account has already been created with this email.');
       return;
     }
 
@@ -95,19 +106,12 @@ export class LoginComponent {
   }
 
   login(): void {
-    let email = this.loginControls.email.value;
-    let hashedPassword = sha512(this.loginControls.password.value);
+    const email = this.loginControls.email.value;
+    const hashedPassword = sha512(this.loginControls.password.value);
 
     if (this.userAccounts[email] === hashedPassword) {
-      this.cookie.set("authenticated", email);
+      this.cookie.set('authenticated', email);
       alert(`User with email ${email} successfully logged in.`);
     }
-  }
-
-  static saveUsers(users: {[email: string]: string}): void {
-    saveAs(
-      new Blob([JSON.stringify(users)],{type: "application/json"}),
-      "users.json"
-    );
   }
 }
