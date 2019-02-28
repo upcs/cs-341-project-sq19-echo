@@ -1,7 +1,5 @@
-import {Component, CUSTOM_ELEMENTS_SCHEMA, NgModule} from '@angular/core';
-import {Title} from '@angular/platform-browser';
-import {MatCard, MatCardHeader, MatCardModule} from '@angular/material';
-import {AppComponent} from '../app.component';
+import {Component} from '@angular/core';
+import {Title} from "@angular/platform-browser";
 
 @Component({
   selector: 'app-root',
@@ -9,14 +7,8 @@ import {AppComponent} from '../app.component';
   styleUrls: ['./about.component.css']
 })
 
-@NgModule({
-  declarations: [AppComponent],
-  imports: [MatCardModule, MatCardHeader, MatCard],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
-})
-
 export class AboutComponent {
   public constructor(private titleService: Title) {
-    titleService.setTitle('About Page');
+    titleService.setTitle("About Page");
   }
 }
