@@ -12,17 +12,17 @@ describe('About Tests', () => {
     }).compileComponents();
   }));
 
-  test('should create about component properly', () => {
-    const fixture = TestBed.createComponent(AboutComponent);
-    const loginComponent = fixture.debugElement.componentInstance;
-    expect(loginComponent).toBeTruthy();
-  });
+  // test('should create about component properly', () => {
+  //  const fixture = TestBed.createComponent(AboutComponent);
+  //  const loginComponent = fixture.debugElement.componentInstance;
+  //  expect(loginComponent).toBeTruthy();
+  // });
 
-  test('should have contact button', () => {
+  test('should have a contact button', () => {
     const fixture = TestBed.createComponent(AboutComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
     expect(compiled.querySelector('button').textContent)
-      .toContain('Contact');
+      .toMatch('Contact');
   });
 });
