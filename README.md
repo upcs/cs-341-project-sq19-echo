@@ -4,6 +4,10 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.1.
 
+## Sprint 2 Features
+
+Login page functionality added. Able to sign up or log in. About page content added. Contact buttons added that automatically redirect to a new email to the selected person. Traffic volume data added to the map and colored based on traffic flow. Filters for data added.
+
 ## Sprint 1 Features
 
 Home page, about page, and login page added. Created an Angular web app. Added an interactive map. Added a menu bar to navigated between pages. Added buttons to load data, map updates on button press.
