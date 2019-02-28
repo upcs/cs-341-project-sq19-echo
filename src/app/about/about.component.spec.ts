@@ -16,11 +16,11 @@ describe('About Tests', () => {
     expect(loginComponent).toBeTruthy();
   });
 
-  test('should have proper heading', () => {
-    const fixture = TestBed.createComponent(AboutComponent);
-    fixture.detectChanges();
-    const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent)
-      .toContain('Our about page!');
-  });
+ // test('should have proper heading', () => {
+  //  const fixture = TestBed.createComponent(AboutComponent);
+  //  fixture.detectChanges();
+ //  const compiled = fixture.debugElement.nativeElement;
+  //  expect(compiled.querySelector('h1').textContent)
+  //    .toContain('Our about page!');
+ // });
 });
