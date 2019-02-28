@@ -31,3 +31,21 @@ Run `ng test` to execute the unit tests via [Jest](https://jestjs.io/).
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+## Story Acceptance Test
+
+2.21.2019
+
+As a consumer, I can see the traffic around my current location so that I can try to take the most efficient routes to my desired destination.
+
+Acceptance Test:
+1. Verify the user gives a location.
+2. Verify the users current location is valid.
+3. Verify that the map is set to the users current location.
+4. Verify the traffic data of current location in database.
+5. Verify the map accurately reflects the traffic data.
+
+What are the variations to test?
+Updates every 15 seconds.
+Can you automate it?
+Would be difficult to automate tests.

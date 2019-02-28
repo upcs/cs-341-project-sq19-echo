@@ -17,7 +17,6 @@ describe('About Tests', () => {
    const loginComponent = fixture.debugElement.componentInstance;
    expect(loginComponent).toBeTruthy();
   });
-
   test('should have a contact button', () => {
     const fixture = TestBed.createComponent(AboutComponent);
     fixture.detectChanges();
