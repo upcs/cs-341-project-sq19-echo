@@ -10,11 +10,15 @@ interface Location {
   readonly coordinate: number[];
 }
 
+// for unit test
+export const clear = () => this.clearFilters();
+
 @Component({
   selector: 'app-root',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
+
 export class HomeComponent {
   @ViewChild('areaSelector')
   private areaSelector: MatSelect;
@@ -77,7 +81,7 @@ export class HomeComponent {
   }
 
   // This method is necessary. Why? I don't know. If you can fix it, please do. 
-  // Map only updates if filterData() runs twice, so this is a bad work around. 
+  // Map only updates if filterData() runs twice, so this is a temporary work around. 
   callFilter(): void {
     this.filterData();
     this.filterData();
@@ -186,12 +190,5 @@ export class HomeComponent {
       }
       this.allData.addTo(this.map);
     });
-  }
-
-  clearFilters() : void {
-    this.areaSelector.value = '';
-    this.yearSelector.value = '';
-    this.vehicleSelector.value = '';
-    this.densitySelector.value = '';
   }
 }

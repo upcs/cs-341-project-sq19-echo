@@ -1,28 +1,16 @@
-/** No CSS for this example */
-.aboutalex {
+.about {
+  width: 220px;
+  height: 500px;
+}
 
-  width: 200px;
-  height: 500px;
+table {
+  margin: 0 auto;
 }
-.aboutadam {
-  width: 200px;
-  height: 500px;
+
+mat-card-header {
+  margin: 0 auto;
 }
-.aboutpele {
-  width: 200px;
-  height: 500px;
-}
-.aboutchris {
-  width: 200px;
-  height: 500px;
-}
-.aboutcallum {
-  width: 200px;
-  height: 500px;
-}
-.h6 {
-  padding: 500px;
-}
+
 img{
    height:200px;
    width: 175px;

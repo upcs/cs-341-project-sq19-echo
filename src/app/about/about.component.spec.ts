@@ -1,11 +1,13 @@
 import {TestBed, async} from '@angular/core/testing';
 import {AboutComponent} from './about.component';
 import {RouterTestingModule} from "@angular/router/testing";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
+import {MaterialModule} from "../../helpers/material.module";
 
 describe('About Tests', () => {
   beforeEach(async(() => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule],
+      imports: [RouterTestingModule, MaterialModule, BrowserAnimationsModule],
       declarations: [AboutComponent],
     }).compileComponents();
   }));
@@ -16,11 +18,11 @@ describe('About Tests', () => {
     expect(loginComponent).toBeTruthy();
   });
 
-  test('should have proper heading', () => {
+  test('should have contact button', () => {
     const fixture = TestBed.createComponent(AboutComponent);
     fixture.detectChanges();
     const compiled = fixture.debugElement.nativeElement;
-    expect(compiled.querySelector('h1').textContent)
-      .toContain('Our about page!');
+    expect(compiled.querySelector('button').textContent)
+      .toContain('Contact');
   });
 });
