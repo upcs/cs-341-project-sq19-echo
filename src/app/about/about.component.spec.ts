@@ -15,7 +15,6 @@ describe('About Tests', () => {
     const loginComponent = fixture.debugElement.componentInstance;
     expect(loginComponent).toBeTruthy();
   });
-
   test('should have proper heading', () => {
     const fixture = TestBed.createComponent(AboutComponent);
     fixture.detectChanges();
