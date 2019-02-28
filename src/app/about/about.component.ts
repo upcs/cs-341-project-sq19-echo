@@ -6,6 +6,7 @@ import {Title} from "@angular/platform-browser";
   templateUrl: './about.component.html',
   styleUrls: ['./about.component.css']
 })
+
 export class AboutComponent {
   public constructor(private titleService: Title) {
     titleService.setTitle("About Page");
