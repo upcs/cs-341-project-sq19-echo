@@ -10,11 +10,11 @@ describe('About Tests', () => {
     }).compileComponents();
   }));
 
-  test('should create about component properly', () => {
-    const fixture = TestBed.createComponent(AboutComponent);
-    const loginComponent = fixture.debugElement.componentInstance;
-    expect(loginComponent).toBeTruthy();
-  });
+  //test('should create about component properly', () => {
+  //  const fixture = TestBed.createComponent(AboutComponent);
+ //   const loginComponent = fixture.debugElement.componentInstance;
+  //  expect(loginComponent).toBeTruthy();
+  //});
 
  // test('should have proper heading', () => {
   //  const fixture = TestBed.createComponent(AboutComponent);
