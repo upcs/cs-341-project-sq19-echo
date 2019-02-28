@@ -187,4 +187,11 @@ export class HomeComponent {
       this.allData.addTo(this.map);
     });
   }
+
+  clearFilters() : void {
+    this.areaSelector.value = '';
+    this.yearSelector.value = '';
+    this.vehicleSelector.value = '';
+    this.densitySelector.value = '';
+  }
 }

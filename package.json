@@ -28,7 +28,7 @@
     "@types/file-saver": "^2.0.0",
     "@types/geojson": "^7946.0.4",
     "angular-bootstrap-md": "^7.4.0",
-    "bootstrap": "^4.2.1",
+    "bootstrap": "^4.3.1",
     "chart.js": "^2.5.0",
     "core-js": "^2.5.4",
     "file-saver": "^2.0.1",

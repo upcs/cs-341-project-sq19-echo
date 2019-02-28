@@ -1,0 +1,40 @@
+/** No CSS for this example */
+.aboutalex {
+
+  width: 200px;
+  height: 500px;
+}
+.aboutadam {
+  width: 200px;
+  height: 500px;
+}
+.aboutpele {
+  width: 200px;
+  height: 500px;
+}
+.aboutchris {
+  width: 200px;
+  height: 500px;
+}
+.aboutcallum {
+  width: 200px;
+  height: 500px;
+}
+.h6 {
+  padding: 500px;
+}
+img{
+   height:200px;
+   width: 175px;
+    display: block;
+     margin-left: auto;
+     margin-right: auto;
+      
+ }
+button
+{
+  display:block;
+  margin-right: auto;
+  position: absolute;
+  bottom: 10px;
+}
