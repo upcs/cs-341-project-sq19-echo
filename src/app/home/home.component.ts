@@ -10,9 +10,6 @@ interface Location {
   readonly coordinate: number[];
 }
 
-// for unit test
-export const clear = () => this.clearFilters();
-
 @Component({
   selector: 'app-root',
   templateUrl: './home.component.html',
@@ -192,3 +189,6 @@ export class HomeComponent {
     });
   }
 }
+
+// for unit test
+export const clear = () => this.clearFilters();
