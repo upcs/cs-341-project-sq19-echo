@@ -1,6 +1,7 @@
 import {TestBed, async} from '@angular/core/testing';
 import {AboutComponent} from './about.component';
 import {RouterTestingModule} from "@angular/router/testing";
+import {LoginComponent} from '../login/login.component';
 
 describe('About Tests', () => {
   beforeEach(async(() => {
@@ -16,10 +17,10 @@ describe('About Tests', () => {
   //  expect(loginComponent).toBeTruthy();
   //});
 
-  test('should have contact button', () => {
+  test('should have a contact button', () => {
     const fixture = TestBed.createComponent(AboutComponent);
     fixture.detectChanges();
-   const compiled = fixture.debugElement.nativeElement;
+    const compiled = fixture.debugElement.nativeElement;
     expect(compiled.querySelector('button').textContent)
       .toMatch('Contact');
   });
