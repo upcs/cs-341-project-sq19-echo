@@ -1,7 +1,7 @@
 import {Component, ViewChild} from '@angular/core';
 import {Title} from "@angular/platform-browser";
-import {MatSelect} from "@angular/material";
-import {latLng, tileLayer, Map as LeafletMap, LatLngExpression, marker, layerGroup, LayerGroup, icon, point, Icon} from 'leaflet';
+import {MatSelect, MatProgressBar} from "@angular/material";
+import {latLng, tileLayer, Map as LeafletMap, LatLngExpression, marker, layerGroup, LayerGroup, icon} from 'leaflet';
 import {HttpClient} from '@angular/common/http';
 import {Feature, FeatureCollection} from "geojson";
 
@@ -29,7 +29,6 @@ export class HomeComponent {
   @ViewChild('densitySelector')
   private densitySelector: MatSelect;
 
-
   years: String[] = ["2019", "2018", "2017", "2016", "2015", "2014"];
   areas: Location[] = [
     {name: "North", coordinate: [45.6075, -122.7236]},
@@ -43,8 +42,6 @@ export class HomeComponent {
   densities: String[] = ["High", "Medium", "Low"];
 
   private trafficFeatures: Array<Feature>;
-  private bikeTraffic: LayerGroup = layerGroup();
-  private carTraffic: LayerGroup = layerGroup();
   private allData: LayerGroup = layerGroup();
   private map: LeafletMap;
 
@@ -163,7 +160,6 @@ export class HomeComponent {
   // initialize Leaflet map.
   onMapReady(map: LeafletMap): void {
     this.map = map;
-
     const trafficUrl = 'https://opendata.arcgis.com/datasets/6ba5258ffea34e878168ddc8cf34f7e3_250.geojson';
     this.http.get(trafficUrl).subscribe((trafficJson: FeatureCollection) => {
       this.trafficFeatures = trafficJson.features;
@@ -189,6 +185,3 @@ export class HomeComponent {
     });
   }
 }
-
-// for unit test
-export const clear = () => this.clearFilters();
