@@ -1,10 +1,10 @@
 import {TestBed, async} from '@angular/core/testing';
 import {HomeComponent} from './home.component';
-import {RouterTestingModule} from "@angular/router/testing";
-import {MaterialModule} from "../../helpers/material.module";
-import {LeafletModule} from "@asymmetrik/ngx-leaflet";
-import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
-import {HttpClientModule} from "@angular/common/http";
+import {RouterTestingModule} from '@angular/router/testing';
+import {MaterialModule} from '../../helpers/material.module';
+import {LeafletModule} from '@asymmetrik/ngx-leaflet';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
+import {HttpClientModule} from '@angular/common/http';
 
 describe('Home Tests', () => {
   beforeEach(async(() => {
