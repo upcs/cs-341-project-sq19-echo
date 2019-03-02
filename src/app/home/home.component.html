@@ -5,7 +5,7 @@
   <form class="formContainer">
     <mat-form-field>
       <mat-select #areaSelector placeholder="Filter Portland Area">
-        <mat-option *ngFor="let area of objectKeys(areas)" [value]="area">{{area}}</mat-option>
+        <mat-option *ngFor="let area of objectKeys(areas)" [value]="areas[area]">{{area}}</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -23,13 +23,13 @@
 
     <mat-form-field>
       <mat-select #densitySelector placeholder="Filter Traffic Density">
-        <mat-option *ngFor="let density of objectKeys(densities)" [value]="density">{{density}}
+        <mat-option *ngFor="let density of objectKeys(densities)" [value]="densities[density]">{{density}}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
     <button id="resetButton" mat-raised-button color="warn" (click)="clearFilters()">Clear Filters</button>
-    <button mat-raised-button color="primary" (click)="filterData()">Filter Data</button>
+    <button mat-raised-button color="primary" (click)="updateDisplayedTrafficMarkers()">Filter Data</button>
   </form>
 
   <div id="map" class="mat-elevation-z4" leaflet
