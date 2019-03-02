@@ -10,7 +10,7 @@ export const ORANGE_ICON = icon({iconUrl: `${IMAGES_DIR}orangeMarker.png`, iconS
 export const GREEN_ICON = icon({iconUrl: `${IMAGES_DIR}greenMarker.png`, iconSize: ICON_SIZE});
 
 export const DENSITIES: {[density: string]: DensityInfo} = {
-  [TrafficDensity.High]: {min: 5000, max: 100000, icon: RED_ICON},
-  [TrafficDensity.Medium]: {min: 1000, max: 5000, icon: ORANGE_ICON},
-  [TrafficDensity.Low]: {min: 0, max: 1000, icon: GREEN_ICON}
+  [TrafficDensity.High]: {min: 5000, max: 100000},
+  [TrafficDensity.Medium]: {min: 1000, max: 5000},
+  [TrafficDensity.Low]: {min: 0, max: 1000}
 };

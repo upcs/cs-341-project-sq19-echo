@@ -1,4 +1,4 @@
-import {Icon, LatLngExpression} from 'leaflet';
+import {LatLngExpression} from 'leaflet';
 
 export interface TrafficMarker {
   readonly startDate: string;
@@ -10,5 +10,4 @@ export interface TrafficMarker {
 export interface DensityInfo {
   readonly min: number;
   readonly max: number;
-  readonly icon?: Icon;
 }
