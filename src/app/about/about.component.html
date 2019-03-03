@@ -1,105 +1,16 @@
 <mat-grid-list cols="5" rowHeight="1:2">
-  <mat-grid-tile>
+  <mat-grid-tile *ngFor="let person of people">
     <mat-card class="about">
       <mat-card-header>
-        <mat-card-title>Alex Hadi</mat-card-title>
-        <mat-card-subtitle>Junior</mat-card-subtitle>
+        <mat-card-title>{{person.name}}</mat-card-title>
+        <mat-card-subtitle>{{person.classStanding}}</mat-card-subtitle>
       </mat-card-header>
 
-      <img mat-card-image src="https://tinyurl.com/y25pe2wy" alt="Photo of Alex">
-
-      <mat-card-content>
-        Alex Hadi wants to teach you about angular.
-        He really enjoys doing all of all the sprints, and wants to become a usain bolt type sprinter.
-      </mat-card-content>
-
+      <img mat-card-image [src]="person.imageUrl" alt="Picture of {{person.name}}">
+      <mat-card-content>{{person.mainContent}}</mat-card-content>
       <mat-card-actions>
-        <!-- Should bring up contact info... phone number/email-->
-        <button mat-flat-button color="primary" onclick="location.href='mailto:hadi20@up.edu';">Contact</button>
-      </mat-card-actions>
-    </mat-card>
-  </mat-grid-tile>
-
-  <!-- Adam's contact info -->
-  <mat-grid-tile>
-    <mat-card class="about">
-      <mat-card-header>
-        <mat-card-title>Adam Mercer</mat-card-title>
-        <mat-card-subtitle>Junior</mat-card-subtitle>
-      </mat-card-header>
-
-      <img mat-card-image src="https://tinyurl.com/y4tlsscn" alt="Photo of Adam">
-
-      <mat-card-content>
-        Is really good at finding problems... not solving them.
-      </mat-card-content>
-
-      <mat-card-actions>
-        <!-- Should bring up contact info... phone number/email -->
-        <button mat-flat-button color="primary" onclick="location.href='mailto:mercer20@up.edu';">Contact</button>
-      </mat-card-actions>
-    </mat-card>
-  </mat-grid-tile>
-
-  <!-- Pele's contact info -->
-  <mat-grid-tile>
-    <mat-card class="about">
-      <mat-card-header>
-        <mat-card-title>Pele Kamala</mat-card-title>
-        <mat-card-subtitle>Sophmore</mat-card-subtitle>
-      </mat-card-header>
-
-      <img mat-card-image src="https://tinyurl.com/y2xure62" alt="Photo of Pele">
-
-      <mat-card-content>
-        Is very eager to work on SQL with Alex
-      </mat-card-content>
-
-      <mat-card-actions>
-        <!-- Should bring up contact info... phone number/email -->
-        <button mat-flat-button color="primary" onclick="location.href='mailto:kamala21@up.edu';">Contact</button>
-      </mat-card-actions>
-    </mat-card>
-  </mat-grid-tile>
-
-  <!-- Callum's contact info -->
-  <mat-grid-tile>
-    <mat-card class="about">
-      <mat-card-header>
-        <mat-card-title>Callum Morham</mat-card-title>
-        <mat-card-subtitle>Junior</mat-card-subtitle>
-      </mat-card-header>
-
-      <img mat-card-image src="https://tinyurl.com/y2k4q5uq" alt="Photo of Callum">
-
-      <mat-card-content>
-        Is the embodiment of larry the lobster
-      </mat-card-content>
-
-      <mat-card-actions>
-        <!-- Should bring up contact info... phone number/email -->
-        <button mat-flat-button color="primary" onclick="location.href='mailto:morham20@up.edu';">Contact</button>
-      </mat-card-actions>
-    </mat-card>
-  </mat-grid-tile>
-
-  <!-- Chris's contact info -->
-  <mat-grid-tile>
-    <mat-card class="about">
-      <mat-card-header>
-        <mat-card-title>Chris Sebrechts</mat-card-title>
-        <mat-card-subtitle>Junior</mat-card-subtitle>
-      </mat-card-header>
-
-      <img mat-card-image src="https://tinyurl.com/y4zuw9pr" alt="Photo of Chris">
-
-      <mat-card-content>
-        Does not like algorithms
-      </mat-card-content>
-
-      <mat-card-actions>
-        <!-- Should bring up contact info... phone number/email -->
-        <button mat-flat-button color="primary" onclick="location.href='mailto:sebrecht20@up.edu';">Contact</button>
+        <!-- Brings up contact info (email) -->
+        <button mat-flat-button color="primary" (click)="openEmail(person.emailAddress)">Contact</button>
       </mat-card-actions>
     </mat-card>
   </mat-grid-tile>
