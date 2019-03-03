@@ -1,6 +1,6 @@
 .about {
-  width: 220px;
-  height: 500px;
+  width: 225px;
+  height: 550px;
 }
 
 table {
@@ -11,18 +11,16 @@ mat-card-header {
   margin: 0 auto;
 }
 
-img{
-   height:200px;
-   width: 175px;
-    display: block;
-     margin-left: auto;
-     margin-right: auto;
-      
- }
-button
-{
-  display:block;
+img {
+  width: 175px;
+  display: block;
+  margin-left: auto;
   margin-right: auto;
-  position: absolute;
+}
+
+button {
+  display: block;
+  margin: 0 auto;
+  position: center;
   bottom: 10px;
 }
