@@ -100,6 +100,7 @@ export function getFeatureStartDate(feature: Feature): string {
   if (startDate == null) {
     return null;
   }
+
   return startDate;
 }
 
@@ -111,7 +112,7 @@ export function getMarkersFromFeatures(features: Feature[]): TrafficMarker[] {
   return features.map(feature => {
     return {
       coordinates: getCoordinateFromFeature(feature),
-      trafficDensity: feature.properties.ADTVolume,
+      trafficDensity: getFeatureAdtVolume(feature),
       startDate: getFeatureStartDate(feature),
       isBikeMarker: isBikeFeature(feature)
     };
@@ -127,13 +128,27 @@ export function inDensityRange(inputTrafficDensity: number, targetDensityRange: 
 }
 
 export function getLeafletMarkerFromTrafficMarker(trafficMarker: TrafficMarker): Marker {
-  if (trafficMarker == null) {
-    return null;
-  }
-
   const vehicle = trafficMarker.isBikeMarker ? VehicleType.Bike : VehicleType.Car;
   const icon = getDensityIconFromMarker(trafficMarker);
 
   return marker(trafficMarker.coordinates, {riseOnHover: true, icon})
     .bindPopup(`Daily Volume: ${trafficMarker.trafficDensity} ${vehicle}`);
+}
+
+export function getFeatureAdtVolume(feature: Feature): number {
+  if (feature == null) {
+    return null;
+  }
+
+  const featureProperties = feature.properties;
+  if (featureProperties == null) {
+    return null;
+  }
+
+  const adtVolume = featureProperties.ADTVolume;
+  if (adtVolume == null) {
+    return null;
+  }
+
+  return adtVolume;
 }

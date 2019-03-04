@@ -22,7 +22,7 @@
     ],
     "alwaysStrict": true,
     "noImplicitAny": true,
+    "noImplicitThis": true,
     "noImplicitReturns": true,
-    "noImplicitThis": true
   }
 }
