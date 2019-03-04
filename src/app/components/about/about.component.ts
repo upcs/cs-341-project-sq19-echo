@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Title} from '@angular/platform-browser';
-import {PersonInfo} from "./about.interfaces";
+import {PersonInfo} from './about.interfaces';
 
 @Component({
   selector: 'app-root',
@@ -52,6 +52,6 @@ export class AboutComponent {
   }
 
   openEmail(email: string): void {
-    window.open(`mailto:${email}`, "_parent");
+    window.open(`mailto:${email}`, '_parent');
   }
 }
