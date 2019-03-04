@@ -3,7 +3,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NgModule} from '@angular/core';
 import {LeafletModule} from '@asymmetrik/ngx-leaflet';
 import {MDBBootstrapModule} from 'angular-bootstrap-md';
-import {AppComponent} from './app.component';
+import {AppComponent} from './components/app/app.component';
 import {AppRoutingModule} from './app-routing.module';
 import {MaterialModule} from '../helpers/material.module';
 import {HomeComponent} from './components/home/home.component';
