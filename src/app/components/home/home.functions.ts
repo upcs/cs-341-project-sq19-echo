@@ -3,7 +3,6 @@ import {Icon, LatLngExpression, Marker, marker} from 'leaflet';
 import {DensityInfo, TrafficMarker} from './home.interfaces';
 import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.constants';
 import {TrafficDensity, VehicleFilter, VehicleType} from './home.enums';
-import {MatSelect} from '@angular/material';
 import {isNullOrUndefined} from 'util';
 
 export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
@@ -11,8 +10,18 @@ export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
     return null;
   }
 
+  const featureGeometry = feature.geometry as any;
+  if (isNullOrUndefined(featureGeometry)) {
+    return null;
+  }
+
+  const featureCoordinates: number[] = featureGeometry.coordinates;
+  if (isNullOrUndefined(featureCoordinates)) {
+    return null;
+  }
+
   // The coordinates are reversed in the JSON.
-  return (feature.geometry as any).coordinates.reverse() as LatLngExpression;
+  return featureCoordinates.reverse() as LatLngExpression;
 }
 
 export function isBikeFeature(feature: Feature): boolean {
@@ -20,19 +29,24 @@ export function isBikeFeature(feature: Feature): boolean {
     return null;
   }
 
-  return feature.properties.ExceptType === 'Bike Count' || feature.properties.Comment === 'ONLY BIKES';
-}
-
-export function getVehicleFilterFromVehicleSelector(vehicleSelector: MatSelect): VehicleFilter {
-  if (isNullOrUndefined(vehicleSelector)) {
+  const featureProperties = feature.properties;
+  if (isNullOrUndefined(featureProperties)) {
     return null;
   }
 
-  if (vehicleSelector.empty) {
+  return featureProperties.ExceptType === 'Bike Count' || featureProperties.Comment === 'ONLY BIKES';
+}
+
+export function getVehicleFilterFromVehicleSelectorValue(vehicleSelectorValue: string): VehicleFilter {
+  if (isNullOrUndefined(vehicleSelectorValue)) {
+    return null;
+  }
+
+  if (vehicleSelectorValue === '') {
     return VehicleFilter.ALL;
   }
 
-  if (vehicleSelector.value === VehicleType.Bike) {
+  if (vehicleSelectorValue === VehicleType.Bike) {
     return VehicleFilter.BIKE;
   }
 
@@ -78,7 +92,17 @@ export function getFeatureStartDate(feature: Feature): string {
     return null;
   }
 
-  return feature.properties.StartDate;
+  const featureProperties = feature.properties;
+  if (isNullOrUndefined(featureProperties)) {
+    return null;
+  }
+
+  const startDate = featureProperties.StartDate;
+  if (isNullOrUndefined(startDate)) {
+    return null;
+  }
+
+  return startDate;
 }
 
 export function getMarkersFromFeatures(features: Feature[]): TrafficMarker[] {

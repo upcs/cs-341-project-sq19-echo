@@ -14,7 +14,7 @@ import {DensityInfo, TrafficMarker} from './home.interfaces';
 import {
   getLeafletMarkerFromTrafficMarker,
   getMarkersFromFeatures,
-  getVehicleFilterFromVehicleSelector,
+  getVehicleFilterFromVehicleSelectorValue,
   inDensityRange, markerValidForVehicleFilter
 } from './home.functions';
 import {TrafficLocation, VehicleType} from './home.enums';
@@ -71,7 +71,7 @@ export class HomeComponent {
   isRelevantMarker(trafficMarker: TrafficMarker): boolean {
     const selectedYear = this.yearSelector.empty ? '-' : this.yearSelector.value;
     const selectedDensity = this.densitySelector.empty ? this.DEFAULT_INTENSITY_RANGE : this.densitySelector.value;
-    const selectedVehicleFilter = getVehicleFilterFromVehicleSelector(this.vehicleSelector);
+    const selectedVehicleFilter = getVehicleFilterFromVehicleSelectorValue(this.vehicleSelector.value);
 
     return inDensityRange(trafficMarker.trafficDensity, selectedDensity)
         && trafficMarker.startDate.includes(selectedYear)
