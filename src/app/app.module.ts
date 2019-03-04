@@ -1,18 +1,17 @@
 import {BrowserModule, Title} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {NgModule} from '@angular/core';
-import { LeafletModule } from '@asymmetrik/ngx-leaflet';
+import {LeafletModule} from '@asymmetrik/ngx-leaflet';
 import {MDBBootstrapModule} from 'angular-bootstrap-md';
-import {AppComponent} from './app.component';
+import {AppComponent} from './components/app/app.component';
 import {AppRoutingModule} from './app-routing.module';
 import {MaterialModule} from '../helpers/material.module';
-import {HomeComponent} from './home/home.component';
-import {LoginComponent} from './login/login.component';
-import {AboutComponent} from './about/about.component';
+import {HomeComponent} from './components/home/home.component';
+import {LoginComponent} from './components/login/login.component';
+import {AboutComponent} from './components/about/about.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {CookieService} from 'ngx-cookie-service';
-import {MatCard} from '@angular/material';
 
 @NgModule({
   declarations: [

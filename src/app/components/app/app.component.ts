@@ -1,20 +1,20 @@
 import {Component, ElementRef, ViewChild} from '@angular/core';
 import {Title} from '@angular/platform-browser';
-import {mainRoutes} from './app-routing.module';
+import {mainRoutes} from '../../app-routing.module';
 import {CookieService} from 'ngx-cookie-service';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  templateUrl: './app.component.html'
 })
 export class AppComponent {
   navLabels: string[] = mainRoutes.map(x => x.path);
 
-  @ViewChild('navItemList')
-  private navItemList: ElementRef;
-
-  public constructor(private titleService: Title, private cookie: CookieService) {
+  public constructor(
+    private titleService: Title,
+    private cookie: CookieService,
+    @ViewChild('navItemList') private navItemList: ElementRef
+  ) {
     titleService.setTitle('Echo App');
 
     let loggedInUser = cookie.get('authenticated');

@@ -12,3 +12,12 @@ export enum TrafficLocation {
   Southwest = 'Southwest',
   Southeast = 'Southeast'
 }
+
+export enum VehicleType {
+  Car = 'Cars',
+  Bike = 'Bikes'
+}
+
+export enum VehicleFilter {
+  ALL, CAR, BIKE
+}

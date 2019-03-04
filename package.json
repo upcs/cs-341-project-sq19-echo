@@ -66,15 +66,12 @@
       "<rootDir>/src/setupJest.ts"
     ]
   },
-  "description": "[![Codecov Coverage](https://img.shields.io/codecov/c/github/upcs/cs-341-project-sq19-echo/master.svg?style=flat-square)](https://codecov.io/gh/upcs/cs-341-project-sq19-echo/)",
   "version": "1.0.0",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/upcs/cs-341-project-sq19-echo.git"
   },
-  "author": "",
-  "license": "ISC",
   "bugs": {
     "url": "https://github.com/upcs/cs-341-project-sq19-echo/issues"
   },
