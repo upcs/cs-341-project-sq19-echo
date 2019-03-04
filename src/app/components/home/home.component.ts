@@ -13,7 +13,7 @@ import {FeatureCollection} from 'geojson';
 import {DensityInfo, TrafficMarker} from './home.component.interfaces';
 import {
   getLeafletMarkerFromTrafficMarker,
-  getMarkersFromFeatures,
+  getTrafficMarkersFromFeatures,
   getVehicleFilterFromVehicleSelectorValue,
   inDensityRange,
   markerValidForVehicleFilter
@@ -118,7 +118,7 @@ export class HomeComponent {
 
     const TRAFFIC_URL = 'https://opendata.arcgis.com/datasets/6ba5258ffea34e878168ddc8cf34f7e3_250.geojson';
     this.http.get(TRAFFIC_URL).subscribe((trafficJson: FeatureCollection) => {
-      this.allTrafficMarkers = getMarkersFromFeatures(trafficJson.features);
+      this.allTrafficMarkers = getTrafficMarkersFromFeatures(trafficJson.features);
       this.updateDisplayedTrafficMarkers();
     });
   }

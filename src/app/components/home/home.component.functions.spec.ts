@@ -1,9 +1,9 @@
 import {
   getCoordinateFromFeature,
-  getDensityIconFromMarker,
+  getDensityIconFromMarker, getFeatureAdtVolume,
   getFeatureStartDate,
   getLeafletMarkerFromTrafficMarker,
-  getMarkersFromFeatures,
+  getTrafficMarkersFromFeatures,
   getVehicleFilterFromVehicleSelectorValue,
   inDensityRange,
   isBikeFeature,
@@ -11,8 +11,9 @@ import {
 } from './home.component.functions';
 import {Feature} from 'geojson';
 import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
-import {DensityInfo} from './home.component.interfaces';
-import {DENSITIES} from './home.component.constants';
+import {DensityInfo, TrafficMarker} from './home.component.interfaces';
+import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.component.constants';
+import {marker, Marker} from 'leaflet';
 
 const regularFeatureExample: Feature = {
   type: 'Feature',
@@ -58,6 +59,13 @@ const regularFeatureExample: Feature = {
     ]
   }
 };
+const regularTrafficMarker: TrafficMarker = {
+  coordinates: [-122.709663784461, 45.440062311819155],
+  isBikeMarker: false,
+  startDate: '2018-06-11T00:00:00.000Z',
+  trafficDensity: 454
+};
+
 const bikeFeatureExample: Feature = {
   type: 'Feature',
   properties: {
@@ -102,6 +110,30 @@ const bikeFeatureExample: Feature = {
     ]
   }
 };
+const bikeTrafficMarker: TrafficMarker = {
+  coordinates: [-122.74278046217601, 45.58941353991535],
+  isBikeMarker: true,
+  startDate: '2015-06-30T00:00:00.000Z',
+  trafficDensity: 68
+};
+
+const lowDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Low];
+const mediumDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Medium];
+const highDensityInfo: DensityInfo = DENSITIES[TrafficDensity.High];
+
+const trafficMarkerNullTrafficDensity: TrafficMarker = {
+  startDate: '',
+  trafficDensity: null,
+  coordinates: [0, 0],
+  isBikeMarker: false
+};
+
+const trafficMarkerUndefinedTrafficDensity: TrafficMarker = {
+  startDate: '',
+  trafficDensity: undefined,
+  coordinates: [0, 0],
+  isBikeMarker: false
+};
 
 describe('getCoordinateFromFeature tests', () => {
   test('null or undefined feature returns null', () => {
@@ -109,8 +141,7 @@ describe('getCoordinateFromFeature tests', () => {
     expect(getCoordinateFromFeature(undefined)).toBe(null);
   });
 
-  test('feature missing geometry property returns null', () => {
-    // Deep copy of object.
+  test('feature missing geometry returns null', () => {
     const featureMissingGeometry: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
     delete featureMissingGeometry.geometry;
 
@@ -118,7 +149,6 @@ describe('getCoordinateFromFeature tests', () => {
   });
 
   test('feature missing coordinates returns null', () => {
-    // Deep copy of object.
     const featureMissingCoordinate: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
     delete (featureMissingCoordinate.geometry as any).coordinates;
 
@@ -127,6 +157,7 @@ describe('getCoordinateFromFeature tests', () => {
 
   test('correctly formatted feature returns proper coordinate', () => {
     expect(getCoordinateFromFeature(regularFeatureExample)).toEqual([45.440062311819155, -122.709663784461]);
+    expect(getCoordinateFromFeature(bikeFeatureExample)).toEqual([45.58941353991535, -122.74278046217601]);
   });
 });
 
@@ -178,12 +209,62 @@ describe('markerValidForVehicleFilter tests', () => {
     expect(markerValidForVehicleFilter(null, undefined)).toBe(null);
     expect(markerValidForVehicleFilter(undefined, null)).toBe(null);
   });
+
+  test('regular traffic marker should only return true for CAR and ALL filters', () => {
+    expect(markerValidForVehicleFilter(regularTrafficMarker, VehicleFilter.CAR)).toBe(true);
+    expect(markerValidForVehicleFilter(regularTrafficMarker, VehicleFilter.ALL)).toBe(true);
+    expect(markerValidForVehicleFilter(regularTrafficMarker, VehicleFilter.BIKE)).toBe(false);
+  });
+
+  test('bike traffic marker should only return true for BIKE and ALL filters', () => {
+    expect(markerValidForVehicleFilter(bikeTrafficMarker, VehicleFilter.BIKE)).toBe(true);
+    expect(markerValidForVehicleFilter(bikeTrafficMarker, VehicleFilter.ALL)).toBe(true);
+    expect(markerValidForVehicleFilter(bikeTrafficMarker, VehicleFilter.CAR)).toBe(false);
+  });
 });
 
 describe('getDensityIconFromMarker tests', () => {
   test('null or undefined traffic marker returns null', () => {
     expect(getDensityIconFromMarker(null)).toBe(null);
     expect(getDensityIconFromMarker(undefined)).toBe(null);
+  });
+
+  test('traffic marker with null or undefined trafficDensity returns null', () => {
+    expect(getDensityIconFromMarker(trafficMarkerNullTrafficDensity)).toBe(null);
+    expect(getDensityIconFromMarker(trafficMarkerUndefinedTrafficDensity)).toBe(null);
+  });
+
+  test('traffic marker with high traffic density returns RED_ICON', () => {
+    const trafficMarkerHighTrafficDensity: TrafficMarker = {
+      startDate: '',
+      trafficDensity: highDensityInfo.max - 1,
+      coordinates: [0, 0],
+      isBikeMarker: false
+    };
+
+    expect(getDensityIconFromMarker(trafficMarkerHighTrafficDensity)).toBe(RED_ICON);
+  });
+
+  test('traffic marker with medium traffic density returns ORANGE_ICON', () => {
+    const trafficMarkerMediumTrafficDensity: TrafficMarker = {
+      startDate: '',
+      trafficDensity: mediumDensityInfo.max - 1,
+      coordinates: [0, 0],
+      isBikeMarker: false
+    };
+
+    expect(getDensityIconFromMarker(trafficMarkerMediumTrafficDensity)).toBe(ORANGE_ICON);
+  });
+
+  test('traffic marker with low traffic density returns GREEN_ICON', () => {
+    const trafficMarkerLowTrafficDensity: TrafficMarker = {
+      startDate: '',
+      trafficDensity: lowDensityInfo.max - 1,
+      coordinates: [0, 0],
+      isBikeMarker: false
+    };
+
+    expect(getDensityIconFromMarker(trafficMarkerLowTrafficDensity)).toBe(GREEN_ICON);
   });
 });
 
@@ -192,20 +273,38 @@ describe('getFeatureStartDate tests', () => {
     expect(getFeatureStartDate(null)).toBe(null);
     expect(getFeatureStartDate(undefined)).toBe(null);
   });
+
+  test('feature missing properties returns null', () => {
+    const featureMissingProperties: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
+    delete featureMissingProperties.properties;
+
+    expect(getFeatureStartDate(featureMissingProperties)).toBe(null);
+  });
+
+  test('feature missing StartDate returns null', () => {
+    const featureMissingStartDate: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
+    delete featureMissingStartDate.properties.StartDate;
+
+    expect(getFeatureStartDate(featureMissingStartDate)).toBe(null);
+  });
 });
 
 describe('getMarkersFromFeatures tests', () => {
   test('null or undefined features returns empty list', () => {
-    expect(getMarkersFromFeatures(null)).toEqual([]);
-    expect(getMarkersFromFeatures(undefined)).toEqual([]);
+    expect(getTrafficMarkersFromFeatures(null)).toEqual([]);
+    expect(getTrafficMarkersFromFeatures(undefined)).toEqual([]);
+  });
+
+  test('regular feature example should return proper marker list', () => {
+    expect(getTrafficMarkersFromFeatures([regularFeatureExample])).toEqual([regularTrafficMarker]);
+  });
+
+  test('bike feature example should return proper marker list', () => {
+    expect(getTrafficMarkersFromFeatures([bikeFeatureExample])).toEqual([bikeTrafficMarker]);
   });
 });
 
 describe('inDensityRange tests', () => {
-  const lowDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Low];
-  const mediumDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Medium];
-  const highDensityInfo: DensityInfo = DENSITIES[TrafficDensity.High];
-
   test('null or undefined traffic density & density range returns null', () => {
     expect(inDensityRange(null, null)).toBe(null);
     expect(inDensityRange(undefined, undefined)).toBe(null);
@@ -242,5 +341,50 @@ describe('getLeafletMarkerFromTrafficMarker tests', () => {
   test('null or undefined traffic marker returns null', () => {
     expect(getLeafletMarkerFromTrafficMarker(null)).toBe(null);
     expect(getLeafletMarkerFromTrafficMarker(undefined)).toBe(null);
+  });
+
+  test('null or undefined trafficDensity in trafficMarker returns null', () => {
+    expect(getLeafletMarkerFromTrafficMarker(trafficMarkerNullTrafficDensity)).toBe(null);
+    expect(getLeafletMarkerFromTrafficMarker(trafficMarkerUndefinedTrafficDensity)).toBe(null);
+  });
+
+  test('regular traffic marker returns proper Leaflet marker', () => {
+    const regularLeafletMarker: Marker = marker(regularTrafficMarker.coordinates, {riseOnHover: true, icon: GREEN_ICON})
+      .bindPopup(`Daily Volume: ${regularTrafficMarker.trafficDensity} ${VehicleType.Car}`);
+
+    expect(getLeafletMarkerFromTrafficMarker(regularTrafficMarker)).toEqual(regularLeafletMarker);
+  });
+
+  test('bike traffic marker returns proper Leaflet marker', () => {
+    const bikeLeafletMarker: Marker = marker(bikeTrafficMarker.coordinates, {riseOnHover: true, icon: GREEN_ICON})
+      .bindPopup(`Daily Volume: ${bikeTrafficMarker.trafficDensity} ${VehicleType.Bike}`);
+
+    expect(getLeafletMarkerFromTrafficMarker(bikeTrafficMarker)).toEqual(bikeLeafletMarker);
+  });
+});
+
+describe('getFeatureAdtVolume tests', () => {
+  test('null or undefined feature returns null', () => {
+    expect(getFeatureAdtVolume(null)).toBe(null);
+    expect(getFeatureAdtVolume(undefined)).toBe(null);
+  });
+
+  test('feature missing properties returns null', () => {
+    const featureMissingProperties: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
+    delete featureMissingProperties.properties;
+
+    expect(getFeatureAdtVolume(featureMissingProperties)).toBe(null);
+  });
+
+  test('feature missing ADTVolume from properties returns null', () => {
+    const featureMissingAdtVolume: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
+    delete featureMissingAdtVolume.properties.ADTVolume;
+
+    expect(getFeatureAdtVolume(featureMissingAdtVolume)).toBe(null);
+  });
+
+  test('properly formatted features correctly return ADTVolume', () => {
+    expect(getFeatureAdtVolume(regularFeatureExample)).toBe(454);
+    expect(getFeatureAdtVolume(bikeFeatureExample)).toBe(68);
   });
 });

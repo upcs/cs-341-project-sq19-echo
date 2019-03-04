@@ -75,6 +75,10 @@ export function getDensityIconFromMarker(trafficMarker: TrafficMarker): Icon {
 
   const trafficVolume = trafficMarker.trafficDensity;
 
+  if (trafficVolume == null) {
+    return null;
+  }
+
   if (inDensityRange(trafficVolume, DENSITIES[TrafficDensity.High])) {
     return RED_ICON;
   }
@@ -104,7 +108,7 @@ export function getFeatureStartDate(feature: Feature): string {
   return startDate;
 }
 
-export function getMarkersFromFeatures(features: Feature[]): TrafficMarker[] {
+export function getTrafficMarkersFromFeatures(features: Feature[]): TrafficMarker[] {
   if (features == null) {
     return [];
   }
@@ -128,8 +132,16 @@ export function inDensityRange(inputTrafficDensity: number, targetDensityRange: 
 }
 
 export function getLeafletMarkerFromTrafficMarker(trafficMarker: TrafficMarker): Marker {
+  if (trafficMarker == null) {
+    return null;
+  }
+
   const vehicle = trafficMarker.isBikeMarker ? VehicleType.Bike : VehicleType.Car;
   const icon = getDensityIconFromMarker(trafficMarker);
+
+  if (icon == null) {
+    return null;
+  }
 
   return marker(trafficMarker.coordinates, {riseOnHover: true, icon})
     .bindPopup(`Daily Volume: ${trafficMarker.trafficDensity} ${vehicle}`);
