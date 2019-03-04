@@ -28,6 +28,7 @@ function matchingPasswords(passwordKey: string, confirmPasswordKey: string) {
     if (password.value !== confirmPassword.value) {
       return {mismatchedPasswords: true};
     }
+    return {};
   };
 }
 
@@ -103,6 +104,8 @@ export class LoginComponent {
     if (formControl.hasError('minlength')) {
       return `Minimum password length of ${this.MIN_PASSWORD_LENGTH} required.`;
     }
+
+    return '';
   }
 
   login(): void {

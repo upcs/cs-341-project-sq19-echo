@@ -1,6 +1,6 @@
 import {icon, PointExpression} from 'leaflet';
-import {DensityInfo} from './home.interfaces';
-import {TrafficDensity} from './home.enums';
+import {DensityInfo} from './home.component.interfaces';
+import {TrafficDensity} from './home.component.enums';
 
 const ICON_SIZE: PointExpression = [10, 10];
 const IMAGES_DIR = '../../assets/images/';

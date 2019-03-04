@@ -1,22 +1,21 @@
 import {Feature} from 'geojson';
 import {Icon, LatLngExpression, Marker, marker} from 'leaflet';
-import {DensityInfo, TrafficMarker} from './home.interfaces';
-import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.constants';
-import {TrafficDensity, VehicleFilter, VehicleType} from './home.enums';
-import {isNullOrUndefined} from 'util';
+import {DensityInfo, TrafficMarker} from './home.component.interfaces';
+import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.component.constants';
+import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
 
 export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
-  if (isNullOrUndefined(feature)) {
+  if (feature == null) {
     return null;
   }
 
   const featureGeometry = feature.geometry as any;
-  if (isNullOrUndefined(featureGeometry)) {
+  if (featureGeometry == null) {
     return null;
   }
 
   const featureCoordinates: number[] = featureGeometry.coordinates;
-  if (isNullOrUndefined(featureCoordinates)) {
+  if (featureCoordinates == null) {
     return null;
   }
 
@@ -25,12 +24,12 @@ export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
 }
 
 export function isBikeFeature(feature: Feature): boolean {
-  if (isNullOrUndefined(feature)) {
+  if (feature == null) {
     return null;
   }
 
   const featureProperties = feature.properties;
-  if (isNullOrUndefined(featureProperties)) {
+  if (featureProperties == null) {
     return null;
   }
 
@@ -38,7 +37,7 @@ export function isBikeFeature(feature: Feature): boolean {
 }
 
 export function getVehicleFilterFromVehicleSelectorValue(vehicleSelectorValue: string): VehicleFilter {
-  if (isNullOrUndefined(vehicleSelectorValue)) {
+  if (vehicleSelectorValue == null) {
     return null;
   }
 
@@ -54,7 +53,7 @@ export function getVehicleFilterFromVehicleSelectorValue(vehicleSelectorValue: s
 }
 
 export function markerValidForVehicleFilter(trafficMarker: TrafficMarker, vehicleFilter: VehicleFilter): boolean {
-  if (isNullOrUndefined(trafficMarker) || isNullOrUndefined(vehicleFilter)) {
+  if (trafficMarker == null || vehicleFilter == null) {
     return null;
   }
 
@@ -70,7 +69,7 @@ export function markerValidForVehicleFilter(trafficMarker: TrafficMarker, vehicl
 }
 
 export function getDensityIconFromMarker(trafficMarker: TrafficMarker): Icon {
-  if (isNullOrUndefined(trafficMarker)) {
+  if (trafficMarker == null) {
     return null;
   }
 
@@ -88,26 +87,25 @@ export function getDensityIconFromMarker(trafficMarker: TrafficMarker): Icon {
 }
 
 export function getFeatureStartDate(feature: Feature): string {
-  if (isNullOrUndefined(feature)) {
+  if (feature == null) {
     return null;
   }
 
   const featureProperties = feature.properties;
-  if (isNullOrUndefined(featureProperties)) {
+  if (featureProperties == null) {
     return null;
   }
 
   const startDate = featureProperties.StartDate;
-  if (isNullOrUndefined(startDate)) {
+  if (startDate == null) {
     return null;
   }
-
   return startDate;
 }
 
 export function getMarkersFromFeatures(features: Feature[]): TrafficMarker[] {
-  if (isNullOrUndefined(features)) {
-    return null;
+  if (features == null) {
+    return [];
   }
 
   return features.map(feature => {
@@ -121,7 +119,7 @@ export function getMarkersFromFeatures(features: Feature[]): TrafficMarker[] {
 }
 
 export function inDensityRange(inputTrafficDensity: number, targetDensityRange: DensityInfo): boolean {
-  if (isNullOrUndefined(inputTrafficDensity) || isNullOrUndefined(targetDensityRange)) {
+  if (inputTrafficDensity == null || targetDensityRange == null) {
     return null;
   }
 
@@ -129,7 +127,7 @@ export function inDensityRange(inputTrafficDensity: number, targetDensityRange: 
 }
 
 export function getLeafletMarkerFromTrafficMarker(trafficMarker: TrafficMarker): Marker {
-  if (isNullOrUndefined(trafficMarker)) {
+  if (trafficMarker == null) {
     return null;
   }
 

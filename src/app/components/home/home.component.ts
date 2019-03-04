@@ -10,15 +10,16 @@ import {
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
 import {FeatureCollection} from 'geojson';
-import {DensityInfo, TrafficMarker} from './home.interfaces';
+import {DensityInfo, TrafficMarker} from './home.component.interfaces';
 import {
   getLeafletMarkerFromTrafficMarker,
   getMarkersFromFeatures,
   getVehicleFilterFromVehicleSelectorValue,
-  inDensityRange, markerValidForVehicleFilter
-} from './home.functions';
-import {TrafficLocation, VehicleType} from './home.enums';
-import {DENSITIES} from './home.constants';
+  inDensityRange,
+  markerValidForVehicleFilter
+} from './home.component.functions';
+import {TrafficLocation, VehicleType} from './home.component.enums';
+import {DENSITIES} from './home.component.constants';
 
 @Component({
   selector: 'app-root',
@@ -32,11 +33,6 @@ export class HomeComponent {
 
   private DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
   private DEFAULT_INTENSITY_RANGE: DensityInfo = {min: 0, max: 100000};
-
-  @ViewChild('areaSelector') private areaSelector: MatSelect;
-  @ViewChild('yearSelector') private yearSelector: MatSelect;
-  @ViewChild('vehicleSelector') private vehicleSelector: MatSelect;
-  @ViewChild('densitySelector') private densitySelector: MatSelect;
 
   private allTrafficMarkers: TrafficMarker[];
   private leafletMarkers: Marker[] = [];
@@ -64,7 +60,14 @@ export class HomeComponent {
     center: latLng(this.DEFAULT_COORDS)
   };
 
-  public constructor(private titleService: Title, private http: HttpClient) {
+  public constructor(
+    private titleService: Title,
+    private http: HttpClient,
+    @ViewChild('areaSelector') private areaSelector: MatSelect,
+    @ViewChild('yearSelector') private yearSelector: MatSelect,
+    @ViewChild('vehicleSelector') private vehicleSelector: MatSelect,
+    @ViewChild('densitySelector') private densitySelector: MatSelect
+  ) {
     titleService.setTitle('Portland Traffic Reform');
   }
 

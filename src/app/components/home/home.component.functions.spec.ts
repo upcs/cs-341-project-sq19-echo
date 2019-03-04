@@ -8,11 +8,11 @@ import {
   inDensityRange,
   isBikeFeature,
   markerValidForVehicleFilter
-} from './home.functions';
+} from './home.component.functions';
 import {Feature} from 'geojson';
-import {TrafficDensity, VehicleFilter, VehicleType} from './home.enums';
-import {DensityInfo} from './home.interfaces';
-import {DENSITIES} from './home.constants';
+import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
+import {DensityInfo} from './home.component.interfaces';
+import {DENSITIES} from './home.component.constants';
 
 const regularFeatureExample: Feature = {
   type: 'Feature',
@@ -195,9 +195,9 @@ describe('getFeatureStartDate tests', () => {
 });
 
 describe('getMarkersFromFeatures tests', () => {
-  test('null or undefined features returns null', () => {
-    expect(getMarkersFromFeatures(null)).toBe(null);
-    expect(getMarkersFromFeatures(undefined)).toBe(null);
+  test('null or undefined features returns empty list', () => {
+    expect(getMarkersFromFeatures(null)).toEqual([]);
+    expect(getMarkersFromFeatures(undefined)).toEqual([]);
   });
 });
 

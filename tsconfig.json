@@ -19,6 +19,10 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true
   }
 }

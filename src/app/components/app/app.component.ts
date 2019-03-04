@@ -10,10 +10,11 @@ import {CookieService} from 'ngx-cookie-service';
 export class AppComponent {
   navLabels: string[] = mainRoutes.map(x => x.path);
 
-  @ViewChild('navItemList')
-  private navItemList: ElementRef;
-
-  public constructor(private titleService: Title, private cookie: CookieService) {
+  public constructor(
+    private titleService: Title,
+    private cookie: CookieService,
+    @ViewChild('navItemList') private navItemList: ElementRef
+  ) {
     titleService.setTitle('Echo App');
 
     let loggedInUser = cookie.get('authenticated');

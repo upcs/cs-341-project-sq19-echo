@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {Title} from '@angular/platform-browser';
-import {PersonInfo} from './about.interfaces';
+import {PersonInfo} from './about.component.interfaces';
 
 @Component({
   selector: 'app-root',
