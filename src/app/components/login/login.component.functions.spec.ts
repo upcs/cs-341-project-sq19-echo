@@ -1,59 +1,50 @@
 import {matchingPasswords} from './login.component.functions';
 import {FormBuilder, FormControl, FormGroup} from '@angular/forms';
-import {SignUpControls} from './login.component.interfaces';
 
 describe('matchingPasswords tests', () => {
   const PASSWORD_KEY = 'password';
   const CONFIRM_PASSWORD_KEY = 'confirmPassword';
 
-  const MISMATCHED_PASSWORDS_OBJECT = {mismatchedPasswords: true};
-
-  let testForm: FormGroup;
+  const mismatchedPasswordsObject = {mismatchedPasswords: true};
   const matchingPasswordsFunction = matchingPasswords(PASSWORD_KEY, CONFIRM_PASSWORD_KEY);
 
-  const testSignUpControls: SignUpControls = {
+  const testFormGroup: FormGroup = new FormBuilder().group({
     email: new FormControl(),
     password: new FormControl(),
     confirmPassword: new FormControl()
-  };
-
-  beforeAll(() => {
-    testForm = new FormBuilder().group(
-      testSignUpControls, {validator: matchingPasswordsFunction}
-    );
   });
 
   test('matching passwords "qwerty" result in an empty object', () => {
-    testForm.controls[PASSWORD_KEY].setValue('qwerty');
-    testForm.controls[CONFIRM_PASSWORD_KEY].setValue('qwerty');
+    testFormGroup.controls[PASSWORD_KEY].setValue('qwerty');
+    testFormGroup.controls[CONFIRM_PASSWORD_KEY].setValue('qwerty');
 
-    expect(matchingPasswordsFunction(testForm)).toEqual({});
+    expect(matchingPasswordsFunction(testFormGroup)).toEqual({});
   });
 
   test('null or undefined password should result in mismatched passwords', () => {
-    testForm.controls[CONFIRM_PASSWORD_KEY].setValue('asd');
+    testFormGroup.controls[CONFIRM_PASSWORD_KEY].setValue('asd');
 
-    testForm.controls[PASSWORD_KEY].setValue(null);
-    expect(matchingPasswordsFunction(testForm)).toEqual(MISMATCHED_PASSWORDS_OBJECT);
+    testFormGroup.controls[PASSWORD_KEY].setValue(null);
+    expect(matchingPasswordsFunction(testFormGroup)).toEqual(mismatchedPasswordsObject);
 
-    testForm.controls[PASSWORD_KEY].setValue(undefined);
-    expect(matchingPasswordsFunction(testForm)).toEqual(MISMATCHED_PASSWORDS_OBJECT);
+    testFormGroup.controls[PASSWORD_KEY].setValue(undefined);
+    expect(matchingPasswordsFunction(testFormGroup)).toEqual(mismatchedPasswordsObject);
   });
 
   test('null or undefined confirmed password should result in mismatched passwords', () => {
-    testForm.controls[PASSWORD_KEY].setValue('qwerty');
+    testFormGroup.controls[PASSWORD_KEY].setValue('qwerty');
 
-    testForm.controls[CONFIRM_PASSWORD_KEY].setValue(null);
-    expect(matchingPasswordsFunction(testForm)).toEqual(MISMATCHED_PASSWORDS_OBJECT);
+    testFormGroup.controls[CONFIRM_PASSWORD_KEY].setValue(null);
+    expect(matchingPasswordsFunction(testFormGroup)).toEqual(mismatchedPasswordsObject);
 
-    testForm.controls[CONFIRM_PASSWORD_KEY].setValue(undefined);
-    expect(matchingPasswordsFunction(testForm)).toEqual(MISMATCHED_PASSWORDS_OBJECT);
+    testFormGroup.controls[CONFIRM_PASSWORD_KEY].setValue(undefined);
+    expect(matchingPasswordsFunction(testFormGroup)).toEqual(mismatchedPasswordsObject);
   });
 
   test('passwords "as" and "ash" result in mismatched passwords', () => {
-    testForm.controls[PASSWORD_KEY].setValue('as');
-    testForm.controls[CONFIRM_PASSWORD_KEY].setValue('ash');
+    testFormGroup.controls[PASSWORD_KEY].setValue('as');
+    testFormGroup.controls[CONFIRM_PASSWORD_KEY].setValue('ash');
 
-    expect(matchingPasswordsFunction(testForm)).toEqual(MISMATCHED_PASSWORDS_OBJECT);
+    expect(matchingPasswordsFunction(testFormGroup)).toEqual(mismatchedPasswordsObject);
   });
 });
