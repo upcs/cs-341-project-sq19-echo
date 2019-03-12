@@ -2,35 +2,10 @@ import {Component} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {sha512} from 'js-sha512';
-import users from './users.json';
 import {saveAs} from 'file-saver';
 import {CookieService} from 'ngx-cookie-service';
-
-interface SignUpControls {
-  readonly email: FormControl;
-  readonly password: FormControl;
-  readonly confirmPassword: FormControl;
-}
-
-interface LoginControls {
-  readonly email: FormControl;
-  readonly password: FormControl;
-}
-
-/**
- * Citation: https://stackoverflow.com/questions/31788681/angular2-validator-which-relies-on-multiple-form-fields
- */
-function matchingPasswords(passwordKey: string, confirmPasswordKey: string) {
-  return (group: FormGroup): {[key: string]: boolean} => {
-    const password = group.controls[passwordKey];
-    const confirmPassword = group.controls[confirmPasswordKey];
-
-    if (password.value !== confirmPassword.value) {
-      return {mismatchedPasswords: true};
-    }
-    return {};
-  };
-}
+import {LoginControls, SignUpControls} from './login.component.interfaces';
+import {matchingPasswords} from './login.component.functions';
 
 @Component({
   selector: 'app-root',
@@ -59,7 +34,7 @@ export class LoginComponent {
     titleService.setTitle('Login Page');
 
     // Initialize the list of accounts to the current data in the JSON file.
-    this.userAccounts = users;
+    this.userAccounts = null;
 
     this.signupForm = this.formBuilder.group(
       this.signupControls, {validator: matchingPasswords('password', 'confirmPassword')}
