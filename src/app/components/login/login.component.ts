@@ -12,22 +12,22 @@ import {matchingPasswords} from './login.component.functions';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent {
-  MIN_PASSWORD_LENGTH = 8;
-  userAccounts: {[email: string]: string} = {};
+  private MIN_PASSWORD_LENGTH = 8;
+  private userAccounts: {[email: string]: string} = {};
 
-  signupControls: SignUpControls = {
+  public signupControls: SignUpControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.minLength(this.MIN_PASSWORD_LENGTH)]),
     confirmPassword: new FormControl('', [Validators.required])
   };
 
-  loginControls: LoginControls = {
+  public loginControls: LoginControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required])
   };
 
-  signupForm: FormGroup;
-  loginForm: FormGroup;
+  public signupForm: FormGroup;
+  public loginForm: FormGroup;
 
   public constructor(private titleService: Title, private formBuilder: FormBuilder, private cookie: CookieService) {
     titleService.setTitle('Login Page');
@@ -38,7 +38,7 @@ export class LoginComponent {
     this.loginForm = this.formBuilder.group(this.loginControls);
   }
 
-  signUp(): void {
+  public signUp(): void {
     const email = this.signupControls.email.value;
 
     if (this.userAccounts.hasOwnProperty(email)) {
@@ -51,7 +51,7 @@ export class LoginComponent {
     alert(`Account created with email: ${email}.`);
   }
 
-  getFormError(formControl: FormControl): string {
+  public getFormError(formControl: FormControl): string {
     if (formControl.hasError('required')) {
       return 'This field is required.';
     }
@@ -67,7 +67,7 @@ export class LoginComponent {
     return '';
   }
 
-  login(): void {
+  public login(): void {
     const email = this.loginControls.email.value;
     const hashedPassword = sha512(this.loginControls.password.value);
 

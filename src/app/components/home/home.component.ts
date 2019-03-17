@@ -5,7 +5,8 @@ import {
   latLng,
   LatLngExpression,
   Map as LeafletMap,
-  MapOptions, Marker,
+  MapOptions,
+  Marker,
   tileLayer
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
@@ -27,6 +28,11 @@ import {DENSITIES} from './home.component.constants';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
+  @ViewChild('areaSelector') private areaSelector: MatSelect;
+  @ViewChild('yearSelector') private yearSelector: MatSelect;
+  @ViewChild('vehicleSelector') private vehicleSelector: MatSelect;
+  @ViewChild('densitySelector') private densitySelector: MatSelect;
+
   private DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
   private DEFAULT_INTENSITY_RANGE: DensityInfo = {min: 0, max: 100000};
 
@@ -59,14 +65,7 @@ export class HomeComponent {
     center: latLng(this.DEFAULT_COORDS)
   };
 
-  public constructor(
-    private titleService: Title,
-    private http: HttpClient,
-    @ViewChild('areaSelector') private areaSelector: MatSelect,
-    @ViewChild('yearSelector') private yearSelector: MatSelect,
-    @ViewChild('vehicleSelector') private vehicleSelector: MatSelect,
-    @ViewChild('densitySelector') private densitySelector: MatSelect
-  ) {
+  public constructor(private titleService: Title, private http: HttpClient) {
     titleService.setTitle('Portland Traffic Reform');
   }
 

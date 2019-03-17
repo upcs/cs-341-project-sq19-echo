@@ -1,7 +1,7 @@
 export interface PersonInfo {
-  name: string;
-  classStanding: string;
-  imageUrl: string;
-  mainContent: string;
-  emailAddress: string;
+  readonly name: string;
+  readonly classStanding: string;
+  readonly imageUrl: string;
+  readonly mainContent: string;
+  readonly emailAddress: string;
 }
