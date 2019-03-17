@@ -2,7 +2,6 @@ import {Component} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {sha512} from 'js-sha512';
-import {saveAs} from 'file-saver';
 import {CookieService} from 'ngx-cookie-service';
 import {LoginControls, SignUpControls} from './login.component.interfaces';
 import {matchingPasswords} from './login.component.functions';
@@ -14,7 +13,7 @@ import {matchingPasswords} from './login.component.functions';
 })
 export class LoginComponent {
   MIN_PASSWORD_LENGTH = 8;
-  userAccounts: {[email: string]: string};
+  userAccounts: {[email: string]: string} = {};
 
   signupControls: SignUpControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -33,24 +32,10 @@ export class LoginComponent {
   public constructor(private titleService: Title, private formBuilder: FormBuilder, private cookie: CookieService) {
     titleService.setTitle('Login Page');
 
-    // Initialize the list of accounts to the current data in the JSON file.
-    this.userAccounts = null;
-
     this.signupForm = this.formBuilder.group(
       this.signupControls, {validator: matchingPasswords('password', 'confirmPassword')}
     );
     this.loginForm = this.formBuilder.group(this.loginControls);
-  }
-
-  static saveUsers(userList: {[email: string]: string}): void {
-    saveAs(
-      new Blob([
-          JSON.stringify(userList)],
-        {
-          type: 'application/json'
-        }),
-      'users.json'
-    );
   }
 
   signUp(): void {
@@ -62,7 +47,6 @@ export class LoginComponent {
     }
 
     this.userAccounts[email] = sha512(this.signupControls.password.value);
-    LoginComponent.saveUsers(this.userAccounts);
 
     alert(`Account created with email: ${email}.`);
   }
