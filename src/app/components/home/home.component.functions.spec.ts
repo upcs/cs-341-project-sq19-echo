@@ -1,6 +1,7 @@
 import {
   getCoordinateFromFeature,
-  getDensityIconFromMarker, getFeatureAdtVolume,
+  getDensityIconFromMarker,
+  getFeatureAdtVolume,
   getFeatureStartDate,
   getLeafletMarkerFromTrafficMarker,
   getTrafficMarkersFromFeatures,

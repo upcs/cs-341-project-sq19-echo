@@ -8,7 +8,7 @@ import {PersonInfo} from './about.component.interfaces';
   styleUrls: ['./about.component.css']
 })
 export class AboutComponent {
-  people: PersonInfo[] = [
+  public people: PersonInfo[] = [
     {
       name: 'Alex Hadi',
       classStanding: 'Junior',
@@ -51,7 +51,7 @@ export class AboutComponent {
     titleService.setTitle('About Page');
   }
 
-  openEmail(email: string): void {
+  public openEmail(email: string): void {
     window.open(`mailto:${email}`, '_parent');
   }
 }
