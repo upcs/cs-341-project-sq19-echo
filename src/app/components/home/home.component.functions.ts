@@ -45,7 +45,7 @@ export function getVehicleFilterFromVehicleSelectorValue(vehicleSelectorValue: s
     return VehicleFilter.ALL;
   }
 
-  if (vehicleSelectorValue === VehicleType.Bike) {
+  if (VehicleType.Bike.includes(vehicleSelectorValue)) {
     return VehicleFilter.BIKE;
   }
 
