@@ -45,11 +45,15 @@ export function getVehicleFilterFromVehicleSelectorValue(vehicleSelectorValue: s
     return VehicleFilter.ALL;
   }
 
-  if (VehicleType.Bike.includes(vehicleSelectorValue)) {
+  if (vehicleSelectorValue === VehicleType.Bike) {
     return VehicleFilter.BIKE;
   }
 
-  return VehicleFilter.CAR;
+  if (vehicleSelectorValue === VehicleType.Car) {
+    return VehicleFilter.CAR;
+  }
+
+  return null;
 }
 
 export function markerValidForVehicleFilter(trafficMarker: TrafficMarker, vehicleFilter: VehicleFilter): boolean {

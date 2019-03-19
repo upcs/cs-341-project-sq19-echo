@@ -44,7 +44,7 @@ export class HomeComponent {
   public objectKeys = Object.keys;
   public densities = DENSITIES;
   public years: string[] = ['2019', '2018', '2017', '2016', '2015', '2014'];
-  public vehicles: string[] = Object.keys(VehicleType);
+  public vehicles: string[] = Object.values(VehicleType);
   public areas: {[location: string]: LatLngExpression} = {
     [TrafficLocation.North]: [45.6075, -122.7236],
     [TrafficLocation.South]: [45.4886, -122.6755],
