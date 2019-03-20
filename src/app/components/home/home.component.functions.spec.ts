@@ -138,22 +138,22 @@ const trafficMarkerUndefinedTrafficDensity: TrafficMarker = {
 
 describe('getCoordinateFromFeature tests', () => {
   test('null or undefined feature returns null', () => {
-    expect(getCoordinateFromFeature(null)).toBe(null);
-    expect(getCoordinateFromFeature(undefined)).toBe(null);
+    expect(getCoordinateFromFeature(null)).toBeNull();
+    expect(getCoordinateFromFeature(undefined)).toBeNull();
   });
 
   test('feature missing geometry returns null', () => {
     const featureMissingGeometry: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
     delete featureMissingGeometry.geometry;
 
-    expect(getCoordinateFromFeature(featureMissingGeometry)).toBe(null);
+    expect(getCoordinateFromFeature(featureMissingGeometry)).toBeNull();
   });
 
   test('feature missing coordinates returns null', () => {
     const featureMissingCoordinate: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
     delete (featureMissingCoordinate.geometry as any).coordinates;
 
-    expect(getCoordinateFromFeature(featureMissingCoordinate)).toBe(null);
+    expect(getCoordinateFromFeature(featureMissingCoordinate)).toBeNull();
   });
 
   test('correctly formatted feature returns proper coordinate', () => {
@@ -164,15 +164,15 @@ describe('getCoordinateFromFeature tests', () => {
 
 describe('isBikeFeature tests', () => {
   test('null or undefined feature returns null', () => {
-    expect(isBikeFeature(null)).toBe(null);
-    expect(isBikeFeature(undefined)).toBe(null);
+    expect(isBikeFeature(null)).toBeNull();
+    expect(isBikeFeature(undefined)).toBeNull();
   });
 
   test('feature missing properties returns null', () => {
     const featureMissingProperties: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
     delete featureMissingProperties.properties;
 
-    expect(isBikeFeature(featureMissingProperties)).toBe(null);
+    expect(isBikeFeature(featureMissingProperties)).toBeNull();
   });
 
   test('non-bike feature returns false', () => {
@@ -186,8 +186,8 @@ describe('isBikeFeature tests', () => {
 
 describe('getVehicleFilterFromVehicleSelector tests', () => {
   test('null or undefined vehicle selector value returns null', () => {
-    expect(getVehicleFilterFromVehicleSelectorValue(null)).toBe(null);
-    expect(getVehicleFilterFromVehicleSelectorValue(undefined)).toBe(null);
+    expect(getVehicleFilterFromVehicleSelectorValue(null)).toBeNull();
+    expect(getVehicleFilterFromVehicleSelectorValue(undefined)).toBeNull();
   });
 
   test('empty vehicle selector value returns VehicleFilter.ALL', () => {
@@ -205,10 +205,10 @@ describe('getVehicleFilterFromVehicleSelector tests', () => {
 
 describe('markerValidForVehicleFilter tests', () => {
   test('null or undefined traffic marker & vehicle filter returns null', () => {
-    expect(markerValidForVehicleFilter(null, null)).toBe(null);
-    expect(markerValidForVehicleFilter(undefined, undefined)).toBe(null);
-    expect(markerValidForVehicleFilter(null, undefined)).toBe(null);
-    expect(markerValidForVehicleFilter(undefined, null)).toBe(null);
+    expect(markerValidForVehicleFilter(null, null)).toBeNull();
+    expect(markerValidForVehicleFilter(undefined, undefined)).toBeNull();
+    expect(markerValidForVehicleFilter(null, undefined)).toBeNull();
+    expect(markerValidForVehicleFilter(undefined, null)).toBeNull();
   });
 
   test('regular traffic marker should only return true for CAR and ALL filters', () => {
@@ -226,13 +226,13 @@ describe('markerValidForVehicleFilter tests', () => {
 
 describe('getDensityIconFromMarker tests', () => {
   test('null or undefined traffic marker returns null', () => {
-    expect(getDensityIconFromMarker(null)).toBe(null);
-    expect(getDensityIconFromMarker(undefined)).toBe(null);
+    expect(getDensityIconFromMarker(null)).toBeNull();
+    expect(getDensityIconFromMarker(undefined)).toBeNull();
   });
 
   test('traffic marker with null or undefined trafficDensity returns null', () => {
-    expect(getDensityIconFromMarker(trafficMarkerNullTrafficDensity)).toBe(null);
-    expect(getDensityIconFromMarker(trafficMarkerUndefinedTrafficDensity)).toBe(null);
+    expect(getDensityIconFromMarker(trafficMarkerNullTrafficDensity)).toBeNull();
+    expect(getDensityIconFromMarker(trafficMarkerUndefinedTrafficDensity)).toBeNull();
   });
 
   test('traffic marker with high traffic density returns RED_ICON', () => {
@@ -271,22 +271,22 @@ describe('getDensityIconFromMarker tests', () => {
 
 describe('getFeatureStartDate tests', () => {
   test('null or undefined feature returns null', () => {
-    expect(getFeatureStartDate(null)).toBe(null);
-    expect(getFeatureStartDate(undefined)).toBe(null);
+    expect(getFeatureStartDate(null)).toBeNull();
+    expect(getFeatureStartDate(undefined)).toBeNull();
   });
 
   test('feature missing properties returns null', () => {
     const featureMissingProperties: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
     delete featureMissingProperties.properties;
 
-    expect(getFeatureStartDate(featureMissingProperties)).toBe(null);
+    expect(getFeatureStartDate(featureMissingProperties)).toBeNull();
   });
 
   test('feature missing StartDate returns null', () => {
     const featureMissingStartDate: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
     delete featureMissingStartDate.properties.StartDate;
 
-    expect(getFeatureStartDate(featureMissingStartDate)).toBe(null);
+    expect(getFeatureStartDate(featureMissingStartDate)).toBeNull();
   });
 });
 
@@ -307,10 +307,10 @@ describe('getMarkersFromFeatures tests', () => {
 
 describe('inDensityRange tests', () => {
   test('null or undefined traffic density & density range returns null', () => {
-    expect(inDensityRange(null, null)).toBe(null);
-    expect(inDensityRange(undefined, undefined)).toBe(null);
-    expect(inDensityRange(null, undefined)).toBe(null);
-    expect(inDensityRange(undefined, null)).toBe(null);
+    expect(inDensityRange(null, null)).toBeNull();
+    expect(inDensityRange(undefined, undefined)).toBeNull();
+    expect(inDensityRange(null, undefined)).toBeNull();
+    expect(inDensityRange(undefined, null)).toBeNull();
   });
 
   test('one above the minimum of the target density should return true', () => {
@@ -340,13 +340,13 @@ describe('inDensityRange tests', () => {
 
 describe('getLeafletMarkerFromTrafficMarker tests', () => {
   test('null or undefined traffic marker returns null', () => {
-    expect(getLeafletMarkerFromTrafficMarker(null)).toBe(null);
-    expect(getLeafletMarkerFromTrafficMarker(undefined)).toBe(null);
+    expect(getLeafletMarkerFromTrafficMarker(null)).toBeNull();
+    expect(getLeafletMarkerFromTrafficMarker(undefined)).toBeNull();
   });
 
   test('null or undefined trafficDensity in trafficMarker returns null', () => {
-    expect(getLeafletMarkerFromTrafficMarker(trafficMarkerNullTrafficDensity)).toBe(null);
-    expect(getLeafletMarkerFromTrafficMarker(trafficMarkerUndefinedTrafficDensity)).toBe(null);
+    expect(getLeafletMarkerFromTrafficMarker(trafficMarkerNullTrafficDensity)).toBeNull();
+    expect(getLeafletMarkerFromTrafficMarker(trafficMarkerUndefinedTrafficDensity)).toBeNull();
   });
 
   test('regular traffic marker returns proper Leaflet marker', () => {
@@ -366,22 +366,22 @@ describe('getLeafletMarkerFromTrafficMarker tests', () => {
 
 describe('getFeatureAdtVolume tests', () => {
   test('null or undefined feature returns null', () => {
-    expect(getFeatureAdtVolume(null)).toBe(null);
-    expect(getFeatureAdtVolume(undefined)).toBe(null);
+    expect(getFeatureAdtVolume(null)).toBeNull();
+    expect(getFeatureAdtVolume(undefined)).toBeNull();
   });
 
   test('feature missing properties returns null', () => {
     const featureMissingProperties: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
     delete featureMissingProperties.properties;
 
-    expect(getFeatureAdtVolume(featureMissingProperties)).toBe(null);
+    expect(getFeatureAdtVolume(featureMissingProperties)).toBeNull();
   });
 
   test('feature missing ADTVolume from properties returns null', () => {
     const featureMissingAdtVolume: Feature = JSON.parse(JSON.stringify(regularFeatureExample));
     delete featureMissingAdtVolume.properties.ADTVolume;
 
-    expect(getFeatureAdtVolume(featureMissingAdtVolume)).toBe(null);
+    expect(getFeatureAdtVolume(featureMissingAdtVolume)).toBeNull();
   });
 
   test('properly formatted features correctly return ADTVolume', () => {

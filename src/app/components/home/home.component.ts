@@ -44,7 +44,7 @@ export class HomeComponent {
   public objectKeys = Object.keys;
   public densities = DENSITIES;
   public years: string[] = ['2019', '2018', '2017', '2016', '2015', '2014'];
-  public vehicles: string[] = Object.keys(VehicleType);
+  public vehicles: string[] = Object.values(VehicleType);
   public areas: {[location: string]: LatLngExpression} = {
     [TrafficLocation.North]: [45.6075, -122.7236],
     [TrafficLocation.South]: [45.4886, -122.6755],
@@ -69,18 +69,20 @@ export class HomeComponent {
     titleService.setTitle('Portland Traffic Reform');
   }
 
-  private isRelevantMarker(trafficMarker: TrafficMarker): boolean {
-    const selectedYear = this.yearSelector.empty ? '-' : this.yearSelector.value;
+  private getRelevantMarkers(): TrafficMarker[] {
     const selectedDensity = this.densitySelector.empty ? this.DEFAULT_INTENSITY_RANGE : this.densitySelector.value;
+    const selectedYear = this.yearSelector.empty ? '-' : this.yearSelector.value;
     const selectedVehicleFilter = getVehicleFilterFromVehicleSelectorValue(this.vehicleSelector.value);
 
-    return inDensityRange(trafficMarker.trafficDensity, selectedDensity)
-        && trafficMarker.startDate.includes(selectedYear)
-        && markerValidForVehicleFilter(trafficMarker, selectedVehicleFilter);
+    return this.allTrafficMarkers.filter(trafficMarker =>
+      inDensityRange(trafficMarker.trafficDensity, selectedDensity) &&
+      trafficMarker.startDate.includes(selectedYear) &&
+      markerValidForVehicleFilter(trafficMarker, selectedVehicleFilter)
+    );
   }
 
   private updateLeafletMapLocation(): void {
-    const coordinates = this.areaSelector.empty ? this.DEFAULT_COORDS : this.areaSelector.value.coordinates;
+    const coordinates = this.areaSelector.empty ? this.DEFAULT_COORDS : this.areaSelector.value;
     const zoom = this.areaSelector.empty ? 11 : 12.5;
     this.map.flyTo(coordinates, zoom);
   }
@@ -88,10 +90,7 @@ export class HomeComponent {
   private updateDisplayedLeafletMarkers(): void {
     this.leafletMarkers.forEach(marker => this.map.removeLayer(marker));
 
-    const relevantTrafficMarkers: TrafficMarker[] = this.allTrafficMarkers.filter(
-      trafficMarker => this.isRelevantMarker(trafficMarker)
-    );
-
+    const relevantTrafficMarkers = this.getRelevantMarkers();
     this.leafletMarkers = relevantTrafficMarkers.map(trafficMarker => {
         const leafletMarker = getLeafletMarkerFromTrafficMarker(trafficMarker);
         this.map.addLayer(leafletMarker);
@@ -124,7 +123,7 @@ export class HomeComponent {
     const TRAFFIC_URL = 'https://opendata.arcgis.com/datasets/6ba5258ffea34e878168ddc8cf34f7e3_250.geojson';
     this.http.get(TRAFFIC_URL).subscribe((trafficJson: FeatureCollection) => {
       this.allTrafficMarkers = getTrafficMarkersFromFeatures(trafficJson.features);
-      this.updateMap();
+      this.clearFiltersAndUpdateMap();
     });
   }
 }
