@@ -1,7 +1,7 @@
 import {Feature} from 'geojson';
 import {Icon, LatLngExpression, Marker, marker} from 'leaflet';
-import {DensityInfo, TrafficMarker} from './home.component.interfaces';
-import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.component.constants';
+import {DensityInfo} from './home.component.interfaces';
+import {AREAS, DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON, VEHICLES, YEARS} from './home.component.constants';
 
 export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
   if (feature == null) {
@@ -35,8 +35,8 @@ export function isBikeFeature(feature: Feature): boolean {
   return featureProperties.ExceptType === 'Bike Count' || featureProperties.Comment === 'ONLY BIKES';
 }
 
-export function markerValidForVehicleFilter(trafficMarker: TrafficMarker, vehicleType: string): boolean {
-  if (trafficMarker == null || vehicleType == null) {
+export function markerValidForVehicleFilter(leafletMarker: Marker, vehicleType: string): boolean {
+  if (leafletMarker == null || vehicleType == null) {
     return null;
   }
 
@@ -48,20 +48,15 @@ export function markerValidForVehicleFilter(trafficMarker: TrafficMarker, vehicl
     return true;
   }
 
-  if (trafficMarker.isBikeMarker && vehicleType === 'Bike') {
+  const popupContent = leafletMarker.getPopup().getContent().toString();
+  if (popupContent.includes('Bikes') && vehicleType === 'Bike') {
     return true;
   }
 
-  return !trafficMarker.isBikeMarker && vehicleType === 'Car';
+  return popupContent.includes('Cars') && vehicleType === 'Car';
 }
 
-export function getDensityIconFromMarker(trafficMarker: TrafficMarker): Icon {
-  if (trafficMarker == null) {
-    return null;
-  }
-
-  const trafficVolume = trafficMarker.trafficDensity;
-
+export function getDensityIconFromTrafficVolume(trafficVolume: number): Icon {
   if (trafficVolume == null) {
     return null;
   }
@@ -95,21 +90,6 @@ export function getFeatureStartDate(feature: Feature): string {
   return startDate;
 }
 
-export function getTrafficMarkersFromFeatures(features: Feature[]): TrafficMarker[] {
-  if (features == null) {
-    return [];
-  }
-
-  return features.map(feature => {
-    return {
-      coordinates: getCoordinateFromFeature(feature),
-      trafficDensity: getFeatureAdtVolume(feature),
-      startDate: getFeatureStartDate(feature),
-      isBikeMarker: isBikeFeature(feature)
-    };
-  });
-}
-
 export function inDensityRange(inputTrafficDensity: number, targetDensityRange: DensityInfo): boolean {
   if (inputTrafficDensity == null || targetDensityRange == null) {
     return null;
@@ -118,20 +98,38 @@ export function inDensityRange(inputTrafficDensity: number, targetDensityRange: 
   return inputTrafficDensity >= targetDensityRange.min && inputTrafficDensity <= targetDensityRange.max;
 }
 
-export function getLeafletMarkerFromTrafficMarker(trafficMarker: TrafficMarker): Marker {
-  if (trafficMarker == null) {
+export function getLeafletMarkerFromFeature(feature: Feature): Marker {
+  if (feature == null) {
     return null;
   }
 
-  const vehicle = trafficMarker.isBikeMarker ? 'Bikes' : 'Cars';
-  const icon = getDensityIconFromMarker(trafficMarker);
-
-  if (icon == null) {
+  const bikeFeature = isBikeFeature(feature);
+  if (bikeFeature == null) {
     return null;
   }
 
-  return marker(trafficMarker.coordinates, {riseOnHover: true, icon})
-    .bindPopup(`Daily Volume: ${trafficMarker.trafficDensity} ${vehicle}`);
+  const vehicle = bikeFeature ? 'Bikes' : 'Cars';
+
+  const trafficVolume = getFeatureAdtVolume(feature);
+  if (trafficVolume == null) {
+    return null;
+  }
+
+  // If trafficVolume is null, this icon will never be null.
+  const icon = getDensityIconFromTrafficVolume(trafficVolume);
+
+  const coordinates = getCoordinateFromFeature(feature);
+  if (coordinates == null) {
+    return null;
+  }
+
+  const startDate = getFeatureStartDate(feature);
+  if (startDate == null) {
+    return null;
+  }
+
+  return marker(coordinates, {riseOnHover: true, icon, title: `${startDate} --> ${trafficVolume}`})
+    .bindPopup(`Daily Volume: ${trafficVolume} ${vehicle}`);
 }
 
 export function getFeatureAdtVolume(feature: Feature): number {
@@ -150,4 +148,58 @@ export function getFeatureAdtVolume(feature: Feature): number {
   }
 
   return adtVolume;
+}
+
+export function getMarkerDictKey(area: string, vehicle: string, year: string, density: string): string {
+  if (!Object.keys(AREAS).includes(area)) {
+    return null;
+  }
+
+  if (!VEHICLES.includes(vehicle)) {
+    return null;
+  }
+
+  if (!YEARS.includes(year)) {
+    return null;
+  }
+
+  if (!Object.keys(DENSITIES).includes(density)) {
+    return null;
+  }
+
+  return `${area}:${vehicle}:${year}:${density}`;
+}
+
+export function getTrafficDensityFromLeafletMarker(leafletMarker: Marker): number {
+  if (leafletMarker == null) {
+    return null;
+  }
+
+  const titleWords = leafletMarker.options.title.split(' ');
+  return parseInt(titleWords[titleWords.length - 1], 10);
+}
+
+export function getLeafletMarkerDict(features: Feature[]): {[markerKey: string]: Marker[]} {
+  if (features == null) {
+    return null;
+  }
+
+  const allLeafletMarkers = features.map(feature => getLeafletMarkerFromFeature(feature));
+
+  const leafletMarkerDict: {[markerKey: string]: Marker[]} = {};
+  Object.keys(DENSITIES).forEach(density =>
+    Object.keys(AREAS).forEach(area =>
+      YEARS.forEach(year =>
+        VEHICLES.forEach(vehicle => {
+          const markerKey = getMarkerDictKey(area, vehicle, year, density);
+          leafletMarkerDict[markerKey] = allLeafletMarkers.filter(marker =>
+            inDensityRange(getTrafficDensityFromLeafletMarker(marker), DENSITIES[density]) &&
+            (marker.options.title.includes(year) || year === YEARS[0]) &&
+            markerValidForVehicleFilter(marker, vehicle)
+          );
+        })
+      )
+    )
+  );
+  return leafletMarkerDict;
 }

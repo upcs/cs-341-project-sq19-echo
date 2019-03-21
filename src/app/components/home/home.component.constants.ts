@@ -1,5 +1,7 @@
-import {icon, PointExpression} from 'leaflet';
+import {icon, LatLngExpression, PointExpression} from 'leaflet';
 import {DensityInfo} from './home.component.interfaces';
+
+export const DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
 
 const ICON_SIZE: PointExpression = [10, 10];
 const IMAGES_DIR = '../../assets/images/';
@@ -14,3 +16,16 @@ export const DENSITIES: {[density: string]: DensityInfo} = {
   'Medium': {min: 1000, max: 5000},
   'Low': {min: 0, max: 1000}
 };
+
+export const AREAS: {[location: string]: LatLngExpression} = {
+  'All': DEFAULT_COORDS,
+  'North': [45.6075, -122.7236],
+  'South': [45.4886, -122.6755],
+  'Northwest': [45.5586, -122.7609],
+  'Northeast': [45.5676, -122.6179],
+  'Southwest': [45.4849, -122.7116],
+  'Southeast': [45.4914, -122.5930]
+};
+
+export const YEARS = ['All', '2019', '2018', '2017', '2016', '2015', '2014'];
+export const VEHICLES = ['Both', 'Bike', 'Car'];
