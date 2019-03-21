@@ -7,6 +7,13 @@ export interface TrafficMarker {
   readonly trafficDensity: number;
 }
 
+export interface PlanMarker {
+  readonly projectName: string;
+  readonly projectID: string;
+  readonly coordinates: LatLngExpression;
+  readonly projectDesc: string;
+}
+
 export interface DensityInfo {
   readonly min: number;
   readonly max: number;
