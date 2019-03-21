@@ -2,7 +2,6 @@ import {Feature} from 'geojson';
 import {Icon, LatLngExpression, Marker, marker} from 'leaflet';
 import {DensityInfo, TrafficMarker} from './home.component.interfaces';
 import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.component.constants';
-import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
 
 export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
   if (feature == null) {
@@ -36,40 +35,24 @@ export function isBikeFeature(feature: Feature): boolean {
   return featureProperties.ExceptType === 'Bike Count' || featureProperties.Comment === 'ONLY BIKES';
 }
 
-export function getVehicleFilterFromVehicleSelectorValue(vehicleSelectorValue: string): VehicleFilter {
-  if (vehicleSelectorValue == null) {
+export function markerValidForVehicleFilter(trafficMarker: TrafficMarker, vehicleType: string): boolean {
+  if (trafficMarker == null || vehicleType == null) {
     return null;
   }
 
-  if (vehicleSelectorValue === '') {
-    return VehicleFilter.ALL;
-  }
-
-  if (vehicleSelectorValue === VehicleType.Bike) {
-    return VehicleFilter.BIKE;
-  }
-
-  if (vehicleSelectorValue === VehicleType.Car) {
-    return VehicleFilter.CAR;
-  }
-
-  return null;
-}
-
-export function markerValidForVehicleFilter(trafficMarker: TrafficMarker, vehicleFilter: VehicleFilter): boolean {
-  if (trafficMarker == null || vehicleFilter == null) {
+  if (!['Both', 'Bike', 'Car'].includes(vehicleType)) {
     return null;
   }
 
-  if (vehicleFilter === VehicleFilter.ALL) {
+  if (vehicleType === 'Both') {
     return true;
   }
 
-  if (trafficMarker.isBikeMarker && vehicleFilter === VehicleFilter.BIKE) {
+  if (trafficMarker.isBikeMarker && vehicleType === 'Bike') {
     return true;
   }
 
-  return !trafficMarker.isBikeMarker && vehicleFilter === VehicleFilter.CAR;
+  return !trafficMarker.isBikeMarker && vehicleType === 'Car';
 }
 
 export function getDensityIconFromMarker(trafficMarker: TrafficMarker): Icon {
@@ -83,11 +66,11 @@ export function getDensityIconFromMarker(trafficMarker: TrafficMarker): Icon {
     return null;
   }
 
-  if (inDensityRange(trafficVolume, DENSITIES[TrafficDensity.High])) {
+  if (inDensityRange(trafficVolume, DENSITIES['High'])) {
     return RED_ICON;
   }
 
-  if (inDensityRange(trafficVolume, DENSITIES[TrafficDensity.Medium])) {
+  if (inDensityRange(trafficVolume, DENSITIES['Medium'])) {
     return ORANGE_ICON;
   }
 
@@ -140,7 +123,7 @@ export function getLeafletMarkerFromTrafficMarker(trafficMarker: TrafficMarker):
     return null;
   }
 
-  const vehicle = trafficMarker.isBikeMarker ? VehicleType.Bike : VehicleType.Car;
+  const vehicle = trafficMarker.isBikeMarker ? 'Bikes' : 'Cars';
   const icon = getDensityIconFromMarker(trafficMarker);
 
   if (icon == null) {

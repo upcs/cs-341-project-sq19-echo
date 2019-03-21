@@ -5,13 +5,11 @@ import {
   getFeatureStartDate,
   getLeafletMarkerFromTrafficMarker,
   getTrafficMarkersFromFeatures,
-  getVehicleFilterFromVehicleSelectorValue,
   inDensityRange,
   isBikeFeature,
   markerValidForVehicleFilter
 } from './home.component.functions';
 import {Feature} from 'geojson';
-import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
 import {DensityInfo, TrafficMarker} from './home.component.interfaces';
 import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.component.constants';
 import {marker, Marker} from 'leaflet';
@@ -118,9 +116,9 @@ const bikeTrafficMarker: TrafficMarker = {
   trafficDensity: 68
 };
 
-const lowDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Low];
-const mediumDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Medium];
-const highDensityInfo: DensityInfo = DENSITIES[TrafficDensity.High];
+const lowDensityInfo: DensityInfo = DENSITIES['Low'];
+const mediumDensityInfo: DensityInfo = DENSITIES['Medium'];
+const highDensityInfo: DensityInfo = DENSITIES['High'];
 
 const trafficMarkerNullTrafficDensity: TrafficMarker = {
   startDate: '',
@@ -184,25 +182,6 @@ describe('isBikeFeature tests', () => {
   });
 });
 
-describe('getVehicleFilterFromVehicleSelector tests', () => {
-  test('null or undefined vehicle selector value returns null', () => {
-    expect(getVehicleFilterFromVehicleSelectorValue(null)).toBeNull();
-    expect(getVehicleFilterFromVehicleSelectorValue(undefined)).toBeNull();
-  });
-
-  test('empty vehicle selector value returns VehicleFilter.ALL', () => {
-    expect(getVehicleFilterFromVehicleSelectorValue('')).toBe(VehicleFilter.ALL);
-  });
-
-  test('vehicle selector value of VehicleType.Car returns VehicleFilter.CAR', () => {
-    expect(getVehicleFilterFromVehicleSelectorValue(VehicleType.Car)).toBe(VehicleFilter.CAR);
-  });
-
-  test('vehicle selector value of VehicleType.Bike returns VehicleFilter.BIKE', () => {
-    expect(getVehicleFilterFromVehicleSelectorValue(VehicleType.Bike)).toBe(VehicleFilter.BIKE);
-  });
-});
-
 describe('markerValidForVehicleFilter tests', () => {
   test('null or undefined traffic marker & vehicle filter returns null', () => {
     expect(markerValidForVehicleFilter(null, null)).toBeNull();
@@ -211,16 +190,28 @@ describe('markerValidForVehicleFilter tests', () => {
     expect(markerValidForVehicleFilter(undefined, null)).toBeNull();
   });
 
-  test('regular traffic marker should only return true for CAR and ALL filters', () => {
-    expect(markerValidForVehicleFilter(regularTrafficMarker, VehicleFilter.CAR)).toBe(true);
-    expect(markerValidForVehicleFilter(regularTrafficMarker, VehicleFilter.ALL)).toBe(true);
-    expect(markerValidForVehicleFilter(regularTrafficMarker, VehicleFilter.BIKE)).toBe(false);
+  test('regular traffic marker should only return true for Car and Both vehicle types', () => {
+    expect(markerValidForVehicleFilter(regularTrafficMarker, 'Car')).toBe(true);
+    expect(markerValidForVehicleFilter(regularTrafficMarker, 'Both')).toBe(true);
+    expect(markerValidForVehicleFilter(regularTrafficMarker, 'Bike')).toBe(false);
   });
 
-  test('bike traffic marker should only return true for BIKE and ALL filters', () => {
-    expect(markerValidForVehicleFilter(bikeTrafficMarker, VehicleFilter.BIKE)).toBe(true);
-    expect(markerValidForVehicleFilter(bikeTrafficMarker, VehicleFilter.ALL)).toBe(true);
-    expect(markerValidForVehicleFilter(bikeTrafficMarker, VehicleFilter.CAR)).toBe(false);
+  test('bike traffic marker should only return true for Bike and All vehicle types', () => {
+    expect(markerValidForVehicleFilter(bikeTrafficMarker, 'Bike')).toBe(true);
+    expect(markerValidForVehicleFilter(bikeTrafficMarker, 'Both')).toBe(true);
+    expect(markerValidForVehicleFilter(bikeTrafficMarker, 'Car')).toBe(false);
+  });
+
+  test('bogus vehicle types return null for regular marker', () => {
+    expect(markerValidForVehicleFilter(regularTrafficMarker, '')).toBeNull();
+    expect(markerValidForVehicleFilter(regularTrafficMarker, 'testing')).toBeNull();
+    expect(markerValidForVehicleFilter(regularTrafficMarker, 'bob')).toBeNull();
+  });
+
+  test('bogus vehicle types return null for bike marker', () => {
+    expect(markerValidForVehicleFilter(bikeTrafficMarker, '')).toBeNull();
+    expect(markerValidForVehicleFilter(bikeTrafficMarker, 'testing')).toBeNull();
+    expect(markerValidForVehicleFilter(bikeTrafficMarker, 'bob')).toBeNull();
   });
 });
 
@@ -351,14 +342,14 @@ describe('getLeafletMarkerFromTrafficMarker tests', () => {
 
   test('regular traffic marker returns proper Leaflet marker', () => {
     const regularLeafletMarker: Marker = marker(regularTrafficMarker.coordinates, {riseOnHover: true, icon: GREEN_ICON})
-      .bindPopup(`Daily Volume: ${regularTrafficMarker.trafficDensity} ${VehicleType.Car}`);
+      .bindPopup(`Daily Volume: ${regularTrafficMarker.trafficDensity} Cars`);
 
     expect(getLeafletMarkerFromTrafficMarker(regularTrafficMarker)).toEqual(regularLeafletMarker);
   });
 
   test('bike traffic marker returns proper Leaflet marker', () => {
     const bikeLeafletMarker: Marker = marker(bikeTrafficMarker.coordinates, {riseOnHover: true, icon: GREEN_ICON})
-      .bindPopup(`Daily Volume: ${bikeTrafficMarker.trafficDensity} ${VehicleType.Bike}`);
+      .bindPopup(`Daily Volume: ${bikeTrafficMarker.trafficDensity} Bikes`);
 
     expect(getLeafletMarkerFromTrafficMarker(bikeTrafficMarker)).toEqual(bikeLeafletMarker);
   });

@@ -5,7 +5,7 @@
   <form class="formContainer">
     <mat-form-field>
       <mat-select #areaSelector placeholder="Filter Portland Area">
-        <mat-option *ngFor="let area of objectKeys(areas)" [value]="areas[area]">{{area}}</mat-option>
+        <mat-option *ngFor="let area of objectKeys(areas)" [value]="area">{{area}}</mat-option>
       </mat-select>
     </mat-form-field>
 
@@ -17,18 +17,18 @@
 
     <mat-form-field>
       <mat-select #vehicleSelector placeholder="Filter Vehicle Type">
-        <mat-option *ngFor="let vehicle of vehicles" [value]="vehicle">{{vehicle}}</mat-option>
+        <mat-option *ngFor="let vehicle of vehicleTypes" [value]="vehicle">{{vehicle}}</mat-option>
       </mat-select>
     </mat-form-field>
 
     <mat-form-field>
       <mat-select #densitySelector placeholder="Filter Traffic Density">
-        <mat-option *ngFor="let density of objectKeys(densities)" [value]="densities[density]">{{density}}
+        <mat-option *ngFor="let density of objectKeys(densities)" [value]="density">{{density}}
         </mat-option>
       </mat-select>
     </mat-form-field>
 
-    <button id="resetButton" mat-raised-button color="warn" (click)="clearFiltersAndUpdateMap()">Clear Filters</button>
+    <button id="resetButton" mat-raised-button color="warn" (click)="setFilterDefaultsAndUpdateMap()">Clear Filters</button>
     <button mat-raised-button color="primary" (click)="updateMap()">Filter Data</button>
   </form>
 

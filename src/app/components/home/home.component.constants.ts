@@ -1,6 +1,5 @@
 import {icon, PointExpression} from 'leaflet';
 import {DensityInfo} from './home.component.interfaces';
-import {TrafficDensity} from './home.component.enums';
 
 const ICON_SIZE: PointExpression = [10, 10];
 const IMAGES_DIR = '../../assets/images/';
@@ -10,7 +9,8 @@ export const ORANGE_ICON = icon({iconUrl: `${IMAGES_DIR}orangeMarker.png`, iconS
 export const GREEN_ICON = icon({iconUrl: `${IMAGES_DIR}greenMarker.png`, iconSize: ICON_SIZE});
 
 export const DENSITIES: {[density: string]: DensityInfo} = {
-  [TrafficDensity.High]: {min: 5000, max: 100000},
-  [TrafficDensity.Medium]: {min: 1000, max: 5000},
-  [TrafficDensity.Low]: {min: 0, max: 1000}
+  'All': {min: 0, max: 100000},
+  'High': {min: 5000, max: 100000},
+  'Medium': {min: 1000, max: 5000},
+  'Low': {min: 0, max: 1000}
 };
