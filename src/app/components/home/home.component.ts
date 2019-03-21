@@ -1,11 +1,17 @@
 import {Component, ViewChild} from '@angular/core';
 import {Title} from '@angular/platform-browser';
-import {MatSelect} from '@angular/material';
-import {latLng, Map as LeafletMap, MapOptions, Marker, tileLayer} from 'leaflet';
+import {MatSelect, MatTabChangeEvent} from '@angular/material';
+import {latLng, latLngBounds, Map as LeafletMap, MapOptions, marker, Marker, tileLayer} from 'leaflet';
 import {HttpClient} from '@angular/common/http';
 import {FeatureCollection} from 'geojson';
-import {getMarkerDictKey, getLeafletMarkerDict} from './home.component.functions';
-import {AREAS, DEFAULT_COORDS, DENSITIES, VEHICLES, YEARS} from './home.component.constants';
+import {
+  getMarkerDictKey,
+  getLeafletMarkerDict,
+  getLeafletMarkerFromPlanMarker,
+  getPlanMarkersFromFeatures, getTrafficMarkersFromFeatures
+} from './home.component.functions';
+import {AREAS, DEFAULT_COORDS, DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON, VEHICLES, YEARS} from './home.component.constants';
+import {PlanMarker, TrafficMarker} from './home.component.interfaces';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +29,10 @@ export class HomeComponent {
   private leafletMarkerDict: {[markerKey: string]: Marker[]} = {};
   private currentLeafletMarkers: Marker[] = [];
 
+  private allTrafficMarkers: TrafficMarker[];
+
+  private allPlanMarkers: PlanMarker[];
+  private leafletMarkers: Marker[] = [];
   private map: LeafletMap;
 
   // Fields accessed by the HTML (template).
@@ -65,10 +75,9 @@ export class HomeComponent {
     const relevantTrafficMarkers = this.leafletMarkerDict[markerDictKey];
 
     this.currentLeafletMarkers = relevantTrafficMarkers.map(leafletMarker => {
-        this.map.addLayer(leafletMarker);
-        return leafletMarker;
-      }
-    );
+      this.map.addLayer(leafletMarker);
+      return leafletMarker;
+    });
   }
 
   public updateMap(): void {
@@ -84,6 +93,100 @@ export class HomeComponent {
 
     this.updateMap();
   }
+  public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
+    if(tabChangeEvent.tab.textLabel === "View Projects") {
+      this.leafletMarkers.forEach(marker => this.map.removeLayer(marker));
+      for(let marker of this.allPlanMarkers) {
+        const leafletMarker = getLeafletMarkerFromPlanMarker(marker);
+        this.leafletMarkers.push(leafletMarker);
+        this.map.addLayer(leafletMarker);
+      }
+
+      let allMarkers = this.leafletMarkers;
+      let planMarkers = this.allPlanMarkers;
+      let tempMap = this.map;
+      let trafficMarkers = this.allTrafficMarkers;
+      for(let lmarker of this.leafletMarkers) {
+        lmarker.on("click", function(e) {
+          var selectedMarker;
+          for(let marker of allMarkers) {
+            if(marker.isPopupOpen()) {
+              selectedMarker = marker;
+              break;
+            }
+          }
+          
+          var infoMarker: PlanMarker;
+          for(let pmarker of planMarkers) {
+            var markerCoords = pmarker.coordinates.toString().split(",")
+            if(markerCoords[0] == String(selectedMarker.getLatLng().lat) && markerCoords[1] == String(selectedMarker.getLatLng().lng)) {
+              infoMarker = pmarker;
+              break;
+            }
+          }
+
+          var strBounds: String[] = infoMarker.coordinates.toString().split(",");
+          var corner1 = latLng(+strBounds[0]-0.02, +strBounds[1]-0.02);
+          var corner2 = latLng(+strBounds[0]+0.02, +strBounds[1]+0.02);
+          var setBounds = latLngBounds(corner1, corner2)
+          tempMap.flyToBounds(setBounds, {maxZoom: 15});
+          var sum: number = 0;
+          var amount: number = 0.0000000001;
+          for(let tmarker of trafficMarkers) {
+            if(setBounds.contains(tmarker.coordinates)) {
+              if(tmarker.trafficDensity <= 1000) {
+                tempMap.addLayer(marker(tmarker.coordinates, {riseOnHover: true, icon: GREEN_ICON}).bindPopup(`Daily Volume: ${tmarker.trafficDensity} cars`))
+              }
+              else if(tmarker.trafficDensity <= 5000) {
+                tempMap.addLayer(marker(tmarker.coordinates, {riseOnHover: true, icon: ORANGE_ICON}).bindPopup(`Daily Volume: ${tmarker.trafficDensity} cars`))
+              }
+              else if(tmarker.trafficDensity > 5000) {
+                tempMap.addLayer(marker(tmarker.coordinates, {riseOnHover: true, icon: RED_ICON}).bindPopup(`Daily Volume: ${tmarker.trafficDensity} cars`))
+              }
+              sum = sum + tmarker.trafficDensity;
+              amount = amount + 1;
+            }
+          }
+          var averageLevel = Math.round(sum/amount);
+          var level: String = averageLevel < 1000 ? "Low" : averageLevel < 5000 ? "Medium" : "High";
+          document.getElementById("instruct").style.display = "none";
+          document.getElementById("infoCard").style.display = "block";
+          document.getElementById("projName").textContent = infoMarker.projectName;  
+          document.getElementById("projNum").textContent = "Project Number: " + infoMarker.projectID;  
+          document.getElementById("projDesc").textContent = infoMarker.projectDesc;  
+          document.getElementById("trafficLevel").textContent = "Traffic Level: " + level;
+          document.getElementById("averageFlow").textContent = "Average Flow: " + averageLevel + " cars"
+        });
+
+      }
+    }
+    else if(tabChangeEvent.tab.textLabel === "Filter Data") {
+      this.clearFiltersAndUpdateMap();
+    }
+  }
+
+  public markerClick() {
+    var selectedMarker;
+    for(let marker of this.leafletMarkers) {
+      if(marker.isPopupOpen) {
+        selectedMarker = marker;
+        break;
+      }
+    }
+
+    for(let marker of this.allPlanMarkers) {
+      alert(marker.coordinates)
+    }
+  }
+
+  public clearFiltersAndUpdateMap(): void {
+    this.areaSelector.value = '';
+    this.yearSelector.value = '';
+    this.vehicleSelector.value = 'Cars';
+    this.densitySelector.value = '';
+
+    this.updateMap();
+  }
 
   /**
    * Initialize Leaflet map.
@@ -94,8 +197,14 @@ export class HomeComponent {
 
     const TRAFFIC_URL = 'https://opendata.arcgis.com/datasets/6ba5258ffea34e878168ddc8cf34f7e3_250.geojson';
     this.http.get(TRAFFIC_URL).subscribe((trafficJson: FeatureCollection) => {
+      this.allTrafficMarkers = getTrafficMarkersFromFeatures(trafficJson.features);
       this.leafletMarkerDict = getLeafletMarkerDict(trafficJson.features);
       this.setFilterDefaultsAndUpdateMap();
+    });
+
+    const TPS_URL = 'assets/Transportation_System_Plan_TSP_Project__Point.geojson';
+    this.http.get(TPS_URL).subscribe((planJson: FeatureCollection) => {
+      this.allPlanMarkers = getPlanMarkersFromFeatures(planJson.features);
     });
   }
 }

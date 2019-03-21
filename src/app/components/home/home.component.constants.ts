@@ -9,6 +9,7 @@ const IMAGES_DIR = '../../assets/images/';
 export const RED_ICON = icon({iconUrl: `${IMAGES_DIR}redMarker.png`, iconSize: ICON_SIZE});
 export const ORANGE_ICON = icon({iconUrl: `${IMAGES_DIR}orangeMarker.png`, iconSize: ICON_SIZE});
 export const GREEN_ICON = icon({iconUrl: `${IMAGES_DIR}greenMarker.png`, iconSize: ICON_SIZE});
+export const DEFAULT_ICON = icon({iconUrl: `${IMAGES_DIR}marker-icon-2x.png`, iconSize: [25, 41]})
 
 export const DENSITIES: {[density: string]: DensityInfo} = {
   'All': {min: 0, max: 100000},
