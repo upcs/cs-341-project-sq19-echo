@@ -370,13 +370,6 @@ describe('getMarkerDictKey tests', () => {
   });
 });
 
-describe('getLeafletMarkerDict tests', () => {
-  test('null or undefined list of features returns null', () => {
-    expect(getLeafletMarkerDict(null)).toBeNull();
-    expect(getLeafletMarkerDict(undefined)).toBeNull();
-  });
-});
-
 describe('getTrafficDensityFromLeafletMarker tests', () => {
   test('null or undefined leaflet marker returns null', () => {
     expect(getTrafficDensityFromLeafletMarker(null)).toBeNull();
@@ -389,5 +382,24 @@ describe('getTrafficDensityFromLeafletMarker tests', () => {
 
   test('bike leaflet marker returns proper traffic density', () => {
     expect(getTrafficDensityFromLeafletMarker(bikeLeafletMarker)).toBe(bikeFeatureExample.properties.ADTVolume);
+  });
+});
+
+describe('getLeafletMarkerDict tests', () => {
+  test('null or undefined list of features returns null', () => {
+    expect(getLeafletMarkerDict(null)).toBeNull();
+    expect(getLeafletMarkerDict(undefined)).toBeNull();
+  });
+
+  test('regular feature should return a proper dictionary', () => {
+    expect(getLeafletMarkerDict([regularFeatureExample])).toBeTruthy();
+  });
+
+  test('bike feature should return a proper dictionary', () => {
+    expect(getLeafletMarkerDict([bikeFeatureExample])).toBeTruthy();
+  });
+
+  test('both features should return a proper dictionary', () => {
+    expect(getLeafletMarkerDict([regularFeatureExample, bikeFeatureExample])).toBeTruthy();
   });
 });
