@@ -1,8 +1,7 @@
 import {Feature} from 'geojson';
 import {Icon, LatLngExpression, Marker, marker} from 'leaflet';
+import {AREAS, DEFAULT_ICON, DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON, VEHICLES, YEARS} from './home.component.constants';
 import {DensityInfo, TrafficMarker, PlanMarker} from './home.component.interfaces';
-import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON, DEFAULT_ICON} from './home.component.constants';
-import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
 
 export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
   if (feature == null) {
@@ -67,58 +66,37 @@ export function isBikeFeature(feature: Feature): boolean {
   return featureProperties.ExceptType === 'Bike Count' || featureProperties.Comment === 'ONLY BIKES';
 }
 
-export function getVehicleFilterFromVehicleSelectorValue(vehicleSelectorValue: string): VehicleFilter {
-  if (vehicleSelectorValue == null) {
+export function markerValidForVehicleFilter(leafletMarker: Marker, vehicleType: string): boolean {
+  if (leafletMarker == null || vehicleType == null) {
     return null;
   }
 
-  if (vehicleSelectorValue === '') {
-    return VehicleFilter.ALL;
-  }
-
-  if (vehicleSelectorValue === VehicleType.Bike) {
-    return VehicleFilter.BIKE;
-  }
-
-  if (vehicleSelectorValue === VehicleType.Car) {
-    return VehicleFilter.CAR;
-  }
-
-  return null;
-}
-
-export function markerValidForVehicleFilter(trafficMarker: TrafficMarker, vehicleFilter: VehicleFilter): boolean {
-  if (trafficMarker == null || vehicleFilter == null) {
+  if (!['Both', 'Bike', 'Car'].includes(vehicleType)) {
     return null;
   }
 
-  if (vehicleFilter === VehicleFilter.ALL) {
+  if (vehicleType === 'Both') {
     return true;
   }
 
-  if (trafficMarker.isBikeMarker && vehicleFilter === VehicleFilter.BIKE) {
+  const popupContent = leafletMarker.getPopup().getContent().toString();
+  if (popupContent.includes('Bikes') && vehicleType === 'Bike') {
     return true;
   }
 
-  return !trafficMarker.isBikeMarker && vehicleFilter === VehicleFilter.CAR;
+  return popupContent.includes('Cars') && vehicleType === 'Car';
 }
 
-export function getDensityIconFromMarker(trafficMarker: TrafficMarker): Icon {
-  if (trafficMarker == null) {
-    return null;
-  }
-
-  const trafficVolume = trafficMarker.trafficDensity;
-
+export function getDensityIconFromTrafficVolume(trafficVolume: number): Icon {
   if (trafficVolume == null) {
     return null;
   }
 
-  if (inDensityRange(trafficVolume, DENSITIES[TrafficDensity.High])) {
+  if (inDensityRange(trafficVolume, DENSITIES['High'])) {
     return RED_ICON;
   }
 
-  if (inDensityRange(trafficVolume, DENSITIES[TrafficDensity.Medium])) {
+  if (inDensityRange(trafficVolume, DENSITIES['Medium'])) {
     return ORANGE_ICON;
   }
 
@@ -181,20 +159,38 @@ export function inDensityRange(inputTrafficDensity: number, targetDensityRange: 
   return inputTrafficDensity >= targetDensityRange.min && inputTrafficDensity <= targetDensityRange.max;
 }
 
-export function getLeafletMarkerFromTrafficMarker(trafficMarker: TrafficMarker): Marker {
-  if (trafficMarker == null) {
+export function getLeafletMarkerFromFeature(feature: Feature): Marker {
+  if (feature == null) {
     return null;
   }
 
-  const vehicle = trafficMarker.isBikeMarker ? VehicleType.Bike : VehicleType.Car;
-  const icon = getDensityIconFromMarker(trafficMarker);
+  const bikeFeature = isBikeFeature(feature);
+  if (bikeFeature == null) {
+    return null;
+  }
 
-  if (icon == null) {
+  const vehicle = bikeFeature ? 'Bikes' : 'Cars';
+
+  const trafficVolume = getFeatureAdtVolume(feature);
+  if (trafficVolume == null) {
     return null;
   }
   
-  return marker(trafficMarker.coordinates, {riseOnHover: true, icon})
-    .bindPopup(`Daily Volume: ${trafficMarker.trafficDensity} ${vehicle}`);
+  // If trafficVolume is null, this icon will never be null.
+  const icon = getDensityIconFromTrafficVolume(trafficVolume);
+
+  const coordinates = getCoordinateFromFeature(feature);
+  if (coordinates == null) {
+    return null;
+  }
+
+  const startDate = getFeatureStartDate(feature);
+  if (startDate == null) {
+    return null;
+  }
+
+  return marker(coordinates, {riseOnHover: true, icon, title: `${startDate} --> ${trafficVolume}`})
+    .bindPopup(`Daily Volume: ${trafficVolume} ${vehicle}`);
 }
 
 export function getLeafletMarkerFromPlanMarker(planMarker: PlanMarker): Marker {
@@ -221,4 +217,58 @@ export function getFeatureAdtVolume(feature: Feature): number {
   }
 
   return adtVolume;
+}
+
+export function getMarkerDictKey(area: string, vehicle: string, year: string, density: string): string {
+  if (!Object.keys(AREAS).includes(area)) {
+    return null;
+  }
+
+  if (!VEHICLES.includes(vehicle)) {
+    return null;
+  }
+
+  if (!YEARS.includes(year)) {
+    return null;
+  }
+
+  if (!Object.keys(DENSITIES).includes(density)) {
+    return null;
+  }
+
+  return `${area}:${vehicle}:${year}:${density}`;
+}
+
+export function getTrafficDensityFromLeafletMarker(leafletMarker: Marker): number {
+  if (leafletMarker == null) {
+    return null;
+  }
+
+  const titleWords = leafletMarker.options.title.split(' ');
+  return parseInt(titleWords[titleWords.length - 1], 10);
+}
+
+export function getLeafletMarkerDict(features: Feature[]): {[markerKey: string]: Marker[]} {
+  if (features == null) {
+    return null;
+  }
+
+  const allLeafletMarkers = features.map(feature => getLeafletMarkerFromFeature(feature));
+
+  const leafletMarkerDict: {[markerKey: string]: Marker[]} = {};
+  Object.keys(DENSITIES).forEach(density =>
+    Object.keys(AREAS).forEach(area =>
+      YEARS.forEach(year =>
+        VEHICLES.forEach(vehicle => {
+          const markerKey = getMarkerDictKey(area, vehicle, year, density);
+          leafletMarkerDict[markerKey] = allLeafletMarkers.filter(marker =>
+            inDensityRange(getTrafficDensityFromLeafletMarker(marker), DENSITIES[density]) &&
+            (marker.options.title.includes(year) || year === YEARS[0]) &&
+            markerValidForVehicleFilter(marker, vehicle)
+          );
+        })
+      )
+    )
+  );
+  return leafletMarkerDict;
 }

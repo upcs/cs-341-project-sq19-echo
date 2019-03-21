@@ -1,35 +1,17 @@
 import {Component, ViewChild} from '@angular/core';
 import {Title} from '@angular/platform-browser';
-import {MatSelect, MatTabChangeEvent, MatTableDataSource} from '@angular/material';
-import {
-  latLng,
-  LatLngExpression,
-  Map as LeafletMap,
-  MapOptions,
-  Marker,
-  marker,
-  tileLayer,
-  LeafletEvent,
-  layerGroup,
-  Layer,
-  LayerGroup,
-  LatLngBounds,
-  latLngBounds
-} from 'leaflet';
+import {MatSelect, MatTabChangeEvent} from '@angular/material';
+import {latLng, latLngBounds, Map as LeafletMap, MapOptions, marker, Marker, tileLayer} from 'leaflet';
 import {HttpClient} from '@angular/common/http';
 import {FeatureCollection} from 'geojson';
-import {DensityInfo, TrafficMarker, PlanMarker} from './home.component.interfaces';
 import {
-  getLeafletMarkerFromTrafficMarker,
+  getMarkerDictKey,
+  getLeafletMarkerDict,
   getLeafletMarkerFromPlanMarker,
-  getTrafficMarkersFromFeatures,
-  getVehicleFilterFromVehicleSelectorValue,
-  inDensityRange,
-  markerValidForVehicleFilter,
-  getPlanMarkersFromFeatures
+  getPlanMarkersFromFeatures, getTrafficMarkersFromFeatures
 } from './home.component.functions';
-import {TrafficLocation, VehicleType} from './home.component.enums';
-import {DENSITIES, RED_ICON, GREEN_ICON, ORANGE_ICON} from './home.component.constants';
+import {AREAS, DEFAULT_COORDS, DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON, VEHICLES, YEARS} from './home.component.constants';
+import {PlanMarker, TrafficMarker} from './home.component.interfaces';
 
 @Component({
   selector: 'app-root',
@@ -42,10 +24,13 @@ export class HomeComponent {
   @ViewChild('vehicleSelector') private vehicleSelector: MatSelect;
   @ViewChild('densitySelector') private densitySelector: MatSelect;
 
-  private DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
-  private DEFAULT_INTENSITY_RANGE: DensityInfo = {min: 0, max: 100000};
+  private DEFAULT_ZOOM = 11;
+
+  private leafletMarkerDict: {[markerKey: string]: Marker[]} = {};
+  private currentLeafletMarkers: Marker[] = [];
 
   private allTrafficMarkers: TrafficMarker[];
+
   private allPlanMarkers: PlanMarker[];
   private leafletMarkers: Marker[] = [];
   private map: LeafletMap;
@@ -53,16 +38,9 @@ export class HomeComponent {
   // Fields accessed by the HTML (template).
   public objectKeys = Object.keys;
   public densities = DENSITIES;
-  public years: string[] = ['2019', '2018', '2017', '2016', '2015', '2014'];
-  public vehicles: string[] = Object.values(VehicleType);
-  public areas: {[location: string]: LatLngExpression} = {
-    [TrafficLocation.North]: [45.6075, -122.7236],
-    [TrafficLocation.South]: [45.4886, -122.6755],
-    [TrafficLocation.Northwest]: [45.5586, -122.7609],
-    [TrafficLocation.Northeast]: [45.5676, -122.6179],
-    [TrafficLocation.Southwest]: [45.4849, -122.7116],
-    [TrafficLocation.Southeast]: [45.4914, -122.5930]
-  };
+  public years = YEARS;
+  public vehicleTypes = VEHICLES;
+  public areas = AREAS;
 
   // Used by the HTML/template to set Leaflet's options.
   public leafletOptions: MapOptions = {
@@ -71,42 +49,35 @@ export class HomeComponent {
         attribution: '&copy; OpenStreetMap contributors'
       })
     ],
-    zoom: 11,
-    center: latLng(this.DEFAULT_COORDS)
+    zoom: this.DEFAULT_ZOOM,
+    center: latLng(DEFAULT_COORDS)
   };
 
   public constructor(private titleService: Title, private http: HttpClient) {
     titleService.setTitle('Portland Traffic Reform');
   }
 
-  private getRelevantMarkers(): TrafficMarker[] {
-    const selectedDensity = this.densitySelector.empty ? this.DEFAULT_INTENSITY_RANGE : this.densitySelector.value;
-    const selectedYear = this.yearSelector.empty ? '-' : this.yearSelector.value;
-    const selectedVehicleFilter = getVehicleFilterFromVehicleSelectorValue(this.vehicleSelector.value);
-
-    return this.allTrafficMarkers.filter(trafficMarker =>
-      inDensityRange(trafficMarker.trafficDensity, selectedDensity) &&
-      trafficMarker.startDate.includes(selectedYear) &&
-      markerValidForVehicleFilter(trafficMarker, selectedVehicleFilter)
-    );
-  }
-
   private updateLeafletMapLocation(): void {
-    const coordinates = this.areaSelector.empty ? this.DEFAULT_COORDS : this.areaSelector.value;
-    const zoom = this.areaSelector.empty ? 11 : 12.5;
+    const coordinates = this.areas[this.areaSelector.value];
+    const zoom = this.areaSelector.value === Object.keys(this.areas)[0] ? this.DEFAULT_ZOOM : 12.5;
     this.map.flyTo(coordinates, zoom);
   }
 
   private updateDisplayedLeafletMarkers(): void {
-    this.leafletMarkers.forEach(marker => this.map.removeLayer(marker));
-    
-    const relevantTrafficMarkers = this.getRelevantMarkers();
-    this.leafletMarkers = relevantTrafficMarkers.map(trafficMarker => {
-        const leafletMarker = getLeafletMarkerFromTrafficMarker(trafficMarker);
-        this.map.addLayer(leafletMarker);
-        return leafletMarker;
-      }
-    );
+    this.currentLeafletMarkers.forEach(leafletMarker => this.map.removeLayer(leafletMarker));
+
+    const selectedArea: string = this.areaSelector.value;
+    const selectedVehicle: string = this.vehicleSelector.value;
+    const selectedYear: string = this.yearSelector.value;
+    const selectedDensity: string = this.densitySelector.value;
+
+    const markerDictKey = getMarkerDictKey(selectedArea, selectedVehicle, selectedYear, selectedDensity);
+    const relevantTrafficMarkers = this.leafletMarkerDict[markerDictKey];
+
+    this.currentLeafletMarkers = relevantTrafficMarkers.map(leafletMarker => {
+      this.map.addLayer(leafletMarker);
+      return leafletMarker;
+    });
   }
 
   public updateMap(): void {
@@ -114,13 +85,21 @@ export class HomeComponent {
     this.updateLeafletMapLocation();
   }
 
+  public setFilterDefaultsAndUpdateMap(): void {
+    this.areaSelector.value = Object.keys(this.areas)[0];
+    this.yearSelector.value = this.years[0];
+    this.vehicleSelector.value = this.vehicleTypes[0];
+    this.densitySelector.value = Object.keys(this.densities)[0];
+
+    this.updateMap();
+  }
   public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
     if(tabChangeEvent.tab.textLabel === "View Projects") {
       this.leafletMarkers.forEach(marker => this.map.removeLayer(marker));
       for(let marker of this.allPlanMarkers) {
         const leafletMarker = getLeafletMarkerFromPlanMarker(marker);
-        this.leafletMarkers.push(leafletMarker)
-        this.map.addLayer(leafletMarker)
+        this.leafletMarkers.push(leafletMarker);
+        this.map.addLayer(leafletMarker);
       }
 
       let allMarkers = this.leafletMarkers;
@@ -146,9 +125,9 @@ export class HomeComponent {
             }
           }
 
-          var strBounds: String[] = infoMarker.coordinates.toString().split(",")
-          var corner1 = latLng(+strBounds[0]-0.02, +strBounds[1]-0.02)
-          var corner2 = latLng(+strBounds[0]+0.02, +strBounds[1]+0.02)
+          var strBounds: String[] = infoMarker.coordinates.toString().split(",");
+          var corner1 = latLng(+strBounds[0]-0.02, +strBounds[1]-0.02);
+          var corner2 = latLng(+strBounds[0]+0.02, +strBounds[1]+0.02);
           var setBounds = latLngBounds(corner1, corner2)
           tempMap.flyToBounds(setBounds, {maxZoom: 15});
           var sum: number = 0;
@@ -219,7 +198,8 @@ export class HomeComponent {
     const TRAFFIC_URL = 'https://opendata.arcgis.com/datasets/6ba5258ffea34e878168ddc8cf34f7e3_250.geojson';
     this.http.get(TRAFFIC_URL).subscribe((trafficJson: FeatureCollection) => {
       this.allTrafficMarkers = getTrafficMarkersFromFeatures(trafficJson.features);
-      this.clearFiltersAndUpdateMap();
+      this.leafletMarkerDict = getLeafletMarkerDict(trafficJson.features);
+      this.setFilterDefaultsAndUpdateMap();
     });
 
     const TPS_URL = 'assets/Transportation_System_Plan_TSP_Project__Point.geojson';
