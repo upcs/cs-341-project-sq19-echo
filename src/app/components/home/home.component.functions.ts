@@ -1,7 +1,7 @@
 import {Feature} from 'geojson';
 import {Icon, LatLngExpression, Marker, marker} from 'leaflet';
-import {DensityInfo, TrafficMarker} from './home.component.interfaces';
-import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.component.constants';
+import {DensityInfo, TrafficMarker, PlanMarker} from './home.component.interfaces';
+import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON, DEFAULT_ICON} from './home.component.constants';
 import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
 
 export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
@@ -21,6 +21,37 @@ export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
 
   // The coordinates are reversed in the JSON.
   return featureCoordinates.reverse() as LatLngExpression;
+}
+
+export function getProjectCoords(feature: Feature): LatLngExpression {
+  if (feature == null) {
+    return null;
+  }
+
+  const featureGeometry = feature.geometry as any;
+  if (featureGeometry == null) {
+    return null;
+  }
+
+  const featureCoordinates: number[] = featureGeometry.coordinates[0];
+  if (featureCoordinates == null) {
+    return null;
+  }
+
+  // The coordinates are reversed in the JSON.
+  return featureCoordinates.reverse() as LatLngExpression;
+}
+
+export function getProjectName(feature: Feature): string {
+  return feature.properties.ProjectName;
+}
+
+export function getProjectID(feature: Feature): string {
+  return feature.properties.ProjectNumber;
+}
+
+export function getProjectDescription(feature: Feature): string {
+  return feature.properties.ProjectDescription;
 }
 
 export function isBikeFeature(feature: Feature): boolean {
@@ -127,6 +158,21 @@ export function getTrafficMarkersFromFeatures(features: Feature[]): TrafficMarke
   });
 }
 
+export function getPlanMarkersFromFeatures(features: Feature[]): PlanMarker[] {
+  if (features == null) {
+    return [];
+  }
+
+  return features.map(feature => {
+    return {
+      coordinates: getProjectCoords(feature),
+      projectName: getProjectName(feature),
+      projectID: getProjectID(feature),
+      projectDesc: getProjectDescription(feature)
+    };
+  });
+}
+
 export function inDensityRange(inputTrafficDensity: number, targetDensityRange: DensityInfo): boolean {
   if (inputTrafficDensity == null || targetDensityRange == null) {
     return null;
@@ -146,9 +192,17 @@ export function getLeafletMarkerFromTrafficMarker(trafficMarker: TrafficMarker):
   if (icon == null) {
     return null;
   }
-
+  
   return marker(trafficMarker.coordinates, {riseOnHover: true, icon})
     .bindPopup(`Daily Volume: ${trafficMarker.trafficDensity} ${vehicle}`);
+}
+
+export function getLeafletMarkerFromPlanMarker(planMarker: PlanMarker): Marker {
+  if (planMarker == null) {
+    return null;
+  }
+  return marker(planMarker.coordinates, {riseOnHover: true, icon: DEFAULT_ICON})
+    .bindPopup(`Project Number: ${planMarker.projectID}`);
 }
 
 export function getFeatureAdtVolume(feature: Feature): number {
