@@ -52,3 +52,11 @@ mat-tab-group {
   width: 50em;
   float: right;
 }
+
+.addressSearch {
+  width: 100%;
+}
+
+.mat-snack-bar-container {
+  max-width: 100% !important;
+}
