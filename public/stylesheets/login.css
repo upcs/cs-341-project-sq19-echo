@@ -1,0 +1,49 @@
+mat-card {
+  width: 500px;
+  margin: 30px auto;
+}
+
+.topInputs {
+  margin-top: 10px;
+  margin-bottom: 5px;
+}
+
+.midInputs {
+  margin-bottom: 5px;
+}
+
+#forgotPass {
+  font-size: 12pt;
+  color: #673ab7;
+  margin-top: 7px;
+  float: left;
+}
+
+button {
+  float: right;
+  width: 100px;
+}
+
+.formContainer {
+  display: flex;
+  flex-direction: column;
+  margin-top: 10px;
+}
+
+.formContainer > * {
+  width: 100%;
+}
+
+.example-large-box {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 16px;
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.example-large-box {
+  height: 300px;
+  width: 300px;
+}
