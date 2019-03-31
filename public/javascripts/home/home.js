@@ -22,6 +22,8 @@ import * as L from "leaflet";*/
 var areaSelector, yearSelector, vehicleSelector, densitySelector, map;
 $(document).ready(function () {
     $('#navBar').html(getNavBarHtml('home'));
+
+
 });
     /*
 
