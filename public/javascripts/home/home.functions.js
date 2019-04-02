@@ -1,8 +1,3 @@
-var marker = require('leaflet').marker;
-
-var homeConstants = require('./home.constants');
-var DENSITIES = homeConstants.DENSITIES;
-
 function getCoordinateFromFeature(feature) {
     if (feature == null) {
         return null;
@@ -98,14 +93,14 @@ function getDensityIconFromTrafficVolume(trafficVolume) {
     }
 
     if (inDensityRange(trafficVolume, DENSITIES['High'])) {
-        return homeConstants.RED_ICON;
+        return RED_ICON;
     }
 
     if (inDensityRange(trafficVolume, DENSITIES['Medium'])) {
-        return homeConstants.ORANGE_ICON;
+        return ORANGE_ICON;
     }
 
-    return homeConstants.GREEN_ICON;
+    return GREEN_ICON;
 }
 
 function getFeatureStartDate(feature) {
@@ -202,7 +197,7 @@ function getLeafletMarkerFromPlanMarker(planMarker) {
     if (planMarker == null) {
         return null;
     }
-    return marker(planMarker.coordinates, {riseOnHover: true, icon: homeConstants.DEFAULT_ICON})
+    return marker(planMarker.coordinates, {riseOnHover: true, icon: DEFAULT_ICON})
         .bindPopup('Project Number: ' + planMarker.projectID);
 }
 
@@ -225,19 +220,19 @@ function getFeatureAdtVolume(feature) {
 }
 
 function getMarkerDictKey(area, vehicle, year, density) {
-    if (!Object.keys(homeConstants.AREAS).includes(area)) {
+    if (!Object.keys(AREAS).includes(area)) {
         return null;
     }
 
-    if (!homeConstants.VEHICLES.includes(vehicle)) {
+    if (VEHICLES.indexOf(vehicle) !== -1) {
         return null;
     }
 
-    if (!homeConstants.YEARS.includes(year)) {
+    if (!YEARS.includes(year)) {
         return null;
     }
 
-    if (!Object.keys(homeConstants.DENSITIES).includes(density)) {
+    if (!Object.keys(DENSITIES).includes(density)) {
         return null;
     }
 
@@ -261,14 +256,14 @@ function getLeafletMarkerDict(features) {
     var allLeafletMarkers = features.map(function (feature) {getLeafletMarkerFromFeature(feature)});
 
     var leafletMarkerDict = {};
-    Object.keys(homeConstants.DENSITIES).forEach(function (density) {
-        Object.keys(homeConstants.AREAS).forEach(function (area) {
-            homeConstants.YEARS.forEach(function (year) {
-                homeConstants.VEHICLES.forEach(function (vehicle) {
+    Object.keys(DENSITIES).forEach(function (density) {
+        Object.keys(AREAS).forEach(function (area) {
+            YEARS.forEach(function (year) {
+                VEHICLES.forEach(function (vehicle) {
                     var markerKey = getMarkerDictKey(area, vehicle, year, density);
                     leafletMarkerDict[markerKey] = allLeafletMarkers.filter(function (marker) {
                             inDensityRange(getTrafficDensityFromLeafletMarker(marker), DENSITIES[density]) &&
-                            (marker.options.title.includes(year) || year === homeConstants.YEARS[0]) &&
+                            (marker.options.title.includes(year) || year === YEARS[0]) &&
                             markerValidForVehicleFilter(marker, vehicle)
                         }
                     );
@@ -278,24 +273,3 @@ function getLeafletMarkerDict(features) {
     });
     return leafletMarkerDict;
 }
-
-module.exports = {
-    getCoordinateFromFeature: getCoordinateFromFeature,
-    getProjectCoords: getProjectCoords,
-    getProjectName: getProjectName,
-    getProjectID: getProjectID,
-    getProjectDescription: getProjectDescription,
-    isBikeFeature: isBikeFeature,
-    markerValidForVehicleFilter: markerValidForVehicleFilter,
-    getDensityIconFromTrafficVolume: getDensityIconFromTrafficVolume,
-    getFeatureStartDate: getFeatureStartDate,
-    getTrafficMarkersFromFeatures: getTrafficMarkersFromFeatures,
-    getPlanMarkersFromFeatures: getPlanMarkersFromFeatures,
-    inDensityRange: inDensityRange,
-    getLeafletMarkerFromFeature: getLeafletMarkerFromFeature,
-    getLeafletMarkerFromPlanMarker: getLeafletMarkerFromPlanMarker,
-    getFeatureAdtVolume: getFeatureAdtVolume,
-    getMarkerDictKey: getMarkerDictKey,
-    getTrafficDensityFromLeafletMarker: getTrafficDensityFromLeafletMarker,
-    getLeafletMarkerDict: getLeafletMarkerDict
-};
