@@ -1,6 +1,7 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, ViewChild, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {MatSelect, MatTabChangeEvent, MatTableDataSource} from '@angular/material';
+import {FormControl} from '@angular/forms';
 import {
   latLng,
   LatLngExpression,
@@ -17,6 +18,7 @@ import {
   latLngBounds
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
+// import {Http, ResponseContentType, Jsonp, Headers} from '@angular/http'
 import {FeatureCollection} from 'geojson';
 import {DensityInfo, TrafficMarker, PlanMarker} from './home.component.interfaces';
 import {
@@ -30,6 +32,8 @@ import {
 } from './home.component.functions';
 import {TrafficLocation, VehicleType} from './home.component.enums';
 import {DENSITIES, RED_ICON, GREEN_ICON, ORANGE_ICON} from './home.component.constants';
+import {map, startWith, filter} from 'rxjs/operators';
+import {Observable} from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -41,6 +45,12 @@ export class HomeComponent {
   @ViewChild('yearSelector') private yearSelector: MatSelect;
   @ViewChild('vehicleSelector') private vehicleSelector: MatSelect;
   @ViewChild('densitySelector') private densitySelector: MatSelect;
+
+  myControl = new FormControl();
+  options: string[] = [];
+  filteredOptions: Observable<string[]>;
+
+  private addrReqInProg: boolean = false
 
   private DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
   private DEFAULT_INTENSITY_RANGE: DensityInfo = {min: 0, max: 100000};
@@ -76,7 +86,7 @@ export class HomeComponent {
   };
 
   public constructor(private titleService: Title, private http: HttpClient) {
-    titleService.setTitle('Portland Traffic Reform');
+    titleService.setTitle('Portland Housing Traffic Hotspots');
   }
 
   private getRelevantMarkers(): TrafficMarker[] {
@@ -213,18 +223,83 @@ export class HomeComponent {
    * Initialize Leaflet map.
    * @param map The Leaflet map to initialize.
    */
-  public onMapReady(map: LeafletMap): void {
-    this.map = map;
+  public onMapReady(maps: LeafletMap): void {
+    this.map = maps;
 
-    const TRAFFIC_URL = 'https://opendata.arcgis.com/datasets/6ba5258ffea34e878168ddc8cf34f7e3_250.geojson';
-    this.http.get(TRAFFIC_URL).subscribe((trafficJson: FeatureCollection) => {
-      this.allTrafficMarkers = getTrafficMarkersFromFeatures(trafficJson.features);
-      this.clearFiltersAndUpdateMap();
-    });
+    // const TRAFFIC_URL = 'https://opendata.arcgis.com/datasets/6ba5258ffea34e878168ddc8cf34f7e3_250.geojson';
+    // this.http.get(TRAFFIC_URL).subscribe((trafficJson: FeatureCollection) => {
+    //   this.allTrafficMarkers = getTrafficMarkersFromFeatures(trafficJson.features);
+    //   this.clearFiltersAndUpdateMap();
+    // });
 
-    const TPS_URL = 'assets/Transportation_System_Plan_TSP_Project__Point.geojson';
-    this.http.get(TPS_URL).subscribe((planJson: FeatureCollection) => {
-      this.allPlanMarkers = getPlanMarkersFromFeatures(planJson.features);
+    // const TPS_URL = 'assets/Transportation_System_Plan_TSP_Project__Point.geojson';
+    // this.http.get(TPS_URL).subscribe((planJson: FeatureCollection) => {
+    //   this.allPlanMarkers = getPlanMarkersFromFeatures(planJson.features);
+    // });
+
+    const ZILLOW_URL = '/webservice/GetSearchResults.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&address=6902+N+Richmond+Ave&citystatezip=Portland%2C+OR'
+    // this.http.get(ZILLOW_URL, {responseType: 'text'}).subscribe((zillowXML) => {
+    //   console.log("test")
+    //   console.log(zillowXML)
+    // });
+    
+    // this.http.get(ZILLOW_URL, {responseType: 'text'}).subscribe(zillowXML => {
+    //   var start = zillowXML.indexOf("<amount currency=") + 23
+    //   var end = zillowXML.indexOf("</amount>")
+    //   console.log(zillowXML.substring(start, end))
+    // })
+
+    // var command = "select * from tsp"
+    // const DATA_URL = '/api'
+    // this.http.post(DATA_URL, {command:command}).subscribe(tspProjects => {
+    //   console.log(tspProjects)
+    // })
+
+    //.pipe(map(res => {console.log(res)}))
+
+    // this.jsonp.get(ZILLOW_URL, {responseType: ResponseContentType.Text}).subscribe( zillowXML => {
+    //   console.log("test")
+    //   console.log(zillowXML)
+    // })
+    
+  }
+
+  public updateOptions(e: KeyboardEvent) {
+    if(e.keyCode)
+    if(!this.addrReqInProg && ((e.keyCode >= 48 && e.keyCode <=57) || (e.keyCode >= 65 && e.keyCode <= 90) || e.keyCode == 32 || e.keyCode == 8)) {
+      this.addrReqInProg = true
+      const value = (<HTMLInputElement>document.getElementById("addressSearch")).value
+      var command = "select address from address where `address` regexp '^" + value + ".*' limit 5"
+      const DATA_URL = '/api'
+      var newOptions: string[] = []
+      this.http.post(DATA_URL, {command:command}).subscribe((addresses: any[]) => {
+        console.log(addresses)
+        for(var option of addresses) {
+          newOptions.push(option.address)
+        }
+        this.options = newOptions;
+        this.addrReqInProg = false
+      })
+    }
+  }
+
+  public getZestimate() {
+    const value = (<HTMLInputElement>document.getElementById("addressSearch")).value
+    var address = ""
+    for(var word of value.split(" ")) {
+      address = address + "+" + word
+    }
+    const url = "/webservice/GetSearchResults.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&address="+address+"&citystatezip=Portland%2C+OR"
+      this.http.get(url, {responseType: 'text'}).subscribe((zillowXML) => {
+        //var start = zillowXML.indexOf("<amount currency=") + 23
+        //var end = zillowXML.indexOf("</amount>")
+        //console.log(zillowXML.substring(start, end))
+        if(zillowXML.includes('Error')) {
+          console.log("Error")
+        }
+        else {
+          console.log(zillowXML)
+        }
     });
   }
 }

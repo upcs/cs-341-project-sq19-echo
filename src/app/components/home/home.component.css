@@ -8,6 +8,7 @@ mat-card {
 }
 
 #container {
+  margin-top: 1em;
   height: 36em;
 }
 
@@ -40,6 +41,10 @@ mat-tab-group {
   max-height: 29em;
   overflow: auto;
   display: none;
+}
+
+#searchBar {
+  width: 100%;
 }
 
 #instruct {
