@@ -2,7 +2,7 @@
   "name": "echo",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "./express/bin/www & ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "jest": "jest",
     "test": "jest && codecov",

@@ -14,7 +14,6 @@
           <mat-error>{{getFormError(loginControls.password)}}</mat-error>
         </mat-form-field>
 
-        <a id="forgotPass">Forgot Password?</a>
         <button [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">Login!</button>
       </form>
     </mat-tab>
@@ -39,9 +38,47 @@
           <mat-error>{{getFormError(signupControls.confirmPassword)}}</mat-error>
         </mat-form-field>
 
+        <mat-form-field appearance="outline">
+          <mat-select #questionSelector placeholder="Security Question" formControlName="questionRequire" required>
+            <mat-option *ngFor="let question of questions" [value]="question">{{question}}</mat-option>
+          </mat-select>
+          <mat-error>{{getFormError(signupControls.questionRequire)}}</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Answer</mat-label>
+          <input matInput placeholder="Answer" formControlName="answerRequire" required>
+          <mat-error>{{getFormError(signupControls.answerRequire)}}</mat-error>
+        </mat-form-field>
+
         <mat-error *ngIf="signupForm.hasError('mismatchedPasswords')">Passwords must match!</mat-error>
 
         <button [disabled]="!signupForm.valid" mat-raised-button color="primary" type="submit">Sign Up!</button>
+      </form>
+    </mat-tab>
+
+    <mat-tab label="RESET PASSWORD">
+      <form class="formContainer" [formGroup]="resetForm">
+        <mat-form-field appearance="outline" id="emailHide">
+          <mat-label>Email</mat-label>
+          <input matInput placeholder="Enter Email" formControlName="emailReset" required>
+          <mat-error>{{getFormError(resetControls.emailReset)}}</mat-error>
+        </mat-form-field>
+        
+        <h5 id="resetQuestion"></h5>
+        <mat-form-field appearance="outline" id="answerHide">
+            <mat-label>Answer</mat-label>
+            <input matInput placeholder="Enter Answer" formControlName="answerReset" required>
+            <mat-error>{{getFormError(resetControls.answerReset)}}</mat-error>
+          </mat-form-field>
+
+        <mat-form-field appearance="outline" id="passwordHide">
+          <mat-label>New Password</mat-label>
+          <input type="password" matInput placeholder="Enter New Password" formControlName="passwordReset" required>
+          <mat-error>{{getFormError(resetControls.passwordReset)}}</mat-error>
+        </mat-form-field>
+        <button [disabled]="!resetForm.valid" mat-raised-button color="primary" type="submit" id="resetButton" (click)="resetPass()">Reset Password</button>
+        <button mat-raised-button color="primary" id="continue" (click)="continueReset()">Continue</button>
       </form>
     </mat-tab>
   </mat-tab-group>

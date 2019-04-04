@@ -8,6 +8,7 @@ mat-card {
 }
 
 #container {
+  margin-top: 1em;
   height: 36em;
 }
 
@@ -37,14 +38,19 @@ mat-tab-group {
 #infoCard {
   max-width: 100%;
   text-align: left;
-  max-height: 29em;
+  max-height: 23em;
   overflow: auto;
   display: none;
 }
 
-#instruct {
+#searchBar {
+  width: 100%;
+}
+
+#errorMess {
   background-color: #e73c26;
-  color: #e6e6e6
+  color: #e6e6e6;
+  display: none;
 }
 
 #map {
@@ -53,10 +59,6 @@ mat-tab-group {
   float: right;
 }
 
-.addressSearch {
-  width: 100%;
-}
-
-.mat-snack-bar-container {
-  max-width: 100% !important;
+#tspProjects {
+  white-space: pre-line;
 }
