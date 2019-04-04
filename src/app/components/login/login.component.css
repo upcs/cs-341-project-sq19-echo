@@ -1,5 +1,5 @@
 mat-card {
-  width: 500px;
+  width: 35em;
   margin: 30px auto;
 }
 
@@ -24,6 +24,27 @@ button {
   width: 100px;
 }
 
+#answerHide {
+  display: none;
+}
+
+#resetButton {
+  display: none;
+}
+
+#passwordHide {
+  display: none;
+}
+
+#resetQuestion {
+  display: none;
+}
+
+h6 {
+  float: left;
+  text-align: left;
+}
+
 .formContainer {
   display: flex;
   flex-direction: column;
@@ -46,4 +67,14 @@ button {
 .example-large-box {
   height: 300px;
   width: 300px;
+}
+
+#resetPass {
+  width: 100%;
+  margin-top: 1em;
+  float: left;
+}
+
+.fullWidth {
+  width: 100%;
 }

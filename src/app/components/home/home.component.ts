@@ -23,12 +23,6 @@ import {FeatureCollection} from 'geojson';
 import {DensityInfo, TrafficMarker, PlanMarker} from './home.component.interfaces';
 import {
   getLeafletMarkerFromTrafficMarker,
-  getLeafletMarkerFromPlanMarker,
-  getTrafficMarkersFromFeatures,
-  getVehicleFilterFromVehicleSelectorValue,
-  inDensityRange,
-  markerValidForVehicleFilter,
-  getPlanMarkersFromFeatures
 } from './home.component.functions';
 import {TrafficLocation, VehicleType} from './home.component.enums';
 import {DENSITIES, RED_ICON, GREEN_ICON, ORANGE_ICON, HOUSE_ICON, DEFAULT_ICON} from './home.component.constants';
@@ -93,18 +87,6 @@ export class HomeComponent {
     titleService.setTitle('Portland Housing Traffic Hotspots');
   }
 
-  // private getRelevantMarkers(): TrafficMarker[] {
-  //   const selectedDensity = this.densitySelector.empty ? this.DEFAULT_INTENSITY_RANGE : this.densitySelector.value;
-  //   const selectedYear = this.yearSelector.empty ? '-' : this.yearSelector.value;
-  //   const selectedVehicleFilter = getVehicleFilterFromVehicleSelectorValue(this.vehicleSelector.value);
-
-  //   return this.allTrafficMarkers.filter(trafficMarker =>
-  //     inDensityRange(trafficMarker.trafficDensity, selectedDensity) &&
-  //     trafficMarker.startDate.includes(selectedYear) &&
-  //     markerValidForVehicleFilter(trafficMarker, selectedVehicleFilter)
-  //   );
-  // }
-
   private updateLeafletMapLocation(): void {
     const coordinates = this.areaSelector.empty ? this.DEFAULT_COORDS : this.areaSelector.value;
     const zoom = this.areaSelector.empty ? 11 : this.areaSelector.value == this.DEFAULT_COORDS ? 11 : 12.5;
@@ -145,92 +127,6 @@ export class HomeComponent {
     this.updateLeafletMapLocation();
   }
 
-  // public tabChanged(tabChangeEvent: MatTabChangeEvent): void {
-  //   if(tabChangeEvent.tab.textLabel === "View Projects") {
-  //     this.leafletMarkers.forEach(marker => this.map.removeLayer(marker));
-  //     for(let marker of this.allPlanMarkers) {
-  //       const leafletMarker = getLeafletMarkerFromPlanMarker(marker);
-  //       this.leafletMarkers.push(leafletMarker)
-  //       this.map.addLayer(leafletMarker)
-  //     }
-
-  //     let allMarkers = this.leafletMarkers;
-  //     let planMarkers = this.allPlanMarkers;
-  //     let tempMap = this.map;
-  //     let trafficMarkers = this.allTrafficMarkers;
-  //     for(let lmarker of this.leafletMarkers) {
-  //       lmarker.on("click", function(e) {
-  //         var selectedMarker;
-  //         for(let marker of allMarkers) {
-  //           if(marker.isPopupOpen()) {
-  //             selectedMarker = marker;
-  //             break;
-  //           }
-  //         }
-          
-  //         var infoMarker: PlanMarker;
-  //         for(let pmarker of planMarkers) {
-  //           var markerCoords = pmarker.coordinates.toString().split(",")
-  //           if(markerCoords[0] == String(selectedMarker.getLatLng().lat) && markerCoords[1] == String(selectedMarker.getLatLng().lng)) {
-  //             infoMarker = pmarker;
-  //             break;
-  //           }
-  //         }
-
-  //         var strBounds: String[] = infoMarker.coordinates.toString().split(",")
-  //         var corner1 = latLng(+strBounds[0]-0.02, +strBounds[1]-0.02)
-  //         var corner2 = latLng(+strBounds[0]+0.02, +strBounds[1]+0.02)
-  //         var setBounds = latLngBounds(corner1, corner2)
-  //         tempMap.flyToBounds(setBounds, {maxZoom: 15});
-  //         var sum: number = 0;
-  //         var amount: number = 0.0000000001;
-  //         for(let tmarker of trafficMarkers) {
-  //           if(setBounds.contains(tmarker.coordinates)) {
-  //             if(tmarker.trafficDensity <= 1000) {
-  //               tempMap.addLayer(marker(tmarker.coordinates, {riseOnHover: true, icon: GREEN_ICON}).bindPopup(`Daily Volume: ${tmarker.trafficDensity} cars`))
-  //             }
-  //             else if(tmarker.trafficDensity <= 5000) {
-  //               tempMap.addLayer(marker(tmarker.coordinates, {riseOnHover: true, icon: ORANGE_ICON}).bindPopup(`Daily Volume: ${tmarker.trafficDensity} cars`))
-  //             }
-  //             else if(tmarker.trafficDensity > 5000) {
-  //               tempMap.addLayer(marker(tmarker.coordinates, {riseOnHover: true, icon: RED_ICON}).bindPopup(`Daily Volume: ${tmarker.trafficDensity} cars`))
-  //             }
-  //             sum = sum + tmarker.trafficDensity;
-  //             amount = amount + 1;
-  //           }
-  //         }
-  //         var averageLevel = Math.round(sum/amount);
-  //         var level: String = averageLevel < 1000 ? "Low" : averageLevel < 5000 ? "Medium" : "High";
-  //         document.getElementById("instruct").style.display = "none";
-  //         document.getElementById("infoCard").style.display = "block";
-  //         document.getElementById("projName").textContent = infoMarker.projectName;  
-  //         document.getElementById("projNum").textContent = "Project Number: " + infoMarker.projectID;  
-  //         document.getElementById("projDesc").textContent = infoMarker.projectDesc;  
-  //         document.getElementById("trafficLevel").textContent = "Traffic Level: " + level;
-  //         document.getElementById("averageFlow").textContent = "Average Flow: " + averageLevel + " cars"
-  //       });
-
-  //     }
-  //   }
-  //   else if(tabChangeEvent.tab.textLabel === "Filter Data") {
-  //     this.clearFiltersAndUpdateMap();
-  //   }
-  // }
-
-  public markerClick() {
-    var selectedMarker;
-    for(let marker of this.leafletMarkers) {
-      if(marker.isPopupOpen) {
-        selectedMarker = marker;
-        break;
-      }
-    }
-
-    for(let marker of this.allPlanMarkers) {
-      alert(marker.coordinates)
-    }
-  }
-
   public clearFiltersAndUpdateMap(): void {
     this.areaSelector.value = '';
     this.yearSelector.value = '';
@@ -246,49 +142,6 @@ export class HomeComponent {
   public onMapReady(map: LeafletMap): void {
     this.map = map;
     this.clearFiltersAndUpdateMap();
-    // const DATA_URL = '/api'
-    // var command = "select * from traffic"
-    // this.http.post(DATA_URL, {command:command}).subscribe((data: any[]) => {
-    //   this.allTrafficMarkers = getTrafficMarkersFromFeatures(data);
-    //   this.clearFiltersAndUpdateMap();
-    // })
-
-    // const TRAFFIC_URL = 'https://opendata.arcgis.com/datasets/6ba5258ffea34e878168ddc8cf34f7e3_250.geojson';
-    // this.http.get(TRAFFIC_URL).subscribe((trafficJson: FeatureCollection) => {
-    //   this.allTrafficMarkers = getTrafficMarkersFromFeatures(trafficJson.features);
-    //   this.clearFiltersAndUpdateMap();
-    // });
-
-    // const TPS_URL = 'assets/Transportation_System_Plan_TSP_Project__Point.geojson';
-    // this.http.get(TPS_URL).subscribe((planJson: FeatureCollection) => {
-    //   this.allPlanMarkers = getPlanMarkersFromFeatures(planJson.features);
-    // });
-
-    //const ZILLOW_URL = '/webservice/GetSearchResults.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&address=6902+N+Richmond+Ave&citystatezip=Portland%2C+OR'
-    // this.http.get(ZILLOW_URL, {responseType: 'text'}).subscribe((zillowXML) => {
-    //   console.log("test")
-    //   console.log(zillowXML)
-    // });
-    
-    // this.http.get(ZILLOW_URL, {responseType: 'text'}).subscribe(zillowXML => {
-    //   var start = zillowXML.indexOf("<amount currency=") + 23
-    //   var end = zillowXML.indexOf("</amount>")
-    //   console.log(zillowXML.substring(start, end))
-    // })
-
-    // var command = "select * from tsp"
-    // const DATA_URL = '/api'
-    // this.http.post(DATA_URL, {command:command}).subscribe(tspProjects => {
-    //   console.log(tspProjects)
-    // })
-
-    //.pipe(map(res => {console.log(res)}))
-
-    // this.jsonp.get(ZILLOW_URL, {responseType: ResponseContentType.Text}).subscribe( zillowXML => {
-    //   console.log("test")
-    //   console.log(zillowXML)
-    // })
-    
   }
 
   public updateOptions(e: KeyboardEvent) {
