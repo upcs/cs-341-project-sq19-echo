@@ -17,11 +17,11 @@ import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.component.con
 import {marker, Marker, LatLngExpression} from 'leaflet';
 
 
-const regularTrafficMarker: TrafficMarker = {
+const regularTrafficMarker: any = {
   lat: -122.709663784461, 
   lng: 45.440062311819155,
-  level: 'medium',
-  volume: 2000
+  level: 'low',
+  volume: 100
   };
 
 
@@ -29,19 +29,6 @@ const lowDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Low];
 const mediumDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Medium];
 const highDensityInfo: DensityInfo = DENSITIES[TrafficDensity.High];
 
-const trafficMarkerNullTrafficDensity: TrafficMarker = {
-  volume: 0,
-  level: '',
-  lat: 0,
-  lng: 0,
-};
-
-const trafficMarkerUndefinedTrafficDensity: TrafficMarker = {
-  volume: 500,
-  level: undefined,
-  coordinates: [0, 0],
-  isBikeMarker: false
-};
 
 describe('getLeafletMarkerFromTrafficMarker tests', () => {
   test('null or undefined traffic marker returns null', () => {
@@ -50,7 +37,7 @@ describe('getLeafletMarkerFromTrafficMarker tests', () => {
   });
 
   test('regular traffic marker returns proper Leaflet marker', () => {
-    const regularLeafletMarker: Marker = marker([regularTrafficMarker.lat, regularTrafficMarker.lng] as LatLngExpression, {riseOnHover: true, icon: ORANGE_ICON})
+    const regularLeafletMarker: Marker = marker([regularTrafficMarker.lat, regularTrafficMarker.lng] as LatLngExpression, {riseOnHover: true, icon: GREEN_ICON})
       .bindPopup(`Daily Volume: ${regularTrafficMarker.volume} cars`);
 
     expect(getLeafletMarkerFromTrafficMarker(regularTrafficMarker)).toEqual(regularLeafletMarker);
