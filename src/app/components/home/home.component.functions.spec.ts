@@ -5,7 +5,7 @@ import {
   getFeatureStartDate, getLeafletMarkerDict,
   getLeafletMarkerFromFeature, getMarkerDictKey, getTrafficDensityFromLeafletMarker,
   inDensityRange,
-  isBikeFeature,
+  isBikeFeature, 
   markerValidForVehicleFilter
 } from './home.component.functions';
 import {Feature} from 'geojson';
@@ -382,7 +382,6 @@ describe('getMarkerDictKey tests', () => {
     expect(getMarkerDictKey('South', 'Car', '2018', 'High')).toBe('South:Car:2018:High');
     expect(getMarkerDictKey('West', 'Car', '2018', 'High')).toBe('West:Car:2018:High');
     expect(getMarkerDictKey('East', 'Car', '2018', 'High')).toBe('East:Car:2018:High');
-    expect(getMarkerDictKey('All', 'Bike', '2018', 'High')).toBe('All:Bike:2018:High');
     expect(getMarkerDictKey('North', 'Car', 'All', 'High')).toBe('North:Car:All:High');
     expect(getMarkerDictKey('South', 'Bike', 'All', 'High')).toBe('South:Bike:All:High');
     expect(getMarkerDictKey('West', 'Car', 'All', 'High')).toBe('West:Car:All:High');
