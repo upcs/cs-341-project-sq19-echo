@@ -375,7 +375,6 @@ describe('getMarkerDictKey tests', () => {
     expect(getMarkerDictKey('All', 'Car', '2018', 'High')).toBe('All:Car:2018:High');
     expect(getMarkerDictKey('North', 'Car', '2018', 'High')).toBe('North:Car:2018:High');
     expect(getMarkerDictKey('South', 'Car', '2018', 'High')).toBe('South:Car:2018:High');
-    expect(getMarkerDictKey('West', 'Car', '2018', 'High')).toBe('West:Car:2018:High');
     expect(getMarkerDictKey('East', 'Car', '2018', 'High')).toBe('East:Car:2018:High');
     expect(getMarkerDictKey('All', 'Car', '2018', 'High')).toBe('All:Car:2018:High');
     expect(getMarkerDictKey('North', 'Car', '2018', 'High')).toBe('North:Car:2018:High');
