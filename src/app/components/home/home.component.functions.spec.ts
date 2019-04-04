@@ -372,8 +372,28 @@ describe('getMarkerDictKey tests', () => {
   });
 
   test('proper attributes return a proper key', () => {
-    expect(getMarkerDictKey('All', 'Bike', 'All', 'High')).toBe('All:Bike:All:High');
-    expect(getMarkerDictKey('North', 'Car', '2018', 'Low')).toBe('North:Car:2018:Low');
+    expect(getMarkerDictKey('All', 'Bike', '2018', 'High')).toBe('All:Bike:2018:High');
+    expect(getMarkerDictKey('North', 'Bike', '2018', 'High')).toBe('North:Bike:2018:High');
+    expect(getMarkerDictKey('South', 'Bike', '2018', 'High')).toBe('South:Bike:2018:High');
+    expect(getMarkerDictKey('West', 'Bike', '2018', 'High')).toBe('West:Bike:2018:High');
+    expect(getMarkerDictKey('East', 'Bike', '2018', 'High')).toBe('East:Bike:2018:High');
+    expect(getMarkerDictKey('All', 'Car', '2018', 'High')).toBe('All:Car:2018:High');
+    expect(getMarkerDictKey('North', 'Car', '2018', 'High')).toBe('North:Car:2018:High');
+    expect(getMarkerDictKey('South', 'Car', '2018', 'High')).toBe('South:Car:2018:High');
+    expect(getMarkerDictKey('West', 'Car', '2018', 'High')).toBe('West:Car:2018:High');
+    expect(getMarkerDictKey('East', 'Car', '2018', 'High')).toBe('East:Car:2018:High');
+    expect(getMarkerDictKey('All', 'Bike', '2018', 'High')).toBe('All:Bike:2018:High');
+    expect(getMarkerDictKey('North', 'Car', 'All', 'High')).toBe('North:Car:All:High');
+    expect(getMarkerDictKey('South', 'Bike', 'All', 'High')).toBe('South:Bike:All:High');
+    expect(getMarkerDictKey('West', 'Car', 'All', 'High')).toBe('West:Car:All:High');
+    expect(getMarkerDictKey('East', 'Bike', 'All', 'High')).toBe('East:Bike:All:High');
+    expect(getMarkerDictKey('All', 'Bike', '2018', 'Low')).toBe('All:Bike:2018:Low');
+    expect(getMarkerDictKey('North', 'Car', 'All', 'Low')).toBe('North:Car:All:Low');
+    expect(getMarkerDictKey('South', 'Bike', '2018', 'Low')).toBe('South:Bike:2018:Low');
+    expect(getMarkerDictKey('West', 'Car', '2018', 'Low')).toBe('West:Car:2018:Low');
+    expect(getMarkerDictKey('East', 'Bike', 'All', 'Low')).toBe('East:Bike:All:Low');
+    
+    
   });
 });
 
