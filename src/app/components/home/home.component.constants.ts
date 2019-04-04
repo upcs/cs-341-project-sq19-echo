@@ -9,6 +9,7 @@ export const RED_ICON = icon({iconUrl: `${IMAGES_DIR}redMarker.png`, iconSize: I
 export const ORANGE_ICON = icon({iconUrl: `${IMAGES_DIR}orangeMarker.png`, iconSize: ICON_SIZE});
 export const GREEN_ICON = icon({iconUrl: `${IMAGES_DIR}greenMarker.png`, iconSize: ICON_SIZE});
 export const DEFAULT_ICON = icon({iconUrl: `${IMAGES_DIR}marker-icon-2x.png`, iconSize: [25, 41]})
+export const HOUSE_ICON = icon({iconUrl: `${IMAGES_DIR}houseMarker.png`, iconSize: [50, 50]})
 
 export const DENSITIES: {[density: string]: DensityInfo} = {
   [TrafficDensity.High]: {min: 5000, max: 100000},

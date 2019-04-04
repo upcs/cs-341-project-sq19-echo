@@ -3,7 +3,6 @@
   "scripts": {
     "ng": "ng",
     "start": "./express/bin/www & ng serve --proxy-config proxy.conf.json",
-    "install": "npm install && cd express && npm install",
     "build": "ng build",
     "jest": "jest",
     "test": "jest && codecov",

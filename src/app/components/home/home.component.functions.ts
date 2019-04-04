@@ -4,7 +4,7 @@ import {DensityInfo, TrafficMarker, PlanMarker} from './home.component.interface
 import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON, DEFAULT_ICON} from './home.component.constants';
 import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
 
-export function getCoordinateFromFeature(feature: Feature): LatLngExpression {
+export function getCoordinateFromFeature(feature: any): LatLngExpression {
   if (feature == null) {
     return null;
   }
@@ -96,11 +96,11 @@ export function markerValidForVehicleFilter(trafficMarker: TrafficMarker, vehicl
     return true;
   }
 
-  if (trafficMarker.isBikeMarker && vehicleFilter === VehicleFilter.BIKE) {
+  if (vehicleFilter === VehicleFilter.BIKE) {
     return true;
   }
 
-  return !trafficMarker.isBikeMarker && vehicleFilter === VehicleFilter.CAR;
+  return vehicleFilter === VehicleFilter.CAR;
 }
 
 export function getDensityIconFromMarker(trafficMarker: TrafficMarker): Icon {
@@ -143,17 +143,17 @@ export function getFeatureStartDate(feature: Feature): string {
   return startDate;
 }
 
-export function getTrafficMarkersFromFeatures(features: Feature[]): TrafficMarker[] {
+export function getTrafficMarkersFromFeatures(features: any[]): TrafficMarker[] {
   if (features == null) {
     return [];
   }
 
   return features.map(feature => {
     return {
-      coordinates: getCoordinateFromFeature(feature),
-      trafficDensity: getFeatureAdtVolume(feature),
-      startDate: getFeatureStartDate(feature),
-      isBikeMarker: isBikeFeature(feature)
+      coordinates: [feature.lat, feature.lng] as LatLngExpression,
+      trafficDensity: feature.volume,
+      trafficLevel: feature.level,
+      startDate: feature.date
     };
   });
 }
@@ -181,20 +181,21 @@ export function inDensityRange(inputTrafficDensity: number, targetDensityRange: 
   return inputTrafficDensity >= targetDensityRange.min && inputTrafficDensity <= targetDensityRange.max;
 }
 
-export function getLeafletMarkerFromTrafficMarker(trafficMarker: TrafficMarker): Marker {
+export function getLeafletMarkerFromTrafficMarker(trafficMarker: any): Marker {
   if (trafficMarker == null) {
     return null;
   }
 
-  const vehicle = trafficMarker.isBikeMarker ? VehicleType.Bike : VehicleType.Car;
-  const icon = getDensityIconFromMarker(trafficMarker);
+  const icon = trafficMarker.level == 'high' ? RED_ICON : trafficMarker.level =='med' ? ORANGE_ICON : GREEN_ICON;
 
   if (icon == null) {
     return null;
   }
+
+  const coordinates = [trafficMarker.lat, trafficMarker.lng] as LatLngExpression;
   
-  return marker(trafficMarker.coordinates, {riseOnHover: true, icon})
-    .bindPopup(`Daily Volume: ${trafficMarker.trafficDensity} ${vehicle}`);
+  return marker(coordinates, {riseOnHover: true, icon})
+    .bindPopup(`Daily Volume: ${trafficMarker.volume} cars`);
 }
 
 export function getLeafletMarkerFromPlanMarker(planMarker: PlanMarker): Marker {

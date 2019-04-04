@@ -2,9 +2,9 @@ import {LatLngExpression} from 'leaflet';
 
 export interface TrafficMarker {
   readonly startDate: string;
-  readonly isBikeMarker: boolean;
   readonly coordinates: LatLngExpression;
   readonly trafficDensity: number;
+  readonly trafficLevel: string;
 }
 
 export interface PlanMarker {

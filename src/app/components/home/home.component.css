@@ -38,7 +38,7 @@ mat-tab-group {
 #infoCard {
   max-width: 100%;
   text-align: left;
-  max-height: 29em;
+  max-height: 23em;
   overflow: auto;
   display: none;
 }
@@ -47,13 +47,18 @@ mat-tab-group {
   width: 100%;
 }
 
-#instruct {
+#errorMess {
   background-color: #e73c26;
-  color: #e6e6e6
+  color: #e6e6e6;
+  display: none;
 }
 
 #map {
   height: 45em;
   width: 50em;
   float: right;
+}
+
+#tspProjects {
+  white-space: pre-line;
 }
