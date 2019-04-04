@@ -341,21 +341,11 @@ describe('getMarkerDictKey tests', () => {
     expect(getMarkerDictKey(null, 'Bike', 'All', 'All')).toBeNull();
     expect(getMarkerDictKey(undefined, 'Bike', 'All', 'All')).toBeNull();
   });
-  test('null or undefined area return null', () => {
-    expect(getMarkerDictKey(null, null, 'All', 'All')).toBeNull();
-    expect(getMarkerDictKey(undefined, undefined, 'All', 'All')).toBeNull();
-  });
+
   test('null or undefined vehicle returns null', () => {
     expect(getMarkerDictKey('All', null, 'All', 'All')).toBeNull();
     expect(getMarkerDictKey('All', undefined, 'All', 'All')).toBeNull();
-    expect(getMarkerDictKey('All', null, null, 'All')).toBeNull();
-    expect(getMarkerDictKey('All', undefined, undefined, 'All')).toBeNull();
   });
-  test('null or undefined area return null', () => {
-    expect(getMarkerDictKey('All', 'Bike', null, undefined)).toBeNull();
-    expect(getMarkerDictKey('All', 'Bike', null, undefined)).toBeNull();
-  });
-
 
   test('null or undefined year returns null', () => {
     expect(getMarkerDictKey('All', 'Bike', null, 'All')).toBeNull();
@@ -407,12 +397,6 @@ describe('getLeafletMarkerDict tests', () => {
 
   test('bike feature should return a proper dictionary', () => {
     expect(getLeafletMarkerDict([bikeFeatureExample])).toBeTruthy();
-  });
-  test('bike feature should return a proper dictionary', () => {
-    expect(getLeafletMarkerDict([null, null])).toBeNull();
-  });
-  test('bike feature should return a proper dictionary', () => {
-    expect(getLeafletMarkerDict([null])).toBeNull();
   });
 
   test('both features should return a proper dictionary', () => {
