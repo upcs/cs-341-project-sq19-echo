@@ -4,6 +4,14 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.1.
 
+## Sprint 4 Features
+
+All data stored in data base. Added Express backend to access data from database. Access to housing price data via Zillow API. User data stored in database, passwords hashed. Reset forgotten password using security questions.
+
+## Sprint 3 Features
+
+App can run on a Google Cloud server. Added data for projects that are a part of the transporation syystem plan for Portland. Changed structure of project to add better tests to increase code coverage and quality of tests.
+
 ## Sprint 2 Features
 
 Login page functionality added. Able to sign up or log in. About page content added. Contact buttons added that automatically redirect to a new email to the selected person. Traffic volume data added to the map and colored based on traffic flow. Filters for data added.
