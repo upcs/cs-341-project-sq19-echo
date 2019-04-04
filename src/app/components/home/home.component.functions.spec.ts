@@ -372,22 +372,8 @@ describe('getMarkerDictKey tests', () => {
   });
 
   test('proper attributes return a proper key', () => {
-    expect(getMarkerDictKey('All', 'Car', '2018', 'High')).toBe('All:Car:2018:High');
-    expect(getMarkerDictKey('North', 'Car', '2018', 'High')).toBe('North:Car:2018:High');
-    expect(getMarkerDictKey('South', 'Car', '2018', 'High')).toBe('South:Car:2018:High');
-    expect(getMarkerDictKey('East', 'Car', '2018', 'High')).toBe('East:Car:2018:High');
-    expect(getMarkerDictKey('All', 'Car', '2018', 'High')).toBe('All:Car:2018:High');
-    expect(getMarkerDictKey('North', 'Car', '2018', 'High')).toBe('North:Car:2018:High');
-    expect(getMarkerDictKey('South', 'Car', '2018', 'High')).toBe('South:Car:2018:High');
-    expect(getMarkerDictKey('West', 'Car', '2018', 'High')).toBe('West:Car:2018:High');
-    expect(getMarkerDictKey('East', 'Car', '2018', 'High')).toBe('East:Car:2018:High');
-    expect(getMarkerDictKey('North', 'Car', 'All', 'High')).toBe('North:Car:All:High');
-    expect(getMarkerDictKey('West', 'Car', 'All', 'High')).toBe('West:Car:All:High');
-    expect(getMarkerDictKey('North', 'Car', 'All', 'Low')).toBe('North:Car:All:Low');
-    expect(getMarkerDictKey('West', 'Car', '2018', 'Low')).toBe('West:Car:2018:Low');
-
-    
-    
+    expect(getMarkerDictKey('All', 'Bike', 'All', 'High')).toBe('All:Bike:All:High');
+    expect(getMarkerDictKey('North', 'Car', '2018', 'Low')).toBe('North:Car:2018:Low');
   });
 });
 
