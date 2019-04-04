@@ -1,18 +1,6 @@
 import {
-  getCoordinateFromFeature,
-  getDensityIconFromMarker,
-  getFeatureAdtVolume,
-  getFeatureStartDate,
   getLeafletMarkerFromTrafficMarker,
-  getTrafficMarkersFromFeatures,
-  getVehicleFilterFromVehicleSelectorValue,
-  inDensityRange,
-  isBikeFeature,
-  markerValidForVehicleFilter
 } from './home.component.functions';
-import {Feature} from 'geojson';
-import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
-import {DensityInfo, TrafficMarker} from './home.component.interfaces';
 import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.component.constants';
 import {marker, Marker, LatLngExpression} from 'leaflet';
 
@@ -23,12 +11,6 @@ const regularTrafficMarker: any = {
   level: 'low',
   volume: 100
   };
-
-
-const lowDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Low];
-const mediumDensityInfo: DensityInfo = DENSITIES[TrafficDensity.Medium];
-const highDensityInfo: DensityInfo = DENSITIES[TrafficDensity.High];
-
 
 describe('getLeafletMarkerFromTrafficMarker tests', () => {
   test('null or undefined traffic marker returns null', () => {

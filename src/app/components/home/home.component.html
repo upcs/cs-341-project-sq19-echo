@@ -32,6 +32,23 @@
         <button id="resetButton" mat-raised-button color="warn" (click)="clearFiltersAndUpdateMap()">Clear Filters</button>
         <button mat-raised-button color="primary" (click)="updateMap()">Filter Data</button>
       </form>
+
+      <form class="formContainer">
+      <mat-form-field class="addressSearch">
+        <input matInput aria-label="Number" type="text" placeholder="Address Search" [(ngModel)]="value"
+               [formControl]="myControl" [matAutocomplete]="auto" #address>
+        <button mat-button *ngIf="value" matSuffix mat-icon-button aria-label="Clear" (click)="value=''">
+          <mat-icon>X</mat-icon>
+        </button>
+        <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+          <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+            {{option}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <button mat-raised-button color="warn" (click)="searchAddress(address.value)">Find Address</button>
+      </form>
+
     </mat-tab>
 
     <mat-tab label="Search Address">      

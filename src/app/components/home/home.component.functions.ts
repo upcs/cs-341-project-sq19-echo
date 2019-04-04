@@ -1,8 +1,6 @@
 import {Feature} from 'geojson';
 import {Icon, LatLngExpression, Marker, marker} from 'leaflet';
-import {DensityInfo, TrafficMarker, PlanMarker} from './home.component.interfaces';
 import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON, DEFAULT_ICON} from './home.component.constants';
-import {TrafficDensity, VehicleFilter, VehicleType} from './home.component.enums';
 
 export function getLeafletMarkerFromTrafficMarker(trafficMarker: any): Marker {
   if (trafficMarker == null) {

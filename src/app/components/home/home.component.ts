@@ -262,5 +262,4 @@ export class HomeComponent {
       alert("Cannot get information. Check that you are connected to the internet.")
     })
   }
-
 }
