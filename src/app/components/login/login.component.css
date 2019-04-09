@@ -75,6 +75,17 @@ h6 {
   float: left;
 }
 
+#logoutCard {
+  text-align: center;
+  height: 4em;
+  display: none;
+}
+
+#logoutButton {
+  width: 100%;
+  height: 2.5em;
+}
+
 .fullWidth {
   width: 100%;
 }

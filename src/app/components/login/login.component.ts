@@ -106,6 +106,8 @@ export class LoginComponent {
         if(data[0].password == hashedPassword) {
           this.cookie.set('authenticated', email);
           this.loginForm.reset();
+          document.getElementById("bigCard").style.display = "none";
+          document.getElementById("logoutCard").style.display = "block";
           alert(`User with email ${email} successfully logged in.`);
         }
         else {
@@ -172,5 +174,10 @@ export class LoginComponent {
       alert("Cannot get information. Check that you are connected to the internet.")
     })
     
+  }
+
+  public logout() {
+    document.getElementById("bigCard").style.display = "block";
+    document.getElementById("logoutCard").style.display = "none";
   }
 }
