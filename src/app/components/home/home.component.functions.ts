@@ -7,14 +7,14 @@ export function getLeafletMarkerFromTrafficMarker(trafficMarker: any): Marker {
     return null;
   }
 
-  const icon = trafficMarker.level == 'high' ? RED_ICON : trafficMarker.level =='med' ? ORANGE_ICON : GREEN_ICON;
+  const icon = trafficMarker.level == 'high' ? RED_ICON : trafficMarker.level == 'med' ? ORANGE_ICON : GREEN_ICON;
 
   if (icon == null) {
     return null;
   }
 
   const coordinates = [trafficMarker.lat, trafficMarker.lng] as LatLngExpression;
-  
+
   return marker(coordinates, {riseOnHover: true, icon})
     .bindPopup(`Daily Volume: ${trafficMarker.volume} cars`);
 }

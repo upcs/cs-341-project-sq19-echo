@@ -6,7 +6,7 @@ import {marker, Marker, LatLngExpression} from 'leaflet';
 
 
 const regularTrafficMarker: any = {
-  lat: -122.709663784461, 
+  lat: -122.709663784461,
   lng: 45.440062311819155,
   level: 'low',
   volume: 100
