@@ -13,10 +13,11 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {CookieService} from 'ngx-cookie-service';
 import {HttpModule, JsonpModule} from '@angular/http';
+import {GameComponent} from './components/game/game.component';
 
 @NgModule({
   declarations: [
-    AppComponent, AboutComponent, HomeComponent, LoginComponent
+    AppComponent, AboutComponent, HomeComponent, LoginComponent, GameComponent
   ],
   imports: [
     MDBBootstrapModule.forRoot(),

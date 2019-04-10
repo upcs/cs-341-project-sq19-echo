@@ -3,6 +3,7 @@ import {Routes, RouterModule} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {AboutComponent} from './components/about/about.component';
+import {GameComponent} from "./components/game/game.component";
 
 export const mainRoutes: Routes = [
   {
@@ -12,6 +13,10 @@ export const mainRoutes: Routes = [
   {
     path: 'about',
     component: AboutComponent
+  },
+  {
+    path: 'game',
+    component: GameComponent
   },
   {
     path: 'login',
