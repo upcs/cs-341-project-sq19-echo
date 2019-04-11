@@ -73,7 +73,7 @@ export class LoginComponent {
     const hashedAnswer = sha512(this.signupControls.answerRequire.value.toLowerCase());
 
     this.http.post('/api', {command: `SELECT * FROM users WHERE user='${email}'`}).subscribe((data: any[]) => {
-        if (data.length > 0) {
+        if (data.length) {
           alert('An account has already been created with this email.');
           return;
         }
@@ -112,26 +112,25 @@ export class LoginComponent {
     const email = this.loginControls.email.value;
     const hashedPassword = sha512(this.loginControls.password.value);
 
-    const command = 'select * from users where user=\'' + email + '\'';
-    this.http.post('/api', {command}).subscribe((data: any[]) => {
-      if (data.length && data[0].password === hashedPassword) {
-        this.cookie.set('authenticated', email);
-        this.loginForm.reset();
-        this.loggedIn = true;
-        alert(`User with email ${email} successfully logged in.`);
-        return;
-      }
+    this.http.post('/api', {command: `SELECT * FROM users WHERE user='${email}'`}).subscribe((data: any[]) => {
+        if (data.length && data[0].password === hashedPassword) {
+          this.cookie.set('authenticated', email);
+          this.loginForm.reset();
+          this.loggedIn = true;
+          alert(`User with email ${email} successfully logged in.`);
+          return;
+        }
 
-      alert('Email or password is incorrect');
-    }, () => displayGeneralErrorMessage()
+        alert('Email or password is incorrect');
+      }, () => displayGeneralErrorMessage()
     );
   }
 
   public continueReset(): void {
     this.http.post(
       '/api', {command: `SELECT * FROM users WHERE user='${this.resetControls.emailReset.value}'`}
-      ).subscribe((data: any[]) => {
-        if (data.length === 0) {
+    ).subscribe((data: any[]) => {
+        if (!data.length) {
           alert('No user with that email was found');
           return;
         }

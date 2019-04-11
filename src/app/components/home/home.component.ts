@@ -218,11 +218,11 @@ export class HomeComponent {
   }
 
   public getTrafficInformation(lat1: number, lat2: number, lng1: number, lng2: number) {
-    const andStatement = this.currentFilter.length ? 'AND' : 'WHERE';
+    const andStmt = this.currentFilter.length ? 'AND' : 'WHERE';
     this.http.post(
       '/api',
       {
-        command: `SELECT volume FROM traffic${this.currentFilter} ${andStatement} lat>${lat1} and lat<${lat2} and lng>${lng1} and lng<${lng2}`
+        command: `SELECT volume FROM traffic${this.currentFilter} ${andStmt} lat>${lat1} AND lat<${lat2} AND lng>${lng1} AND lng<${lng2}`
       }).subscribe((info: any[]) => {
         let summedVolume = 0;
         let averageVolume = 0;
