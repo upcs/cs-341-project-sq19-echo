@@ -68,9 +68,8 @@ export class HomeComponent {
   // Used by the HTML/template to set Leaflet's options.
   public leafletOptions: MapOptions = {
     layers: [
-      tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-      })
+      tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        {attribution: '&copy; OpenStreetMap contributors'})
     ],
     zoom: 11,
     center: latLng(this.DEFAULT_COORDS)
@@ -171,7 +170,7 @@ export class HomeComponent {
         }
 
         let zestimate = zillowXml.substring(zillowXml.indexOf('<amount currency=') + 23, zillowXml.indexOf('</amount>'));
-        if (zestimate.length === 0) {
+        if (!zestimate.length) {
           this.zestimateTextContent = 'Zestimate: N/A';
           return;
         }

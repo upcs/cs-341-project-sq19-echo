@@ -12,7 +12,6 @@ import {AboutComponent} from './components/about/about.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {HttpClientModule} from '@angular/common/http';
 import {CookieService} from 'ngx-cookie-service';
-import {HttpModule, JsonpModule} from '@angular/http';
 
 @NgModule({
   declarations: [
@@ -27,9 +26,7 @@ import {HttpModule, JsonpModule} from '@angular/http';
     LeafletModule.forRoot(),
     FormsModule,
     ReactiveFormsModule,
-    HttpClientModule,
-    HttpModule,
-    JsonpModule
+    HttpClientModule
   ],
   providers: [Title, CookieService],
   bootstrap: [AppComponent]
