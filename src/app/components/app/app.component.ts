@@ -8,16 +8,18 @@ import {CookieService} from 'ngx-cookie-service';
   templateUrl: './app.component.html'
 })
 export class AppComponent {
-  public navLabels: string[] = mainRoutes.map(x => x.path);
+  //public navLabels: string[] = mainRoutes.map(x => x.path);
+  public navLabels: {label: string, route: string}[] = [{label: 'home', route: 'home'}, {label: 'about', route: 'about'}]
 
   public constructor(private titleService: Title, private cookie: CookieService) {
     titleService.setTitle('Echo App');
 
-    let loggedInUser = cookie.get('authenticated');
+    const loggedInUser = '' + cookie.get('authenticated');
     if (!loggedInUser) {
-      loggedInUser = 'GUEST';
+      this.navLabels.push({label: 'login', route: 'user'});
     }
-
-    this.navLabels.push(`WELCOME, ${loggedInUser}`);
+    else {
+      this.navLabels.push({label: loggedInUser, route: 'user'})
+    }
   }
 }

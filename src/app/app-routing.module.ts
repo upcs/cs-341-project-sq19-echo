@@ -14,14 +14,14 @@ export const mainRoutes: Routes = [
     component: AboutComponent
   },
   {
-    path: 'login',
+    path: 'user',
     component: LoginComponent
   }
 ];
 
 const allRoutes: Routes = mainRoutes;
 allRoutes.push({
-    path: '',
+    path: '**',
     redirectTo: '/home',
     pathMatch: 'full'
 });
