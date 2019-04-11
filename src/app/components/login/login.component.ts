@@ -216,6 +216,10 @@ export class LoginComponent {
     })
   }
 
+  public viewOnMap(address: string) {
+    this.cookie.set('address', address)
+  }
+
   public logout() {
     this.cookie.delete('authenticated');
     location.reload()
