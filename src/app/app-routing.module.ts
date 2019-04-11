@@ -7,7 +7,8 @@ import {AboutComponent} from './components/about/about.component';
 export const mainRoutes: Routes = [
   {
     path: 'home',
-    component: HomeComponent
+    component: HomeComponent,
+    pathMatch: 'prefix'
   },
   {
     path: 'about',

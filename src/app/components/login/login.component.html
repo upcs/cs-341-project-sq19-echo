@@ -13,7 +13,6 @@
           <input type="password" matInput placeholder="Enter Password" formControlName="password" required>
           <mat-error>{{getFormError(loginControls.password)}}</mat-error>
         </mat-form-field>
-
         <button [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">Login!</button>
       </form>
     </mat-tab>
@@ -85,8 +84,22 @@
 </mat-card>
 
 <mat-card class="mat-elevation-z4" id="logoutCard">
-  <mat-card-content>
-        <button mat-raised-button id="logoutButton" color="primary" type="submit" (click)="logout()">Logout!</button>
-  </mat-card-content>
+  <form class="formContainer">
+    <button mat-raised-button id="logoutButton" color="primary" type="submit" (click)="logout()">Logout!</button>
+    <h5 id="savedHeader">Saved Addresses</h5>
+    <mat-accordion>
+      <mat-expansion-panel *ngFor="let save of savedData">
+        <mat-expansion-panel-header>
+          <mat-panel-title>{{save.address}}</mat-panel-title>
+        </mat-expansion-panel-header>
+        <ul style="float: left; text-align: left;">
+            <li>{{save.level}}</li>
+            <li>{{save.volume}}</li>
+        </ul>   
+        <mat-action-row>
+          <button mat-button color="warn" (click)="removeSave(save.address)">Remove</button>
+        </mat-action-row>
+      </mat-expansion-panel>
+    </mat-accordion>
+  </form>
 </mat-card>
-

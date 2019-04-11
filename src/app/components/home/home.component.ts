@@ -31,7 +31,8 @@ import {TrafficLocation, VehicleType} from './home.component.enums';
 import {DENSITIES, RED_ICON, GREEN_ICON, ORANGE_ICON, HOUSE_ICON, DEFAULT_ICON} from './home.component.constants';
 import {map, startWith, filter} from 'rxjs/operators';
 import {Observable} from 'rxjs';
-import {parseString} from 'xml2js';
+import {CookieService} from 'ngx-cookie-service';
+import {sha512} from 'js-sha512';
 
 @Component({
   selector: 'app-root',
@@ -47,6 +48,8 @@ export class HomeComponent {
   myControl = new FormControl();
   options: string[] = [];
   filteredOptions: Observable<string[]>;
+
+  private loggedIn: boolean;
 
   private addrReqInProg: boolean = false
   private currentFilter: String = ""
@@ -92,8 +95,9 @@ export class HomeComponent {
     center: latLng(this.DEFAULT_COORDS)
   };
 
-  public constructor(private titleService: Title, private http: HttpClient) {
+  public constructor(private titleService: Title, private http: HttpClient, private cookie: CookieService) {
     titleService.setTitle('Portland Housing Traffic Hotspots');
+    this.loggedIn = !this.cookie.check('authenticated');
   }
 
   private updateLeafletMapLocation(): void {
@@ -300,6 +304,19 @@ export class HomeComponent {
       this.map.addLayer(this.houseLayer)
       document.getElementById("tspProjects").textContent = projectString
       document.getElementById("projects").textContent = count + " TSP Projects"
+    }, (error: any) => {
+      alert("Cannot get information. Check that you are connected to the internet.")
+    })
+  }
+
+  public saveSearch() {
+    const address = document.getElementById('curAddress').textContent;
+    const user = sha512(this.cookie.get('authenticated'));
+    const level = document.getElementById("trafficLevel").textContent;
+    const volume = document.getElementById("trafficVolume").textContent;
+    const command = "insert ignore into saves (user, address, level, volume) VALUES ('" + user + "', '" + address + "', '" + level +"', '" + volume +"')"
+    this.http.post('/api', {command:command}).subscribe((data: any[]) => {
+      alert('Address has been saved to account!');
     }, (error: any) => {
       alert("Cannot get information. Check that you are connected to the internet.")
     })

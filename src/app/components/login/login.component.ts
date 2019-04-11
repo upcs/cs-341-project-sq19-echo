@@ -1,11 +1,13 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
-import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
+import {FormBuilder, FormControl, FormGroup, Validators, FormGroupDirective} from '@angular/forms';
 import {sha512} from 'js-sha512';
 import {CookieService} from 'ngx-cookie-service';
 import {LoginControls, SignUpControls, ResetControls} from './login.component.interfaces';
 import {matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
+import {Location} from '@angular/common';
 
 
 @Component({
@@ -16,6 +18,7 @@ import {HttpClient} from '@angular/common/http';
 export class LoginComponent {
   private MIN_PASSWORD_LENGTH = 8;
   private userAccounts: {[email: string]: string} = {};
+  public savedData: {address: string, level: string, volume: string}[] = [];
   public questions: string[] = ['What was the last name of your third grade teacher?', 
     'What street did you live on in third grade?', 
     'What was your childhood nickname', 
@@ -45,7 +48,7 @@ export class LoginComponent {
   public loginForm: FormGroup;
   public resetForm: FormGroup;
 
-  public constructor(private titleService: Title, private formBuilder: FormBuilder, private cookie: CookieService, private http: HttpClient) {
+  public constructor(private titleService: Title, private formBuilder: FormBuilder, private cookie: CookieService, private http: HttpClient, private router: Router, private location: Location) {
     titleService.setTitle('Login Page');
 
     this.signupForm = this.formBuilder.group(
@@ -53,10 +56,26 @@ export class LoginComponent {
     );
     this.loginForm = this.formBuilder.group(this.loginControls);
     this.resetForm = this.formBuilder.group(this.resetControls);
+
+    if(this.cookie.check('authenticated')) {
+      this.loadData();
+    }
+  }
+
+  ngOnInit() {
+    if(this.cookie.check('authenticated')) {
+      document.getElementById('bigCard').style.display = 'none';
+      document.getElementById("logoutCard").style.display = "block";
+    }
+    else {
+      document.getElementById("bigCard").style.display = "block";
+      document.getElementById("logoutCard").style.display = "none";
+    }
   }
 
   public signUp(): void {
-    const email = this.signupControls.email.value;
+    const unhashedEmail = this.signupControls.email.value;
+    const email = sha512(this.signupControls.email.value);
     const password = sha512(this.signupControls.password.value);
     const question = this.signupControls.questionRequire.value;
     const answer = sha512(this.signupControls.answerRequire.value.toLowerCase())
@@ -68,8 +87,8 @@ export class LoginComponent {
       }
       command = "insert into users (user, password, question, answer) VALUES ('" + email + "', '" + password + "', '" + question +"', '" + answer +"')"
       this.http.post('/api', {command:command}).subscribe((data: any[]) => {
-        alert(`Account created with email: ${email}.`);
-        this.signupForm.reset()
+        alert(`Account created with email: ${unhashedEmail}.`);
+        this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
         return
       }, (error: any) => {
         alert("Cannot get information. Check that you are connected to the internet.")
@@ -98,17 +117,15 @@ export class LoginComponent {
 
   public login(): void {
     const email = this.loginControls.email.value;
+    const hashedEmail = sha512(email);
     const hashedPassword = sha512(this.loginControls.password.value);
 
-    let command = "select * from users where user='" + email +"'"
+    let command = "select * from users where user='" + hashedEmail +"'"
     this.http.post('/api', {command:command}).subscribe((data: any[]) => {
       if(data.length > 0) {
         if(data[0].password == hashedPassword) {
           this.cookie.set('authenticated', email);
-          this.loginForm.reset();
-          document.getElementById("bigCard").style.display = "none";
-          document.getElementById("logoutCard").style.display = "block";
-          alert(`User with email ${email} successfully logged in.`);
+          location.href = '/home'
         }
         else {
           alert('Email or password is incorrect');
@@ -123,7 +140,7 @@ export class LoginComponent {
   }
 
   public continueReset(): void {
-    const email = this.resetControls.emailReset.value;
+    const email = sha512(this.resetControls.emailReset.value);
     let command = "select * from users where user='" + email +"'"
     this.http.post('/api', {command:command}).subscribe((data: any[]) => {
       if(data.length == 0) {
@@ -131,21 +148,21 @@ export class LoginComponent {
         return;
       }
       else {
-        document.getElementById("emailHide").style.display = 'none'
-        document.getElementById("continue").style.display = 'none'
-        document.getElementById("answerHide").style.display = 'block'
-        document.getElementById("passwordHide").style.display = 'block'
-        document.getElementById("resetButton").style.display = 'block'
-        document.getElementById("resetQuestion").style.display = 'block'
-        document.getElementById("resetQuestion").textContent = data[0].question
+        document.getElementById("emailHide").style.display = 'none';
+        document.getElementById("continue").style.display = 'none';
+        document.getElementById("answerHide").style.display = 'block';
+        document.getElementById("passwordHide").style.display = 'block';
+        document.getElementById("resetButton").style.display = 'block';
+        document.getElementById("resetQuestion").style.display = 'block';
+        document.getElementById("resetQuestion").textContent = data[0].question;
       }
     }, (error: any) => {
-      alert("Cannot get information. Check that you are connected to the internet.")
+      alert('Cannot get information. Check that you are connected to the internet.');
     })
   }
 
   public resetPass(): void {
-    const email = this.resetControls.emailReset.value;
+    const email = sha512(this.resetControls.emailReset.value);
     const hashedPassword = sha512(this.resetControls.passwordReset.value);
     const hashedAnswer = sha512(this.resetControls.answerReset.value.toLowerCase());
 
@@ -165,7 +182,7 @@ export class LoginComponent {
         document.getElementById("resetButton").style.display = 'none'
         document.getElementById("resetQuestion").style.display = 'none'
         document.getElementById("resetQuestion").textContent = ""
-        this.resetForm.reset();
+        this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
         return
       }, (error: any) => {
         alert("Cannot get information. Check that you are connected to the internet.")
@@ -176,8 +193,31 @@ export class LoginComponent {
     
   }
 
+  public loadData() {
+    const user = sha512(this.cookie.get('authenticated'))
+    const command = "select * from saves where user='" + user + "'"
+    this.http.post('/api', {command:command}).subscribe((data: any[]) => {
+      if(data.length > 0) {
+        for(let save of data) {
+          this.savedData.push({address: save.address, level: save.level, volume: save.volume})
+        }
+      }
+    }, (error: any) => {
+      alert("Cannot get information. Check that you are connected to the internet.")
+    })
+  }
+
+  public removeSave(address: string) {
+    const command = "delete from saves where address='" + address + "'"
+    this.http.post('/api', {command:command}).subscribe((data: any[]) => {
+      this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
+    }, (error: any) => {
+      alert("Cannot get information. Check that you are connected to the internet.")
+    })
+  }
+
   public logout() {
-    document.getElementById("bigCard").style.display = "block";
-    document.getElementById("logoutCard").style.display = "none";
+    this.cookie.delete('authenticated');
+    location.reload()
   }
 }

@@ -95,6 +95,9 @@
                 </mat-expansion-panel>
             </mat-accordion>
           </mat-card-content>
+          <mat-card-actions>
+            <button mat-button (click)="saveSearch()" [disabled]="loggedIn">SAVE</button>
+          </mat-card-actions>
         </mat-card>
       </form>
     </mat-tab>
