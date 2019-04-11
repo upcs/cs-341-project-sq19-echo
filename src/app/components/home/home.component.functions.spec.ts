@@ -10,7 +10,7 @@ const regularTrafficMarker: any = {
   lng: 45.440062311819155,
   level: 'low',
   volume: 100
-  };
+};
 
 describe('getLeafletMarkerFromTrafficMarker tests', () => {
   test('null or undefined traffic marker returns null', () => {
@@ -19,8 +19,9 @@ describe('getLeafletMarkerFromTrafficMarker tests', () => {
   });
 
   test('regular traffic marker returns proper Leaflet marker', () => {
-    const regularLeafletMarker: Marker = marker([regularTrafficMarker.lat, regularTrafficMarker.lng] as LatLngExpression, {riseOnHover: true, icon: GREEN_ICON})
-      .bindPopup(`Daily Volume: ${regularTrafficMarker.volume} cars`);
+    const regularLeafletMarker: Marker = marker(
+      [regularTrafficMarker.lat, regularTrafficMarker.lng] as LatLngExpression, {riseOnHover: true, icon: GREEN_ICON}
+    ).bindPopup(`Daily Volume: ${regularTrafficMarker.volume} cars`);
 
     expect(getLeafletMarkerFromTrafficMarker(regularTrafficMarker)).toEqual(regularLeafletMarker);
   });

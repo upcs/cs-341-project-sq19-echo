@@ -6,6 +6,7 @@ import {CookieService} from 'ngx-cookie-service';
 import {LoginControls, SignUpControls, ResetControls} from './login.component.interfaces';
 import {matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
+import {displayGeneralErrorMessage} from '../../../helpers/error.functions';
 
 
 @Component({
@@ -15,12 +16,13 @@ import {HttpClient} from '@angular/common/http';
 })
 export class LoginComponent {
   private MIN_PASSWORD_LENGTH = 8;
-  private userAccounts: {[email: string]: string} = {};
-  public questions: string[] = ['What was the last name of your third grade teacher?',
+  public SECURITY_QUESTIONS: string[] = [
+    'What was the last name of your third grade teacher?',
     'What street did you live on in third grade?',
     'What was your childhood nickname',
-    'What is the name of your faborite childhood friend?',
-    'In what city does your nearest sibling live?'];
+    'What is the name of your favorite childhood friend?',
+    'In what city does your nearest sibling live?'
+  ];
 
   public signupControls: SignUpControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
@@ -45,7 +47,14 @@ export class LoginComponent {
   public loginForm: FormGroup;
   public resetForm: FormGroup;
 
-  public constructor(private titleService: Title, private formBuilder: FormBuilder, private cookie: CookieService, private http: HttpClient) {
+  public loggedOut = false;
+
+  public constructor(
+    private titleService: Title,
+    private formBuilder: FormBuilder,
+    private cookie: CookieService,
+    private http: HttpClient
+  ) {
     titleService.setTitle('Login Page');
 
     this.signupForm = this.formBuilder.group(
@@ -57,27 +66,29 @@ export class LoginComponent {
 
   public signUp(): void {
     const email = this.signupControls.email.value;
-    const password = sha512(this.signupControls.password.value);
-    const question = this.signupControls.questionRequire.value;
-    const answer = sha512(this.signupControls.answerRequire.value.toLowerCase());
-    let command = 'select * from users where user=\'' + email + '\'';
-    this.http.post('/api', {command}).subscribe((data: any[]) => {
-      if (data.length > 0) {
-        alert('An account has already been created with this email.');
-        return;
-      }
-      command = 'insert into users (user, password, question, answer) VALUES (\'' + email + '\', \'' + password + '\', \'' + question + '\', \'' + answer + '\')';
-      this.http.post('/api', {command}).subscribe((data: any[]) => {
-        alert(`Account created with email: ${email}.`);
-        this.signupForm.reset();
-        return;
-      }, (error: any) => {
-        alert('Cannot get information. Check that you are connected to the internet.');
-      });
+    const hashedPassword = sha512(this.signupControls.password.value);
 
-    }, (error: any) => {
-      alert('Cannot get information. Check that you are connected to the internet.');
-    });
+    const question = this.signupControls.questionRequire.value;
+    const hashedAnswer = sha512(this.signupControls.answerRequire.value.toLowerCase());
+
+    this.http.post('/api', {command: `SELECT * FROM users WHERE user='${email}'`}).subscribe((data: any[]) => {
+        if (data.length > 0) {
+          alert('An account has already been created with this email.');
+          return;
+        }
+
+        this.http.post(
+          '/api',
+          {
+            command: `INSERT INTO users (user, password, question, answer)
+                      VALUES ('${email}', '${hashedPassword}', '${question}', '${hashedAnswer}')`
+          }).subscribe(() => {
+            alert(`Account created with email: ${email}.`);
+            this.signupForm.reset();
+          }, () => displayGeneralErrorMessage()
+        );
+      }, () => displayGeneralErrorMessage()
+    );
   }
 
   public getFormError(formControl: FormControl): string {
@@ -102,32 +113,28 @@ export class LoginComponent {
 
     const command = 'select * from users where user=\'' + email + '\'';
     this.http.post('/api', {command}).subscribe((data: any[]) => {
-      if (data.length > 0) {
-        if (data[0].password == hashedPassword) {
-          this.cookie.set('authenticated', email);
-          this.loginForm.reset();
-          document.getElementById('bigCard').style.display = 'none';
-          document.getElementById('logoutCard').style.display = 'block';
-          alert(`User with email ${email} successfully logged in.`);
-        } else {
-          alert('Email or password is incorrect');
-        }
-      } else {
-        alert('email or password is incorrect');
+      if (data.length && data[0].password === hashedPassword) {
+        this.cookie.set('authenticated', email);
+        this.loginForm.reset();
+        this.loggedOut = false;
+        alert(`User with email ${email} successfully logged in.`);
+        return;
       }
-    }, (error: any) => {
-      alert('Cannot get information. Check that you are connected to the internet.');
-    });
+
+      alert('Email or password is incorrect');
+    }, () => displayGeneralErrorMessage()
+    );
   }
 
   public continueReset(): void {
-    const email = this.resetControls.emailReset.value;
-    const command = 'select * from users where user=\'' + email + '\'';
-    this.http.post('/api', {command}).subscribe((data: any[]) => {
-      if (data.length == 0) {
-        alert('No user with that email was found');
-        return;
-      } else {
+    this.http.post(
+      '/api', {command: `SELECT * FROM users WHERE user='${this.resetControls.emailReset.value}'`}
+      ).subscribe((data: any[]) => {
+        if (data.length === 0) {
+          alert('No user with that email was found');
+          return;
+        }
+
         document.getElementById('emailHide').style.display = 'none';
         document.getElementById('continue').style.display = 'none';
         document.getElementById('answerHide').style.display = 'block';
@@ -135,10 +142,8 @@ export class LoginComponent {
         document.getElementById('resetButton').style.display = 'block';
         document.getElementById('resetQuestion').style.display = 'block';
         document.getElementById('resetQuestion').textContent = data[0].question;
-      }
-    }, (error: any) => {
-      alert('Cannot get information. Check that you are connected to the internet.');
-    });
+      }, () => displayGeneralErrorMessage()
+    );
   }
 
   public resetPass(): void {
@@ -146,35 +151,29 @@ export class LoginComponent {
     const hashedPassword = sha512(this.resetControls.passwordReset.value);
     const hashedAnswer = sha512(this.resetControls.answerReset.value.toLowerCase());
 
-    let command = 'select * from users where user=\'' + email + '\'';
-    this.http.post('/api', {command}).subscribe((data: any[]) => {
-      if (hashedAnswer !== data[0].answer) {
-        alert('Incorrect Answer');
-        return;
-      }
-      command = 'replace into users VALUES (\'' + email + '\', \'' + hashedPassword + '\', \'' + data[0].question + '\', \'' + data[0].answer + '\')';
-      this.http.post('/api', {command}).subscribe((data: any[]) => {
-        alert('Password was reset');
-        document.getElementById('emailHide').style.display = 'block';
-        document.getElementById('continue').style.display = 'block';
-        document.getElementById('answerHide').style.display = 'none';
-        document.getElementById('passwordHide').style.display = 'none';
-        document.getElementById('resetButton').style.display = 'none';
-        document.getElementById('resetQuestion').style.display = 'none';
-        document.getElementById('resetQuestion').textContent = '';
-        this.resetForm.reset();
-        return;
-      }, (error: any) => {
-        alert('Cannot get information. Check that you are connected to the internet.');
-      });
-    }, (error: any) => {
-      alert('Cannot get information. Check that you are connected to the internet.');
-    });
+    this.http.post('/api', {command: `SELECT * FROM users WHERE user='${email}'`}).subscribe((data: any[]) => {
+        if (hashedAnswer !== data[0].answer) {
+          alert('Incorrect Answer');
+          return;
+        }
 
-  }
-
-  public logout() {
-    document.getElementById('bigCard').style.display = 'block';
-    document.getElementById('logoutCard').style.display = 'none';
+        this.http.post(
+          '/api',
+          {
+            command: `REPLACE INTO users VALUES ('${email}', '${hashedPassword}', '${data[0].question}', '${data[0].answer}')`
+          }).subscribe(() => {
+            alert('Password was reset');
+            document.getElementById('emailHide').style.display = 'block';
+            document.getElementById('continue').style.display = 'block';
+            document.getElementById('answerHide').style.display = 'none';
+            document.getElementById('passwordHide').style.display = 'none';
+            document.getElementById('resetButton').style.display = 'none';
+            document.getElementById('resetQuestion').style.display = 'none';
+            document.getElementById('resetQuestion').textContent = '';
+            this.resetForm.reset();
+          }, () => displayGeneralErrorMessage()
+        );
+      }, () => displayGeneralErrorMessage()
+    );
   }
 }
