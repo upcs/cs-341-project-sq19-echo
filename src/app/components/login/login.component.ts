@@ -19,7 +19,7 @@ export class LoginComponent {
   public SECURITY_QUESTIONS: string[] = [
     'What was the last name of your third grade teacher?',
     'What street did you live on in third grade?',
-    'What was your childhood nickname',
+    'What was your childhood nickname?',
     'What is the name of your favorite childhood friend?',
     'In what city does your nearest sibling live?'
   ];
@@ -47,7 +47,8 @@ export class LoginComponent {
   public loginForm: FormGroup;
   public resetForm: FormGroup;
 
-  public loggedOut = false;
+  public loggedIn = false;
+  public resetQuestionTextContent: string;
 
   public constructor(
     private titleService: Title,
@@ -116,7 +117,7 @@ export class LoginComponent {
       if (data.length && data[0].password === hashedPassword) {
         this.cookie.set('authenticated', email);
         this.loginForm.reset();
-        this.loggedOut = false;
+        this.loggedIn = true;
         alert(`User with email ${email} successfully logged in.`);
         return;
       }
@@ -141,7 +142,8 @@ export class LoginComponent {
         document.getElementById('passwordHide').style.display = 'block';
         document.getElementById('resetButton').style.display = 'block';
         document.getElementById('resetQuestion').style.display = 'block';
-        document.getElementById('resetQuestion').textContent = data[0].question;
+
+        this.resetQuestionTextContent = data[0].question;
       }, () => displayGeneralErrorMessage()
     );
   }
@@ -169,7 +171,8 @@ export class LoginComponent {
             document.getElementById('passwordHide').style.display = 'none';
             document.getElementById('resetButton').style.display = 'none';
             document.getElementById('resetQuestion').style.display = 'none';
-            document.getElementById('resetQuestion').textContent = '';
+
+            this.resetQuestionTextContent = '';
             this.resetForm.reset();
           }, () => displayGeneralErrorMessage()
         );

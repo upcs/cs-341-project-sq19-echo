@@ -24,6 +24,7 @@ import {displayGeneralErrorMessage} from '../../../helpers/error.functions';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent {
+  cityZipTextContent: string;
   currentAddressTextContent: string;
   zestimateTextContent: string;
   trafficLevelTextContent: string;
@@ -35,6 +36,7 @@ export class HomeComponent {
   @ViewChild('yearSelector') private yearSelector: MatSelect;
   @ViewChild('vehicleSelector') private vehicleSelector: MatSelect;
   @ViewChild('densitySelector') private densitySelector: MatSelect;
+  @ViewChild('addressSearch') private addressSearch: HTMLInputElement;
 
   myControl = new FormControl();
   options: string[] = [];
@@ -144,7 +146,7 @@ export class HomeComponent {
 
     if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90) || e.keyCode === 32 || e.keyCode === 8) {
       this.addressRequestInProgress = true;
-      const value = (document.getElementById('addressSearch') as HTMLInputElement).value;
+      const value = this.addressSearch.value;
       this.http.post('/api', {command: `SELECT address FROM address WHERE \`address\` regexp '^${value}.*' LIMIT 5`})
         .subscribe((addresses: any[]) => {
           this.options = addresses.map(x => x.address);
@@ -157,7 +159,7 @@ export class HomeComponent {
   }
 
   public getZestimate() {
-    const addressSearchValue = (document.getElementById('addressSearch') as HTMLInputElement).value;
+    const addressSearchValue = this.addressSearch.value;
     const address = addressSearchValue.split(' ').join('+');
 
     this.http.get(
@@ -194,7 +196,7 @@ export class HomeComponent {
 
         if (info.length) {
           this.currentAddressTextContent = info[0].address;
-          document.getElementById('cityzip').textContent = `Portland, OR ${info[0].zip}`;
+          this.cityZipTextContent = `Portland, OR ${info[0].zip}`;
 
           this.houseLayer.addLayer(
             marker([info[0].lat, info[0].lng], {riseOnHover: true, icon: HOUSE_ICON}).bindPopup(info[0].address)
@@ -217,7 +219,7 @@ export class HomeComponent {
   }
 
   public getTrafficInformation(lat1: number, lat2: number, lng1: number, lng2: number) {
-    const andStatement = this.currentFilter.length === 0 ? 'WHERE' : 'AND';
+    const andStatement = this.currentFilter.length ? 'AND' : 'WHERE';
     this.http.post(
       '/api',
       {
