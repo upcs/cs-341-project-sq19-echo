@@ -13,7 +13,11 @@ import {
   tileLayer
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
-import {getLeafletMarkerFromTrafficMarker, valueSelectedBesidesAny} from './home.component.functions';
+import {
+  alphaNumericSpacebarOrBackspaceSelected,
+  getLeafletMarkerFromTrafficMarker,
+  valueSelectedBesidesAny
+} from './home.component.functions';
 import {TrafficLocation, VehicleType} from './home.component.enums';
 import {DEFAULT_ICON, HOUSE_ICON} from './home.component.constants';
 import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/helpers.functions';
@@ -137,13 +141,16 @@ export class HomeComponent {
       return;
     }
 
-    if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90) || e.keyCode === 32 || e.keyCode === 8) {
+    if (alphaNumericSpacebarOrBackspaceSelected(e.keyCode)) {
       this.addressRequestInProgress = true;
-      const value = this.addressSearch.value;
       this.http.post(
         '/api', {
           command: getSqlSelectCommand(
-            {whatToSelect: 'address', tableToSelectFrom: 'address', whereStatements: [`\`address\` regexp '^${value}.*' LIMIT 5`]}
+            {
+              whatToSelect: 'address', tableToSelectFrom: 'address', whereStatements: [
+                `\`address\` regexp '^${this.addressSearch.value}.*' LIMIT 5`
+              ]
+            }
           )
         }).subscribe((addresses: any[]) => {
         this.options = addresses.map(x => x.address);
@@ -236,8 +243,8 @@ export class HomeComponent {
           averageVolume = Math.round(summedVolume / info.length);
         }
 
-        const level = averageVolume < 1000 ? 'Low' : averageVolume < 5000 ? 'Medium' : 'High';
-        this.trafficLevelTextContent = `Traffic Level: ${level}`;
+        const trafficLevel = averageVolume < 1000 ? 'Low' : averageVolume < 5000 ? 'Medium' : 'High';
+        this.trafficLevelTextContent = `Traffic Level: ${trafficLevel}`;
         this.trafficVolumeTextContent = `Average traffic flow of area: ${averageVolume} cars per day`;
         this.getProjects(minLatitude, maxLatitude, minLongitude, maxLongitude);
       }, () => displayGeneralErrorMessage()

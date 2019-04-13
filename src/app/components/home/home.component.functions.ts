@@ -22,3 +22,19 @@ export function getLeafletMarkerFromTrafficMarker(trafficMarker: any): Marker {
 export function valueSelectedBesidesAny(selector: MatSelect): boolean {
   return !selector.empty && selector.value !== 'Any';
 }
+
+export function alphaNumericSpacebarOrBackspaceSelected(keyCode: number): boolean {
+  if (keyCode === 8) {
+    return true;
+  }
+
+  if (keyCode === 32) {
+    return true;
+  }
+
+  if (keyCode >= 48 && keyCode <= 57) {
+    return true;
+  }
+
+  return keyCode >= 65 && keyCode <= 90;
+}
