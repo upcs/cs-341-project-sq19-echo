@@ -1,5 +1,5 @@
 import {icon, LatLngExpression, PointExpression} from 'leaflet';
-import {DensityInfo} from './home.component.interfaces';
+import {IDensityInfo} from './home.component.interfaces';
 
 export const DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
 
@@ -12,7 +12,7 @@ export const GREEN_ICON = icon({iconUrl: `${IMAGES_DIR}greenMarker.png`, iconSiz
 export const DEFAULT_ICON = icon({iconUrl: `${IMAGES_DIR}marker-icon-2x.png`, iconSize: [25, 41]});
 export const HOUSE_ICON = icon({iconUrl: `${IMAGES_DIR}houseMarker.png`, iconSize: [50, 50]});
 
-export const DENSITIES: {[density: string]: DensityInfo} = {
+export const DENSITIES: {[density: string]: IDensityInfo} = {
   All: {min: 0, max: 100000},
   High: {min: 5000, max: 100000},
   Medium: {min: 1000, max: 5000},
