@@ -13,10 +13,10 @@ import {
   tileLayer
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
-import {getLeafletMarkerFromTrafficMarker, selectSqlQuery, valueSelectedBesidesAny} from './home.component.functions';
+import {getLeafletMarkerFromTrafficMarker, valueSelectedBesidesAny} from './home.component.functions';
 import {TrafficLocation, VehicleType} from './home.component.enums';
 import {DEFAULT_ICON, HOUSE_ICON} from './home.component.constants';
-import {displayGeneralErrorMessage} from '../../../helpers/error.functions';
+import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/helpers.functions';
 
 @Component({
   selector: 'app-root',
@@ -100,7 +100,9 @@ export class HomeComponent {
 
     this.http.post(
       '/api', {
-        command: selectSqlQuery({whatToSelect: '*', tableToSelectFrom: 'traffic', whereStatements: this.filterWhereStatements})
+        command: getSqlSelectCommand(
+          {whatToSelect: '*', tableToSelectFrom: 'traffic', whereStatements: this.filterWhereStatements}
+        )
       }).subscribe((data: any[]) => {
         data.map(trafficMarker => {
           const leafletMarker = getLeafletMarkerFromTrafficMarker(trafficMarker);
@@ -140,7 +142,7 @@ export class HomeComponent {
       const value = this.addressSearch.value;
       this.http.post(
         '/api', {
-          command: selectSqlQuery(
+          command: getSqlSelectCommand(
             {whatToSelect: 'address', tableToSelectFrom: 'address', whereStatements: [`\`address\` regexp '^${value}.*' LIMIT 5`]}
           )
         }).subscribe((addresses: any[]) => {
@@ -183,7 +185,7 @@ export class HomeComponent {
     this.http.post(
       '/api',
       {
-        command: selectSqlQuery(
+        command: getSqlSelectCommand(
           {whatToSelect: '*', tableToSelectFrom: 'address', whereStatements: [`address='${addressSearchValue}`]}
         )
       }).subscribe((info: any[]) => {
@@ -224,7 +226,7 @@ export class HomeComponent {
       [`lat>${minLatitude}`, `lat<${maxLatitude}`, `lng>${minLongitude}`, `lng<${maxLongitude}`]
     );
     this.http.post('/api', {
-      command: selectSqlQuery({whatToSelect: 'volume', tableToSelectFrom: 'traffic', whereStatements})
+      command: getSqlSelectCommand({whatToSelect: 'volume', tableToSelectFrom: 'traffic', whereStatements})
     }).subscribe((info: any[]) => {
         let summedVolume = 0;
         let averageVolume = 0;
@@ -245,7 +247,7 @@ export class HomeComponent {
   public getProjects(minLatitude: number, maxLatitude: number, minLongitude: number, maxLongitude: number): void {
     this.http.post(
       '/api', {
-        command: selectSqlQuery({
+        command: getSqlSelectCommand({
           whatToSelect: '*', tableToSelectFrom: 'tsp', whereStatements: [
             `lat>${minLatitude}`, `lat<${maxLatitude}`, `lng>${minLongitude}`, `lng<${maxLongitude}`
           ]

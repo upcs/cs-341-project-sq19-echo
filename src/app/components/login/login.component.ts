@@ -4,9 +4,9 @@ import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {sha512} from 'js-sha512';
 import {CookieService} from 'ngx-cookie-service';
 import {ILoginControls, ISignUpControls, IResetControls} from './login.component.interfaces';
-import {matchingPasswords} from './login.component.functions';
+import {getSqlSelectUserCommand, matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
-import {displayGeneralErrorMessage} from '../../../helpers/error.functions';
+import {displayGeneralErrorMessage} from '../../../helpers/helpers.functions';
 
 
 @Component({
@@ -72,7 +72,7 @@ export class LoginComponent {
     const question = this.signupControls.questionRequire.value;
     const hashedAnswer = sha512(this.signupControls.answerRequire.value.toLowerCase());
 
-    this.http.post('/api', {command: `SELECT * FROM users WHERE user='${email}'`}).subscribe((data: any[]) => {
+    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((data: any[]) => {
         if (data.length) {
           alert('An account has already been created with this email.');
           return;
@@ -112,7 +112,7 @@ export class LoginComponent {
     const email = this.loginControls.email.value;
     const hashedPassword = sha512(this.loginControls.password.value);
 
-    this.http.post('/api', {command: `SELECT * FROM users WHERE user='${email}'`}).subscribe((data: any[]) => {
+    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((data: any[]) => {
         if (data.length && data[0].password === hashedPassword) {
           this.cookie.set('authenticated', email);
           this.loginForm.reset();
@@ -128,7 +128,7 @@ export class LoginComponent {
 
   public continueReset(): void {
     this.http.post(
-      '/api', {command: `SELECT * FROM users WHERE user='${this.resetControls.emailReset.value}'`}
+      '/api', {command: getSqlSelectUserCommand(this.resetControls.emailReset.value)}
     ).subscribe((data: any[]) => {
         if (!data.length) {
           alert('No user with that email was found.');
@@ -152,7 +152,7 @@ export class LoginComponent {
     const hashedPassword = sha512(this.resetControls.passwordReset.value);
     const hashedAnswer = sha512(this.resetControls.answerReset.value.toLowerCase());
 
-    this.http.post('/api', {command: `SELECT * FROM users WHERE user='${email}'`}).subscribe((data: any[]) => {
+    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((data: any[]) => {
         if (hashedAnswer !== data[0].answer) {
           alert('Incorrect Answer');
           return;
