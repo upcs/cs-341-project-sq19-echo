@@ -1,6 +1,6 @@
 import {FormControl} from '@angular/forms';
 
-export interface SignUpControls {
+export interface ISignUpControls {
   readonly email: FormControl;
   readonly password: FormControl;
   readonly confirmPassword: FormControl;
@@ -8,12 +8,12 @@ export interface SignUpControls {
   readonly answerRequire: FormControl;
 }
 
-export interface LoginControls {
+export interface ILoginControls {
   readonly email: FormControl;
   readonly password: FormControl;
 }
 
-export interface ResetControls {
+export interface IResetControls {
   readonly emailReset: FormControl;
   readonly passwordReset: FormControl;
   readonly answerReset: FormControl;

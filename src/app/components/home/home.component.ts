@@ -13,7 +13,7 @@ import {
   tileLayer
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
-import {getLeafletMarkerFromTrafficMarker} from './home.component.functions';
+import {getLeafletMarkerFromTrafficMarker, selectSqlQuery, valueSelectedBesidesAny} from './home.component.functions';
 import {TrafficLocation, VehicleType} from './home.component.enums';
 import {DEFAULT_ICON, HOUSE_ICON} from './home.component.constants';
 import {displayGeneralErrorMessage} from '../../../helpers/error.functions';
@@ -41,14 +41,13 @@ export class HomeComponent {
   myControl = new FormControl();
   options: string[] = [];
 
-  private addressRequestInProgress = false;
-  private currentFilter = '';
-
   private DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
 
   private trafficLayer: LayerGroup = new LayerGroup();
   private houseLayer: LayerGroup = new LayerGroup();
   private map: LeafletMap;
+  private filterWhereStatements: string[];
+  private addressRequestInProgress = false;
 
   // Fields accessed by the HTML (template).
   public objectKeys = Object.keys;
@@ -85,31 +84,24 @@ export class HomeComponent {
     this.map.flyTo(coordinates, zoom);
   }
 
-  private valueSelectedBesidesAny(selector: MatSelect): boolean {
-    return !selector.empty && selector.value !== 'Any';
-  }
-
   private updateDisplayedLeafletMarkers(): void {
-    this.currentFilter = '';
-    let justYear = ' WHERE';
-    const density = this.densitySelector.value === 'Medium' ? 'med' : this.densitySelector.value;
+    this.filterWhereStatements = [];
 
-    if (this.valueSelectedBesidesAny(this.densitySelector)) {
-      this.currentFilter = ` WHERE level='${density}'`;
+    if (valueSelectedBesidesAny(this.densitySelector)) {
+      const density = this.densitySelector.value === 'Medium' ? 'med' : this.densitySelector.value;
+      this.filterWhereStatements.push(`level='${density}'`);
     }
 
-    if (this.valueSelectedBesidesAny(this.densitySelector) && this.valueSelectedBesidesAny(this.yearSelector)) {
-      justYear = '';
-      this.currentFilter += ' AND';
-    }
-
-    if (this.valueSelectedBesidesAny(this.yearSelector)) {
-      this.currentFilter += `${justYear} date='${this.yearSelector.value}'`;
+    if (valueSelectedBesidesAny(this.yearSelector)) {
+      this.filterWhereStatements.push(`date='${this.yearSelector.value}'`);
     }
 
     this.trafficLayer.clearLayers();
-    const command = `SELECT * from traffic${this.currentFilter}`;
-    this.http.post('/api', {command}).subscribe((data: any[]) => {
+
+    this.http.post(
+      '/api', {
+        command: selectSqlQuery({whatToSelect: '*', tableToSelectFrom: 'traffic', whereStatements: this.filterWhereStatements})
+      }).subscribe((data: any[]) => {
         data.map(trafficMarker => {
           const leafletMarker = getLeafletMarkerFromTrafficMarker(trafficMarker);
           this.trafficLayer.addLayer(leafletMarker);
@@ -138,7 +130,7 @@ export class HomeComponent {
     this.clearFiltersAndUpdateMap();
   }
 
-  public autocompleteAddress(e: KeyboardEvent) {
+  public autocompleteAddress(e: KeyboardEvent): void {
     if (this.addressRequestInProgress || !e.keyCode) {
       return;
     }
@@ -146,32 +138,37 @@ export class HomeComponent {
     if ((e.keyCode >= 48 && e.keyCode <= 57) || (e.keyCode >= 65 && e.keyCode <= 90) || e.keyCode === 32 || e.keyCode === 8) {
       this.addressRequestInProgress = true;
       const value = this.addressSearch.value;
-      this.http.post('/api', {command: `SELECT address FROM address WHERE \`address\` regexp '^${value}.*' LIMIT 5`})
-        .subscribe((addresses: any[]) => {
-          this.options = addresses.map(x => x.address);
-          this.addressRequestInProgress = false;
-        }, () => {
-          this.options = ['Error, cannot autocomplete'];
-          this.addressRequestInProgress = false;
-        });
+      this.http.post(
+        '/api', {
+          command: selectSqlQuery(
+            {whatToSelect: 'address', tableToSelectFrom: 'address', whereStatements: [`\`address\` regexp '^${value}.*' LIMIT 5`]}
+          )
+        }).subscribe((addresses: any[]) => {
+        this.options = addresses.map(x => x.address);
+        this.addressRequestInProgress = false;
+      }, () => {
+        this.options = ['Error, cannot autocomplete'];
+        this.addressRequestInProgress = false;
+      });
     }
   }
 
-  public getZestimate() {
+  public getZestimate(): void {
     const addressSearchValue = this.addressSearch.value;
     const address = addressSearchValue.split(' ').join('+');
 
+    this.zestimateTextContent = 'Zestimate: ';
     this.http.get(
       `/webservice/GetSearchResults.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&address=${address}&citystatezip=Portland%2C+OR`,
       {responseType: 'text'}).subscribe((zillowXml) => {
         if (zillowXml.includes('Error')) {
-          this.zestimateTextContent = 'Zestimate: N/A';
+          this.zestimateTextContent += 'N/A';
           return;
         }
 
         let zestimate = zillowXml.substring(zillowXml.indexOf('<amount currency=') + 23, zillowXml.indexOf('</amount>'));
         if (!zestimate.length) {
-          this.zestimateTextContent = 'Zestimate: N/A';
+          this.zestimateTextContent += 'N/A';
           return;
         }
 
@@ -179,14 +176,16 @@ export class HomeComponent {
           zestimate = zestimate.substring(0, i) + ',' + zestimate.substring(i);
         }
 
-        this.zestimateTextContent = `Zestimate: $${zestimate}`;
+        this.zestimateTextContent += `$${zestimate}`;
       }, () => displayGeneralErrorMessage()
     );
 
     this.http.post(
       '/api',
       {
-        command: `SELECT * FROM address WHERE address='${addressSearchValue}'`
+        command: selectSqlQuery(
+          {whatToSelect: '*', tableToSelectFrom: 'address', whereStatements: [`address='${addressSearchValue}`]}
+        )
       }).subscribe((info: any[]) => {
         this.houseLayer.clearLayers();
 
@@ -210,20 +209,23 @@ export class HomeComponent {
           );
 
           this.getTrafficInformation(
-            info[0].lat - DELTA, info[0].lat + DELTA, info[0].lng - DELTA, info[0].lng + DELTA
+            info[0].lat - DELTA,
+            info[0].lat + DELTA,
+            info[0].lng - DELTA,
+            info[0].lng + DELTA
           );
         }
       }, () => displayGeneralErrorMessage()
     );
   }
 
-  public getTrafficInformation(lat1: number, lat2: number, lng1: number, lng2: number) {
-    const andStmt = this.currentFilter.length ? 'AND' : 'WHERE';
-    this.http.post(
-      '/api',
-      {
-        command: `SELECT volume FROM traffic${this.currentFilter} ${andStmt} lat>${lat1} AND lat<${lat2} AND lng>${lng1} AND lng<${lng2}`
-      }).subscribe((info: any[]) => {
+  public getTrafficInformation(minLatitude: number, maxLatitude: number, minLongitude: number, maxLongitude: number): void {
+    const whereStatements = this.filterWhereStatements.concat(
+      [`lat>${minLatitude}`, `lat<${maxLatitude}`, `lng>${minLongitude}`, `lng<${maxLongitude}`]
+    );
+    this.http.post('/api', {
+      command: selectSqlQuery({whatToSelect: 'volume', tableToSelectFrom: 'traffic', whereStatements})
+    }).subscribe((info: any[]) => {
         let summedVolume = 0;
         let averageVolume = 0;
 
@@ -235,21 +237,27 @@ export class HomeComponent {
         const level = averageVolume < 1000 ? 'Low' : averageVolume < 5000 ? 'Medium' : 'High';
         this.trafficLevelTextContent = `Traffic Level: ${level}`;
         this.trafficVolumeTextContent = `Average traffic flow of area: ${averageVolume} cars per day`;
-        this.getProjects(lat1, lat2, lng1, lng2);
+        this.getProjects(minLatitude, maxLatitude, minLongitude, maxLongitude);
       }, () => displayGeneralErrorMessage()
     );
   }
 
-  public getProjects(lat1: number, lat2: number, lng1: number, lng2: number) {
-    const command = `SELECT * FROM tsp WHERE lat>${lat1} and lat<${lat2} and lng>${lng1} and lng<${lng2}`;
-    this.http.post('/api', {command}).subscribe((returnedInfo: any[]) => {
-        let projectsDescription = '';
-        returnedInfo.forEach(project => {
+  public getProjects(minLatitude: number, maxLatitude: number, minLongitude: number, maxLongitude: number): void {
+    this.http.post(
+      '/api', {
+        command: selectSqlQuery({
+          whatToSelect: '*', tableToSelectFrom: 'tsp', whereStatements: [
+            `lat>${minLatitude}`, `lat<${maxLatitude}`, `lng>${minLongitude}`, `lng<${maxLongitude}`
+          ]
+        })
+      }).subscribe((returnedInfo: any[]) => {
+        const projectsDescription = returnedInfo.map(project => {
           this.houseLayer.addLayer(marker(
             [project.lat, project.lng], {riseOnHover: true, icon: DEFAULT_ICON}).bindPopup(project.name)
           );
-          projectsDescription += 'Project Name: ' + project.name + '\nProject Description: ' + project.description + '\n\n';
-        });
+          return 'Project Name: ' + project.name + '\nProject Description: ' + project.description + '\n\n';
+        }).join('');
+
         this.map.addLayer(this.houseLayer);
         this.tspProjectsTextContent = projectsDescription;
         this.projectsTextContent = `${returnedInfo.length} TSP Projects`;

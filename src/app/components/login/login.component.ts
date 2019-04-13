@@ -3,7 +3,7 @@ import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {sha512} from 'js-sha512';
 import {CookieService} from 'ngx-cookie-service';
-import {LoginControls, SignUpControls, ResetControls} from './login.component.interfaces';
+import {ILoginControls, ISignUpControls, IResetControls} from './login.component.interfaces';
 import {matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
 import {displayGeneralErrorMessage} from '../../../helpers/error.functions';
@@ -24,7 +24,7 @@ export class LoginComponent {
     'In what city does your nearest sibling live?'
   ];
 
-  public signupControls: SignUpControls = {
+  public signupControls: ISignUpControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.minLength(this.MIN_PASSWORD_LENGTH)]),
     confirmPassword: new FormControl('', [Validators.required]),
@@ -32,12 +32,12 @@ export class LoginComponent {
     answerRequire: new FormControl('', [Validators.required])
   };
 
-  public loginControls: LoginControls = {
+  public loginControls: ILoginControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required])
   };
 
-  public resetControls: ResetControls = {
+  public resetControls: IResetControls = {
     emailReset: new FormControl('', [Validators.required, Validators.email]),
     passwordReset: new FormControl('', [Validators.required, Validators.minLength(this.MIN_PASSWORD_LENGTH)]),
     answerReset: new FormControl('', [Validators.required])
@@ -131,7 +131,7 @@ export class LoginComponent {
       '/api', {command: `SELECT * FROM users WHERE user='${this.resetControls.emailReset.value}'`}
     ).subscribe((data: any[]) => {
         if (!data.length) {
-          alert('No user with that email was found');
+          alert('No user with that email was found.');
           return;
         }
 
