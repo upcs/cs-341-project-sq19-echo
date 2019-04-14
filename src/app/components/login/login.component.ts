@@ -3,11 +3,10 @@ import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {sha512} from 'js-sha512';
 import {CookieService} from 'ngx-cookie-service';
-import {ILoginControls, ISignUpControls, IResetControls} from './login.component.interfaces';
+import {ILoginControls, ISignUpControls, IResetControls, IUser} from './login.component.interfaces';
 import {getSqlSelectUserCommand, matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
 import {displayGeneralErrorMessage} from '../../../helpers/helpers.functions';
-
 
 @Component({
   selector: 'app-root',
@@ -72,8 +71,8 @@ export class LoginComponent {
     const question = this.signupControls.questionRequire.value;
     const hashedAnswer = sha512(this.signupControls.answerRequire.value.toLowerCase());
 
-    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((data: any[]) => {
-        if (data.length) {
+    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((users: IUser[]) => {
+        if (users.length) {
           alert('An account has already been created with this email.');
           return;
         }
@@ -112,8 +111,8 @@ export class LoginComponent {
     const email = this.loginControls.email.value;
     const hashedPassword = sha512(this.loginControls.password.value);
 
-    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((data: any[]) => {
-        if (data.length && data[0].password === hashedPassword) {
+    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((users: IUser[]) => {
+        if (users.length && users[0].password === hashedPassword) {
           this.cookie.set('authenticated', email);
           this.loginForm.reset();
           this.loggedIn = true;
@@ -129,8 +128,8 @@ export class LoginComponent {
   public continueReset(): void {
     this.http.post(
       '/api', {command: getSqlSelectUserCommand(this.resetControls.emailReset.value)}
-    ).subscribe((data: any[]) => {
-        if (!data.length) {
+    ).subscribe((users: IUser[]) => {
+        if (!users.length) {
           alert('No user with that email was found.');
           return;
         }
@@ -142,7 +141,7 @@ export class LoginComponent {
         document.getElementById('resetButton').style.display = 'block';
         document.getElementById('resetQuestion').style.display = 'block';
 
-        this.resetQuestionTextContent = data[0].question;
+        this.resetQuestionTextContent = users[0].question;
       }, () => displayGeneralErrorMessage()
     );
   }
@@ -152,8 +151,8 @@ export class LoginComponent {
     const hashedPassword = sha512(this.resetControls.passwordReset.value);
     const hashedAnswer = sha512(this.resetControls.answerReset.value.toLowerCase());
 
-    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((data: any[]) => {
-        if (hashedAnswer !== data[0].answer) {
+    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((users: IUser[]) => {
+        if (hashedAnswer !== users[0].answer) {
           alert('Incorrect Answer');
           return;
         }
@@ -161,7 +160,7 @@ export class LoginComponent {
         this.http.post(
           '/api',
           {
-            command: `REPLACE INTO users VALUES ('${email}', '${hashedPassword}', '${data[0].question}', '${data[0].answer}')`
+            command: `REPLACE INTO users VALUES ('${email}', '${hashedPassword}', '${users[0].question}', '${users[0].answer}')`
           }).subscribe(() => {
             alert('Password was reset');
             document.getElementById('emailHide').style.display = 'block';

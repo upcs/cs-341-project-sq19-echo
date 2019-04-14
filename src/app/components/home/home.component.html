@@ -36,8 +36,8 @@
     <mat-tab label="Search Address">
       <form class="formContainer">
         <mat-form-field id="searchBar">
-          <input #addressSearch type="text" (keyup)="autocompleteAddress($event)" placeholder="Enter Address"
-                 aria-label="Address" matInput [formControl]="myControl" [matAutocomplete]="auto">
+          <input type="text" (keyup)="autocompleteAddress($event)" placeholder="Enter Address" aria-label="Address"
+                 matInput [formControl]="autocompleteFormControl" [matAutocomplete]="auto">
           <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
             <mat-option *ngFor="let option of options" [value]="option">{{option}}</mat-option>
           </mat-autocomplete>
@@ -45,7 +45,7 @@
 
         <button mat-raised-button color="primary" (click)="getZestimate()">Search</button>
 
-        <mat-card id="errorMess">
+        <mat-card id="errorMessage">
           <mat-card-content><strong>Error, cannot find address</strong></mat-card-content>
         </mat-card>
 
