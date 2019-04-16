@@ -18,3 +18,10 @@ export interface IResetControls {
   readonly passwordReset: FormControl;
   readonly answerReset: FormControl;
 }
+
+export interface IUser {
+  readonly user: string;
+  readonly password: string;
+  readonly question: string;
+  readonly answer: string;
+}

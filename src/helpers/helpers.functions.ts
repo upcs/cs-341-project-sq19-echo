@@ -1,7 +1,11 @@
 import {ISelectSqlQuery} from './helpers.interfaces';
 
 export function getSqlSelectCommand(sqlQuery: ISelectSqlQuery): string {
-  return `SELECT ${sqlQuery.whatToSelect} FROM ${sqlQuery.tableToSelectFrom} WHERE ${sqlQuery.whereStatements.join(' AND ')}`;
+  let selectCommand = `SELECT ${sqlQuery.whatToSelect} FROM ${sqlQuery.tableToSelectFrom}`;
+  if (sqlQuery.whereStatements.length) {
+    selectCommand += ` WHERE ${sqlQuery.whereStatements.join(' AND ')}`;
+  }
+  return `${selectCommand};`;
 }
 
 export function displayGeneralErrorMessage(): void {
