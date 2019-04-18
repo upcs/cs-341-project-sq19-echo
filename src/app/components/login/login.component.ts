@@ -218,6 +218,7 @@ export class LoginComponent {
 
   public viewOnMap(address: string) {
     this.cookie.set('address', address)
+    this.router.navigate(['home'])
   }
 
   public logout() {

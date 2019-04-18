@@ -18,7 +18,8 @@ import {
   latLngBounds,
   rectangle,
   DivIcon,
-  divIcon
+  divIcon,
+  LatLng
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
 // import {Http, ResponseContentType, Jsonp, Headers} from '@angular/http'
@@ -50,11 +51,12 @@ export class HomeComponent {
   filteredOptions: Observable<string[]>;
 
   private loggedIn: boolean;
+  private selectedTab = 0;
 
-  private addrReqInProg: boolean = false
   private currentFilter: String = ""
 
   private DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
+  private MAX_BOUNDS: LatLngBounds = latLngBounds(latLng(45.5122-0.5, -122.6587-0.5), latLng(45.5122+0.5, -122.6587+0.5))
   private DEFAULT_INTENSITY_RANGE: DensityInfo = {min: 0, max: 100000};
 
   private allTrafficMarkers: TrafficMarker[];
@@ -92,12 +94,21 @@ export class HomeComponent {
       })
     ],
     zoom: 11,
+    minZoom: 10,
+    maxBounds: this.MAX_BOUNDS,
+    maxBoundsViscosity: 1.0,
     center: latLng(this.DEFAULT_COORDS)
   };
 
   public constructor(private titleService: Title, private http: HttpClient, private cookie: CookieService) {
     titleService.setTitle('Portland Housing Traffic Hotspots');
     this.loggedIn = !this.cookie.check('authenticated');
+  }
+
+  ngOnInit() {
+    if(this.cookie.check('address')) {
+      this.selectedTab = 1;
+    }
   }
 
   private updateLeafletMapLocation(): void {
@@ -154,9 +165,11 @@ export class HomeComponent {
    */
   public onMapReady(map: LeafletMap): void {
     this.map = map;
+    //this.map.setMaxBounds(this.map.getBounds());
     //let iconContent = "<strong style=\"background-color:rgba(255, 0, 255, 0.35);color:#000000;font-size:3em;padding:0em 0.2em 0em 0.2em;border-radius:0.25em;\">$1,200,450</strong>"
     //const newIcon = divIcon({className: 'zindex', html: iconContent});
     //marker(this.DEFAULT_COORDS, {icon: newIcon}).addTo(this.map);
+    return
     const url = '/webservice/GetRegionChildren.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&state=or&city=portland&childtype=neighborhood'
     this.http.get(url, {responseType: 'text'}).subscribe((zillowXML) => {
       const regions = zillowXML.split("<region>").splice(2);
@@ -192,8 +205,7 @@ export class HomeComponent {
   }
 
   public updateOptions(e: KeyboardEvent) {
-    if(!this.addrReqInProg && ((e.keyCode >= 48 && e.keyCode <=57) || (e.keyCode >= 65 && e.keyCode <= 90) || e.keyCode == 32 || e.keyCode == 8)) {
-      this.addrReqInProg = true
+    if((e.keyCode >= 48 && e.keyCode <=57) || (e.keyCode >= 65 && e.keyCode <= 90) || e.keyCode == 32 || e.keyCode == 8) {
       const value = (<HTMLInputElement>document.getElementById("addressSearch")).value
       var command = "select address from address where `address` regexp '^" + value + ".*' limit 5"
       const DATA_URL = '/api'
@@ -203,10 +215,8 @@ export class HomeComponent {
           newOptions.push(option.address)
         }
         this.options = newOptions;
-        this.addrReqInProg = false
       }, (error: any) => {
         this.options = ['Error, cannot autocomplete']
-        this.addrReqInProg = false
       })
     }
   }
@@ -322,6 +332,17 @@ export class HomeComponent {
     })
   }
 
+  public showSearch() {
+    if(this.selectedTab === 1 && this.cookie.check('address')) {
+      //(<HTMLInputElement>document.getElementById("addressSearch")).value = this.cookie.get('address');
+      const searchBar: HTMLInputElement = document.getElementById('addressSearch') as HTMLInputElement;
+      searchBar.value = this.cookie.get('address');
+      this.cookie.delete('address');
+      this.getZestimate();
+      //this.getZestimate();
+    }
+  }
+
   public updateHeatMap() {
     this.heatMap.clearLayers();
     this.priceLayer.clearLayers();
@@ -420,6 +441,11 @@ export class HomeComponent {
 
   public toggleShowTraffic() {
     this.showTraffic = !this.showTraffic;
+  }
+
+  public toggleData() {
+    this.showTraffic = !this.showTraffic;
+    this.showPrices = !this.showPrices;
   }
 
   // Source: https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb

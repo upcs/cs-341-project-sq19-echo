@@ -79,3 +79,11 @@ mat-tab-group {
   color: #e6e6e6;
   font-size: 1em;
 }
+
+.toggles {
+  pointer-events: none;
+}
+
+.toggleContainer {
+  width: 50%;
+}
