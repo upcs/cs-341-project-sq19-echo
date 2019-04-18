@@ -1,9 +1,3 @@
-export enum TrafficDensity {
-  High = 'High',
-  Medium = 'Medium',
-  Low = 'Low'
-}
-
 export enum TrafficLocation {
   North = 'North',
   South = 'South',
@@ -16,8 +10,4 @@ export enum TrafficLocation {
 export enum VehicleType {
   Car = 'Cars',
   Bike = 'Bikes'
-}
-
-export enum VehicleFilter {
-  ALL, CAR, BIKE
 }

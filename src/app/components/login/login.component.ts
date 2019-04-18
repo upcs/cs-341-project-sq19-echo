@@ -3,12 +3,13 @@ import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators, FormGroupDirective} from '@angular/forms';
 import {sha512} from 'js-sha512';
 import {CookieService} from 'ngx-cookie-service';
-import {LoginControls, SignUpControls, ResetControls} from './login.component.interfaces';
-import {matchingPasswords} from './login.component.functions';
+import {ILoginControls, ISignUpControls, IResetControls, IUser} from './login.component.interfaces';
+import {getSqlSelectUserCommand, matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 import {Location} from '@angular/common';
 
+import {displayGeneralErrorMessage} from '../../../helpers/helpers.functions';
 
 @Component({
   selector: 'app-root',
@@ -19,13 +20,16 @@ export class LoginComponent {
   private MIN_PASSWORD_LENGTH = 8;
   private userAccounts: {[email: string]: string} = {};
   public savedData: {address: string, level: string, volume: string}[] = [];
-  public questions: string[] = ['What was the last name of your third grade teacher?', 
-    'What street did you live on in third grade?', 
-    'What was your childhood nickname', 
-    'What is the name of your faborite childhood friend?', 
-    'In what city does your nearest sibling live?'];
 
-  public signupControls: SignUpControls = {
+  public SECURITY_QUESTIONS: string[] = [
+    'What was the last name of your third grade teacher?',
+    'What street did you live on in third grade?',
+    'What was your childhood nickname?',
+    'What is the name of your favorite childhood friend?',
+    'In what city does your nearest sibling live?'
+  ];
+
+  public signupControls: ISignUpControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.minLength(this.MIN_PASSWORD_LENGTH)]),
     confirmPassword: new FormControl('', [Validators.required]),
@@ -33,12 +37,12 @@ export class LoginComponent {
     answerRequire: new FormControl('', [Validators.required])
   };
 
-  public loginControls: LoginControls = {
+  public loginControls: ILoginControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required])
   };
 
-  public resetControls: ResetControls = {
+  public resetControls: IResetControls = {
     emailReset: new FormControl('', [Validators.required, Validators.email]),
     passwordReset: new FormControl('', [Validators.required, Validators.minLength(this.MIN_PASSWORD_LENGTH)]),
     answerReset: new FormControl('', [Validators.required])
@@ -47,6 +51,7 @@ export class LoginComponent {
   public signupForm: FormGroup;
   public loginForm: FormGroup;
   public resetForm: FormGroup;
+  public resetQuestionTextContent: string;
 
   public constructor(private titleService: Title, private formBuilder: FormBuilder, private cookie: CookieService, private http: HttpClient, private router: Router, private location: Location) {
     titleService.setTitle('Login Page');
@@ -79,24 +84,24 @@ export class LoginComponent {
     const password = sha512(this.signupControls.password.value);
     const question = this.signupControls.questionRequire.value;
     const answer = sha512(this.signupControls.answerRequire.value.toLowerCase())
-    let command = "select * from users where user='" + email + "'"
-    this.http.post('/api', {command:command}).subscribe((data: any[]) => {
-      if(data.length > 0) {
+
+    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((users: IUser[]) => {
+      if (users.length) {
         alert('An account has already been created with this email.');
         return;
       }
-      command = "insert into users (user, password, question, answer) VALUES ('" + email + "', '" + password + "', '" + question +"', '" + answer +"')"
-      this.http.post('/api', {command:command}).subscribe((data: any[]) => {
-        alert(`Account created with email: ${unhashedEmail}.`);
-        this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
-        return
-      }, (error: any) => {
-        alert("Cannot get information. Check that you are connected to the internet.")
-      })
 
-    }, (error: any) => {
-      alert("Cannot get information. Check that you are connected to the internet.")
-    })
+      this.http.post(
+        '/api',
+        {
+          command: `INSERT INTO users (user, password, question, answer)
+                    VALUES ('${email}', '${password}', '${question}', '${answer}')`
+        }).subscribe(() => {
+          alert(`Account created with email: ${unhashedEmail}.`);
+          this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
+          return;
+        }, () => displayGeneralErrorMessage());
+    }, () => displayGeneralErrorMessage());
   }
 
   public getFormError(formControl: FormControl): string {
@@ -120,45 +125,37 @@ export class LoginComponent {
     const hashedEmail = sha512(email);
     const hashedPassword = sha512(this.loginControls.password.value);
 
-    let command = "select * from users where user='" + hashedEmail +"'"
-    this.http.post('/api', {command:command}).subscribe((data: any[]) => {
-      if(data.length > 0) {
-        if(data[0].password == hashedPassword) {
+    this.http.post('/api', {command: getSqlSelectUserCommand(hashedEmail)}).subscribe((users: IUser[]) => {
+        if (users.length && users[0].password === hashedPassword) {
           this.cookie.set('authenticated', email);
           location.href = '/home'
         }
-        else {
-          alert('Email or password is incorrect');
-        }
-      }
-      else {
-        alert('email or password is incorrect');
-      }
-    }, (error: any) => {
-      alert("Cannot get information. Check that you are connected to the internet.")
-    })
+
+        alert('Email or password is incorrect');
+      }, () => displayGeneralErrorMessage()
+    );
   }
 
   public continueReset(): void {
     const email = sha512(this.resetControls.emailReset.value);
-    let command = "select * from users where user='" + email +"'"
-    this.http.post('/api', {command:command}).subscribe((data: any[]) => {
-      if(data.length == 0) {
-        alert("No user with that email was found")
-        return;
-      }
-      else {
-        document.getElementById("emailHide").style.display = 'none';
-        document.getElementById("continue").style.display = 'none';
-        document.getElementById("answerHide").style.display = 'block';
-        document.getElementById("passwordHide").style.display = 'block';
-        document.getElementById("resetButton").style.display = 'block';
-        document.getElementById("resetQuestion").style.display = 'block';
-        document.getElementById("resetQuestion").textContent = data[0].question;
-      }
-    }, (error: any) => {
-      alert('Cannot get information. Check that you are connected to the internet.');
-    })
+    this.http.post(
+      '/api', {command: getSqlSelectUserCommand(email)}
+    ).subscribe((users: IUser[]) => {
+        if (!users.length) {
+          alert('No user with that email was found.');
+          return;
+        }
+
+        document.getElementById('emailHide').style.display = 'none';
+        document.getElementById('continue').style.display = 'none';
+        document.getElementById('answerHide').style.display = 'block';
+        document.getElementById('passwordHide').style.display = 'block';
+        document.getElementById('resetButton').style.display = 'block';
+        document.getElementById('resetQuestion').style.display = 'block';
+
+        this.resetQuestionTextContent = users[0].question;
+      }, () => displayGeneralErrorMessage()
+    );
   }
 
   public resetPass(): void {
@@ -166,31 +163,30 @@ export class LoginComponent {
     const hashedPassword = sha512(this.resetControls.passwordReset.value);
     const hashedAnswer = sha512(this.resetControls.answerReset.value.toLowerCase());
 
-    let command = "select * from users where user='" + email +"'"
-    this.http.post('/api', {command:command}).subscribe((data: any[]) => {
-      if(hashedAnswer !== data[0].answer) {
-        alert('Incorrect Answer')
+    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((users: IUser[]) => {
+      if (hashedAnswer !== users[0].answer) {
+        alert('Incorrect Answer');
         return;
       }
-      command = "replace into users VALUES ('" + email + "', '" + hashedPassword + "', '" + data[0].question +"', '" + data[0].answer +"')"
-      this.http.post('/api', {command:command}).subscribe((data: any[]) => {
-        alert('Password was reset')
-        document.getElementById("emailHide").style.display = 'block'
-        document.getElementById("continue").style.display = 'block'
-        document.getElementById("answerHide").style.display = 'none'
-        document.getElementById("passwordHide").style.display = 'none'
-        document.getElementById("resetButton").style.display = 'none'
-        document.getElementById("resetQuestion").style.display = 'none'
-        document.getElementById("resetQuestion").textContent = ""
-        this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
-        return
-      }, (error: any) => {
-        alert("Cannot get information. Check that you are connected to the internet.")
-      });
-    }, (error: any) => {
-      alert("Cannot get information. Check that you are connected to the internet.")
-    })
-    
+
+      this.http.post(
+        '/api',
+        {
+          command: `REPLACE INTO users VALUES ('${email}', '${hashedPassword}', '${users[0].question}', '${users[0].answer}')`
+        }).subscribe(() => {
+          alert('Password was reset');
+          document.getElementById('emailHide').style.display = 'block';
+          document.getElementById('continue').style.display = 'block';
+          document.getElementById('answerHide').style.display = 'none';
+          document.getElementById('passwordHide').style.display = 'none';
+          document.getElementById('resetButton').style.display = 'none';
+          document.getElementById('resetQuestion').style.display = 'none';
+          this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
+          return;
+        }, () => displayGeneralErrorMessage()
+      );
+    }, () => displayGeneralErrorMessage()
+  );
   }
 
   public loadData() {

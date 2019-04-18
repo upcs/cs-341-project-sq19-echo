@@ -47,7 +47,7 @@ mat-tab-group {
   width: 100%;
 }
 
-#errorMess {
+#errorMessage {
   background-color: #e73c26;
   color: #e6e6e6;
   display: none;
