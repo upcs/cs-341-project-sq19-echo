@@ -7,21 +7,22 @@ import {AboutComponent} from './components/about/about.component';
 export const mainRoutes: Routes = [
   {
     path: 'home',
-    component: HomeComponent
+    component: HomeComponent,
+    pathMatch: 'prefix'
   },
   {
     path: 'about',
     component: AboutComponent
   },
   {
-    path: 'login',
+    path: 'user',
     component: LoginComponent
   }
 ];
 
 const allRoutes: Routes = mainRoutes;
 allRoutes.push({
-    path: '',
+    path: '**',
     redirectTo: '/home',
     pathMatch: 'full'
 });

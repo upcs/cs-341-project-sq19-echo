@@ -7,9 +7,13 @@ mat-card {
   margin-bottom: 15px;
 }
 
+#toggleButtons {
+  margin-bottom: 0.5em;
+}
+
 #container {
   margin-top: 1em;
-  height: 36em;
+  height: 38em;
 }
 
 mat-tab-group {
@@ -61,4 +65,29 @@ mat-tab-group {
 
 #tspProjects {
   white-space: pre-line;
+}
+
+#keys {
+  float: right;
+}
+
+.keyImage {
+  width: 18.5em;
+  height: 2em;
+  margin-left: 1em;
+  margin-top: 0.5em;
+}
+
+.zindex {
+  background-color: #1b1b1b;
+  color: #e6e6e6;
+  font-size: 1em;
+}
+
+.toggles {
+  pointer-events: none;
+}
+
+.toggleContainer {
+  width: 50%;
 }

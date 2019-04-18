@@ -1,7 +1,20 @@
 <mat-card id="container" class="mat-elevation-z4">
-  <mat-tab-group dynamicHeight>
+  <mat-tab-group dynamicHeight mat-align-tabs="center" [selectedIndex]='selectedTab' (animationDone)="showSearch()">
     <mat-tab label="Filter Data">
       <form class="formContainer">
+        <mat-button-toggle-group id="toggleButtons" name="fontStyle" aria-label="Font Style" value="traffic" (change)="toggleData()">
+          <mat-button-toggle value="traffic" class="toggleContainer">
+            <button mat-button color="warn" class="toggles">
+              Traffic Data
+            </button>
+          </mat-button-toggle>
+          <mat-button-toggle value="prices" class="toggleContainer">
+            <button mat-button color="primary" class="toggles">
+              Housing Prices
+            </button>
+          </mat-button-toggle>
+        </mat-button-toggle-group>
+
         <mat-form-field>
           <mat-select #areaSelector placeholder="Filter Portland Area">
             <mat-option *ngFor="let area of objectKeys(areas)" [value]="areas[area]">{{area}}</mat-option>
@@ -36,8 +49,7 @@
     <mat-tab label="Search Address">
       <form class="formContainer">
         <mat-form-field id="searchBar">
-          <input type="text" (keyup)="autocompleteAddress($event)" placeholder="Enter Address" aria-label="Address"
-                 matInput [formControl]="autocompleteFormControl" [matAutocomplete]="auto">
+          <input type="text" id="addressSearch" (keyup)="autocompleteAddress($event)" placeholder="Enter Address" aria-label="Address" matInput [formControl]="autocompleteFormControl" [matAutocomplete]="auto">
           <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
             <mat-option *ngFor="let option of options" [value]="option">{{option}}</mat-option>
           </mat-autocomplete>
@@ -86,12 +98,21 @@
               </mat-expansion-panel>
             </mat-accordion>
           </mat-card-content>
+          <mat-card-actions>
+            <button mat-button (click)="saveSearch()" [disabled]="loggedOut">SAVE</button>
+          </mat-card-actions>
         </mat-card>
       </form>
     </mat-tab>
   </mat-tab-group>
 
   <div id="map" class="mat-elevation-z4" leaflet
-       (leafletMapReady)="onMapReady($event)" [leafletOptions]="leafletOptions">
+      (leafletMapReady)="onMapReady($event)" (leafletMapMoveEnd)="updateHeatMap()" [leafletOptions]="leafletOptions">
   </div>
+
+  <div id="keys">
+    <img class="keyImage" src="assets/images/traffic.png">
+    <img class="keyImage" src="assets/images/prices.png">
+  </div>
+  
 </mat-card>

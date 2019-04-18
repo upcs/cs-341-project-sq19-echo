@@ -6,8 +6,8 @@
   <mdb-navbar-brand><a class="navbar-brand" routerLink="home">Echo App</a></mdb-navbar-brand>
   <links>
     <ul class="navbar-nav mr-auto">
-      <li class="nav-item" *ngFor="let label of navLabels">
-        <a class="nav-link waves-light" routerLink="{{label}}" mdbWavesEffect>{{label.toUpperCase()}}</a>
+      <li class="nav-item" *ngFor="let info of navLabels">
+        <a class="nav-link waves-light" routerLink="{{info.route}}" mdbWavesEffect>{{info.label.toUpperCase()}}</a>
       </li>
     </ul>
   </links>
