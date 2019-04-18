@@ -39,6 +39,10 @@ export class GameComponent implements OnInit {
     {leftPosition: 450, topPosition: 175}
   ];
 
+  static getDivElement(objType: string, objLocation: GameLocation): string {
+    return `<div class="${objType}" style="left:${objLocation.leftPosition}px; top:${objLocation.topPosition}px;"></div>`;
+  }
+
   ngOnInit(): void {
     setInterval(() => this.gameTick(), 10);
   }
@@ -79,20 +83,12 @@ export class GameComponent implements OnInit {
     }
   }
 
-  static getDivElement(objType: string, objLocation: GameLocation): string {
-    return `<div class='${objType}' style='left:${objLocation.leftPosition}px; top:${objLocation.topPosition}px'></div>`;
-  }
-
   drawMissiles(): void {
-    let missileRefHtml = "";
-    this.missiles.forEach(missile => missileRefHtml += GameComponent.getDivElement('missile', missile));
-    this.missileRef.innerHTML = missileRefHtml;
+    this.missileRef.innerHTML = this.missiles.map(missile => GameComponent.getDivElement('missile', missile)).join('');
   }
 
   drawEnemies(): void {
-    let enemyRefHtml = "";
-    this.enemies.forEach(enemy => enemyRefHtml += GameComponent.getDivElement('enemy', enemy));
-    this.enemyRef.innerHTML = enemyRefHtml;
+    this.enemyRef.innerHTML = this.enemies.map(enemy => GameComponent.getDivElement('enemy', enemy)).join('');
   }
 
   movePlayer(): void {
@@ -101,29 +97,28 @@ export class GameComponent implements OnInit {
   }
 
   moveMissiles(): void {
-    for (let i = 0; i < this.missiles.length; i++) {
-      this.missiles[i].topPosition -= 5
+    for (const missile of this.missiles) {
+      missile.topPosition -= 5;
     }
   }
 
   moveEnemies(): void {
-    for (let i = 0; i < this.enemies.length; i++) {
-      this.enemies[i].topPosition++;
-      if (this.enemies[i].topPosition === this.MAX_LEFT_POSITION) {
-        this.enemies[i].topPosition = 0
+    for (const enemy of this.enemies) {
+      enemy.topPosition++;
+      if (enemy.topPosition === this.MAX_LEFT_POSITION) {
+        enemy.topPosition = 0;
       }
     }
   }
 
   detectCollisions(): void {
-    for (let enemyIdx = 0; enemyIdx < this.enemies.length; enemyIdx++) {
-      for (let missileIdx = 0; missileIdx < this.missiles.length; missileIdx++) {
-        if (this.missiles[missileIdx].leftPosition >= this.enemies[enemyIdx].leftPosition &&
-            this.missiles[missileIdx].leftPosition <= (this.enemies[enemyIdx].leftPosition + 50) &&
-            this.missiles[missileIdx].topPosition <= (this.enemies[enemyIdx].topPosition + 50) &&
-            this.missiles[missileIdx].topPosition >= this.enemies[enemyIdx].topPosition) {
-          this.enemies.splice(enemyIdx, 1);
-          this.missiles.splice(missileIdx, 1);
+    const DELTA = 50;
+    for (const enemy of this.enemies) {
+      for (const missile of this.missiles) {
+        if (missile.leftPosition <= (enemy.leftPosition + DELTA) && missile.leftPosition >= enemy.leftPosition &&
+            missile.topPosition <= (enemy.topPosition + DELTA) && missile.topPosition >= enemy.topPosition) {
+          this.enemies.splice(this.enemies.indexOf(enemy), 1);
+          this.missiles.splice(this.missiles.indexOf(missile), 1);
         }
       }
     }
