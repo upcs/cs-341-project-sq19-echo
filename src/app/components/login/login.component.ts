@@ -98,7 +98,7 @@ export class LoginComponent {
                     VALUES ('${email}', '${password}', '${question}', '${answer}')`
         }).subscribe(() => {
           alert(`Account created with email: ${unhashedEmail}.`);
-          this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
+          this.router.navigateByUrl('/about', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
           return;
         }, () => displayGeneralErrorMessage());
     }, () => displayGeneralErrorMessage());
@@ -128,7 +128,8 @@ export class LoginComponent {
     this.http.post('/api', {command: getSqlSelectUserCommand(hashedEmail)}).subscribe((users: IUser[]) => {
         if (users.length && users[0].password === hashedPassword) {
           this.cookie.set('authenticated', email);
-          location.href = '/home'
+          location.href = '/home';
+          return;
         }
 
         alert('Email or password is incorrect');
@@ -181,7 +182,7 @@ export class LoginComponent {
           document.getElementById('passwordHide').style.display = 'none';
           document.getElementById('resetButton').style.display = 'none';
           document.getElementById('resetQuestion').style.display = 'none';
-          this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
+          this.router.navigateByUrl('/about', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
           return;
         }, () => displayGeneralErrorMessage()
       );
@@ -206,7 +207,7 @@ export class LoginComponent {
   public removeSave(address: string) {
     const command = "delete from saves where address='" + address + "'"
     this.http.post('/api', {command:command}).subscribe((data: any[]) => {
-      this.router.navigateByUrl('/', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
+      this.router.navigateByUrl('/about', {skipLocationChange: true}).then(() => this.router.navigate(['user']));
     }, (error: any) => {
       alert("Cannot get information. Check that you are connected to the internet.")
     })

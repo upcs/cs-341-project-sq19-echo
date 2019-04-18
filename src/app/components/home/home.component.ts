@@ -52,7 +52,7 @@ export class HomeComponent {
   options: string[] = [];
   filteredOptions: Observable<string[]>;
 
-  private loggedIn: boolean;
+  private loggedOut: boolean;
   private selectedTab = 0;
 
   private currentFilter: String = ""
@@ -101,7 +101,7 @@ export class HomeComponent {
 
   public constructor(private titleService: Title, private http: HttpClient, private cookie: CookieService) {
     titleService.setTitle('Portland Housing Traffic Hotspots');
-    this.loggedIn = !this.cookie.check('authenticated');
+    this.loggedOut = !this.cookie.check('authenticated');
   }
 
   ngOnInit() {
@@ -218,66 +218,8 @@ export class HomeComponent {
     }
   }
 
-  // public getZestimate() {
-  //   const value = (<HTMLInputElement>document.getElementById("addressSearch")).value
-  //   var address = ""
-  //   for(var word of value.split(" ")) {
-  //     address = address + "+" + word
-  //   }
-  //   const url = "/webservice/GetSearchResults.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&address="+address+"&citystatezip=Portland%2C+OR"
-  //   this.http.get(url, {responseType: 'text'}).subscribe((zillowXML) => {
-  //     var zestElement: HTMLElement = document.getElementById("zestimate")
-      
-  //     if(zillowXML.includes('Error')) {
-  //       zestElement.textContent = "Zestimate: N/A"
-  //     }
-  //     else {
-  //       var start = zillowXML.indexOf("<amount currency=") + 23
-  //       var end = zillowXML.indexOf("</amount>")
-  //       var zestimate = zillowXML.substring(start, end)
-  //       if(zestimate.length == 0) {
-  //         zestElement.textContent = "Zestimate: N/A"
-  //       }
-  //       else {
-  //         for(var i=zestimate.length-3; i>0; i-=3) {
-  //           zestimate = zestimate.substring(0, i) + "," + zestimate.substring(i)
-  //         }
-  //         zestElement.textContent = "Zestimate: $" + zestimate
-  //       }
-  //     }
-  //   }, (error: any) => {
-  //     alert("Cannot get Zestimate. Check that you are connected to the internet.")
-  //   });
-
-  //   const DATA_URL = '/api'
-  //   var command = "select * from address where address='" + value + "'"
-  //   this.http.post(DATA_URL, {command:command}).subscribe((info: any[]) => {
-  //     this.houseLayer.clearLayers()
-  //     if(info.length == 0) {
-  //       document.getElementById("errorMess").style.display = "block";
-  //       document.getElementById("infoCard").style.display = "none";
-  //     }
-  //     else {
-  //       document.getElementById("errorMess").style.display = "none";
-  //       document.getElementById("infoCard").style.display = "block";
-  //       document.getElementById("curAddress").textContent = info[0].address
-  //       document.getElementById("cityzip").textContent = "Portland, OR " + info[0].zip
-  //       const coords: LatLngExpression = [info[0].lat, info[0].lng];
-  //       const icon = HOUSE_ICON
-  //       this.houseLayer.addLayer(marker(coords, {riseOnHover: true, icon}).bindPopup(info[0].address))
-  //       var corner1 = latLng(info[0].lat-0.0075, info[0].lng-0.0075)
-  //       var corner2 = latLng(info[0].lat+0.0075, info[0].lng+0.0075)
-  //       var setBounds = latLngBounds(corner1, corner2)
-  //       this.map.flyToBounds(setBounds, {maxZoom: 15});
-  //       this.getTrafficInfo(info[0].lat-0.0075, info[0].lat+0.0075, info[0].lng-0.0075, info[0].lng+0.0075)
-  //     }
-  //   }, (error: any) => {
-  //     alert("Cannot get information. Check that you are connected to the internet.")
-  //   })
-  // }
-
   public getZestimate(): void {
-    const addressSearchValue = this.autocompleteFormControl.value;
+    const addressSearchValue = (<HTMLInputElement>document.getElementById("addressSearch")).value
     const address = addressSearchValue.split(' ').join('+');
 
     this.zestimateTextContent = 'Zestimate: ';
@@ -291,7 +233,10 @@ export class HomeComponent {
             return;
           }
 
-          const zestimateAmount = zillowSearchResult.response[0].results[0].result[0].zestimate[0].amount[0]._;
+          var zestimateAmount = zillowSearchResult.response[0].results[0].result[0].zestimate[0].amount[0]._;
+          for(var i=zestimateAmount.length-3; i>0; i-=3) {
+            zestimateAmount = zestimateAmount.substring(0, i) + "," + zestimateAmount.substring(i)
+          }
           this.zestimateTextContent += zestimateAmount !== undefined ? `$${zestimateAmount}` : 'N/A';
         });
       }, () => displayGeneralErrorMessage()
@@ -337,11 +282,11 @@ export class HomeComponent {
   }
 
   public getTrafficInformation(minLatitude: number, maxLatitude: number, minLongitude: number, maxLongitude: number): void {
-    const whereStatements = this.filterWhereStatements.concat(
-      [`lat>${minLatitude}`, `lat<${maxLatitude}`, `lng>${minLongitude}`, `lng<${maxLongitude}`]
-    );
+    // const whereStatements = this.filterWhereStatements.concat(
+    //   [`lat>${minLatitude}`, `lat<${maxLatitude}`, `lng>${minLongitude}`, `lng<${maxLongitude}`]
+    // );
     this.http.post('/api', {
-      command: getSqlSelectCommand({whatToSelect: 'volume', tableToSelectFrom: 'traffic', whereStatements})
+      command: getSqlSelectCommand({whatToSelect: 'volume', tableToSelectFrom: 'traffic', whereStatements: []})
     }).subscribe((volumeTrafficData: ITrafficData[]) => {
         let summedVolume = 0;
         let averageVolume = 0;
@@ -383,10 +328,10 @@ export class HomeComponent {
   }
 
   public saveSearch() {
-    const address = document.getElementById('curAddress').textContent;
+    const address = this.currentAddressTextContent;
     const user = sha512(this.cookie.get('authenticated'));
-    const level = document.getElementById("trafficLevel").textContent;
-    const volume = document.getElementById("trafficVolume").textContent;
+    const level = this.trafficLevelTextContent;
+    const volume = this.trafficVolumeTextContent;
     const command = "insert ignore into saves (user, address, level, volume) VALUES ('" + user + "', '" + address + "', '" + level +"', '" + volume +"')"
     this.http.post('/api', {command:command}).subscribe((data: any[]) => {
       alert('Address has been saved to account!');
@@ -498,17 +443,10 @@ export class HomeComponent {
     }    
   }
 
-  public toggleShowPrices() {
-    this.showPrices = !this.showPrices;
-  }
-
-  public toggleShowTraffic() {
-    this.showTraffic = !this.showTraffic;
-  }
-
   public toggleData() {
     this.showTraffic = !this.showTraffic;
     this.showPrices = !this.showPrices;
+    this.updateHeatMap();
   }
 
   // Source: https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb

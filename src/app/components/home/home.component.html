@@ -2,15 +2,7 @@
   <mat-tab-group dynamicHeight mat-align-tabs="center" [selectedIndex]='selectedTab' (animationDone)="showSearch()">
     <mat-tab label="Filter Data">
       <form class="formContainer">
-        <mat-slide-toggle color="primary" [checked]="showPrices" (change)="toggleShowPrices()">
-          Housing Prices
-        </mat-slide-toggle>
-
-        <mat-slide-toggle color="warn" [checked]="showTraffic" (change)="toggleShowTraffic()">
-          Traffic Data
-        </mat-slide-toggle>
-
-        <mat-button-toggle-group name="fontStyle" aria-label="Font Style" value="traffic" (change)="toggleData()">
+        <mat-button-toggle-group id="toggleButtons" name="fontStyle" aria-label="Font Style" value="traffic" (change)="toggleData()">
           <mat-button-toggle value="traffic" class="toggleContainer">
             <button mat-button color="warn" class="toggles">
               Traffic Data
@@ -107,7 +99,7 @@
             </mat-accordion>
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button (click)="saveSearch()" [disabled]="loggedIn">SAVE</button>
+            <button mat-button (click)="saveSearch()" [disabled]="loggedOut">SAVE</button>
           </mat-card-actions>
         </mat-card>
       </form>

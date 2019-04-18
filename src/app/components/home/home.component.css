@@ -7,6 +7,10 @@ mat-card {
   margin-bottom: 15px;
 }
 
+#toggleButtons {
+  margin-bottom: 0.5em;
+}
+
 #container {
   margin-top: 1em;
   height: 38em;
