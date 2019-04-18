@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, OnInit, ViewChild} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {MatSelect} from '@angular/material';
 import {FormControl} from '@angular/forms';
@@ -17,11 +17,10 @@ import {
 import {HttpClient} from '@angular/common/http';
 import {
   alphaNumericSpacebarOrBackspaceSelected,
-  getLeafletMarkerFromTrafficMarker,
+  getLeafletMarkerFromTrafficMarker, rgbToHex,
   valueSelectedBesidesAny
 } from './home.component.functions';
 import {TrafficLocation, VehicleType} from './home.component.enums';
-import {Observable} from 'rxjs';
 import {CookieService} from 'ngx-cookie-service';
 import {sha512} from 'js-sha512';
 import {DEFAULT_ICON, HOUSE_ICON} from './home.component.constants';
@@ -34,7 +33,7 @@ import {parseString} from 'xml2js';
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
-export class HomeComponent {
+export class HomeComponent implements OnInit {
   cityZipTextContent: string;
   currentAddressTextContent: string;
   zestimateTextContent: string;
@@ -50,26 +49,22 @@ export class HomeComponent {
 
   autocompleteFormControl = new FormControl();
   options: string[] = [];
-  filteredOptions: Observable<string[]>;
 
   private loggedOut: boolean;
   private selectedTab = 0;
 
-  private currentFilter: String = ""
-
   private DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
-  private MAX_BOUNDS: LatLngBounds = latLngBounds(latLng(45.5122-0.5, -122.6587-0.5), latLng(45.5122+0.5, -122.6587+0.5))
+  private MAX_BOUNDS: LatLngBounds = latLngBounds(latLng(45.5122 - 0.5, -122.6587 - 0.5), latLng(45.5122 + 0.5, -122.6587 + 0.5));
 
   private trafficLayer: LayerGroup = new LayerGroup();
   private houseLayer: LayerGroup = new LayerGroup();
   private map: LeafletMap;
   private heatMap: LayerGroup = new LayerGroup();
   private priceLayer: LayerGroup = new LayerGroup();
-  private zindexMarker: {name: String, zindex: number, lat: number, lng: number}[] = [];
-  private showPrices: boolean = false;
-  private showTraffic: boolean = true;
+  private zindexMarkers: { name: string, zindex: number, lat: number, lng: number }[] = [];
+  private showPrices = false;
+  private showTraffic = true;
   private filterWhereStatements: string[];
-  private addressRequestInProgress = false;
 
   // Fields accessed by the HTML (template).
   public objectKeys = Object.keys;
@@ -104,8 +99,8 @@ export class HomeComponent {
     this.loggedOut = !this.cookie.check('authenticated');
   }
 
-  ngOnInit() {
-    if(this.cookie.check('address')) {
+  ngOnInit(): void {
+    if (this.cookie.check('address')) {
       this.selectedTab = 1;
     }
   }
@@ -161,45 +156,36 @@ export class HomeComponent {
 
   public onMapReady(map: LeafletMap): void {
     this.map = map;
-    //this.map.setMaxBounds(this.map.getBounds());
-    //let iconContent = "<strong style=\"background-color:rgba(255, 0, 255, 0.35);color:#000000;font-size:3em;padding:0em 0.2em 0em 0.2em;border-radius:0.25em;\">$1,200,450</strong>"
-    //const newIcon = divIcon({className: 'zindex', html: iconContent});
-    //marker(this.DEFAULT_COORDS, {icon: newIcon}).addTo(this.map);
-    const url = '/webservice/GetRegionChildren.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&state=or&city=portland&childtype=neighborhood'
+    const url = '/webservice/GetRegionChildren.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&state=or&city=portland&childtype=neighborhood';
     this.http.get(url, {responseType: 'text'}).subscribe((zillowXML) => {
-      const regions = zillowXML.split("<region>").splice(2);
-      for(let region of regions) {
-        if(region.indexOf("zindex currency=") == -1){
+      const regions = zillowXML.split('<region>').splice(2);
+      for (const region of regions) {
+        if (region.indexOf('zindex currency=') === -1) {
           continue;
         }
-        const zStart = region.indexOf("zindex currency=") + 22
-        const zEnd = region.indexOf("</zindex>")
-        var zIndex = +region.substring(zStart, zEnd)
+        const zStart = region.indexOf('zindex currency=') + 22;
+        const zEnd = region.indexOf('</zindex>');
+        const zIndex = +region.substring(zStart, zEnd);
 
-        // for(var i=zIndex.length-3; i>0; i-=3) {
-        //   zIndex = zIndex.substring(0, i) + "," + zIndex.substring(i)
-        // }
+        const nStart = region.indexOf('<name>') + 6;
+        const nEnd = region.indexOf('</name>');
+        const regionName = region.substring(nStart, nEnd);
 
-        const nStart = region.indexOf("<name>") + 6
-        const nEnd = region.indexOf("</name>")
-        const regionName = region.substring(nStart, nEnd)
+        const latStart = region.indexOf('<latitude>') + 10;
+        const latEnd = region.indexOf('</latitude>');
+        const latitude = +region.substring(latStart, latEnd);
 
-        const latStart = region.indexOf("<latitude>") + 10
-        const latEnd = region.indexOf("</latitude>")
-        const latitude = +region.substring(latStart, latEnd)
+        const lngStart = region.indexOf('<longitude>') + 11;
+        const lngEnd = region.indexOf('</longitude>');
+        const longitude = +region.substring(lngStart, lngEnd);
 
-        const lngStart = region.indexOf("<longitude>") + 11
-        const lngEnd = region.indexOf("</longitude>")
-        const longitude = +region.substring(lngStart, lngEnd)
-
-        this.zindexMarker.push({name: regionName, zindex: zIndex, lat: latitude, lng: longitude});
+        this.zindexMarkers.push({name: regionName, zindex: zIndex, lat: latitude, lng: longitude});
       }
       this.updateHeatMap();
     });
-    //this.clearFiltersAndUpdateMap();
   }
 
-  public autocompleteAddress(e: KeyboardEvent) {
+  public autocompleteAddress(e: KeyboardEvent): void {
     if (alphaNumericSpacebarOrBackspaceSelected(e.keyCode)) {
       this.http.post(
         '/api', {
@@ -219,7 +205,7 @@ export class HomeComponent {
   }
 
   public getZestimate(): void {
-    const addressSearchValue = (<HTMLInputElement>document.getElementById("addressSearch")).value
+    const addressSearchValue = (document.getElementById('addressSearch') as HTMLInputElement).value;
     const address = addressSearchValue.split(' ').join('+');
 
     this.zestimateTextContent = 'Zestimate: ';
@@ -233,9 +219,9 @@ export class HomeComponent {
             return;
           }
 
-          var zestimateAmount = zillowSearchResult.response[0].results[0].result[0].zestimate[0].amount[0]._;
-          for(var i=zestimateAmount.length-3; i>0; i-=3) {
-            zestimateAmount = zestimateAmount.substring(0, i) + "," + zestimateAmount.substring(i)
+          let zestimateAmount = zillowSearchResult.response[0].results[0].result[0].zestimate[0].amount[0]._;
+          for (let i = zestimateAmount.length - 3; i > 0; i -= 3) {
+            zestimateAmount = zestimateAmount.substring(0, i) + ',' + zestimateAmount.substring(i);
           }
           this.zestimateTextContent += zestimateAmount !== undefined ? `$${zestimateAmount}` : 'N/A';
         });
@@ -327,31 +313,28 @@ export class HomeComponent {
     );
   }
 
-  public saveSearch() {
+  public saveSearch(): void {
     const address = this.currentAddressTextContent;
     const user = sha512(this.cookie.get('authenticated'));
     const level = this.trafficLevelTextContent;
     const volume = this.trafficVolumeTextContent;
-    const command = "insert ignore into saves (user, address, level, volume) VALUES ('" + user + "', '" + address + "', '" + level +"', '" + volume +"')"
-    this.http.post('/api', {command:command}).subscribe((data: any[]) => {
-      alert('Address has been saved to account!');
-    }, (error: any) => {
-      alert("Cannot get information. Check that you are connected to the internet.")
-    })
+    const command = `INSERT ignore INTO saves (user, address, level, volume) VALUES ('${user}', '${address}', '${level}', '${volume}')`;
+    this.http.post('/api', {command}).subscribe(() => {
+        alert('Address has been saved to account!');
+      }, () => displayGeneralErrorMessage()
+    );
   }
 
-  public showSearch() {
-    if(this.selectedTab === 1 && this.cookie.check('address')) {
-      //(<HTMLInputElement>document.getElementById("addressSearch")).value = this.cookie.get('address');
+  public showSearch(): void {
+    if (this.selectedTab === 1 && this.cookie.check('address')) {
       const searchBar: HTMLInputElement = document.getElementById('addressSearch') as HTMLInputElement;
       searchBar.value = this.cookie.get('address');
       this.cookie.delete('address');
       this.getZestimate();
-      //this.getZestimate();
     }
   }
 
-  public updateHeatMap() {
+  public updateHeatMap(): void {
     this.heatMap.clearLayers();
     this.priceLayer.clearLayers();
     const bounds = this.map.getBounds();
@@ -362,100 +345,97 @@ export class HomeComponent {
     const numBuckets = 10;
     const bucketWidth = (rightBound - leftBound) / numBuckets;
     const bucketHeight = (topBound - bottomBound) / numBuckets;
-    let buckets: {sum: number, count: number}[][] = [];
-    let priceBuckets: {sum: number, count: number}[][] = [];
+    const buckets: { sum: number, count: number }[][] = [];
+    const priceBuckets: { sum: number, count: number }[][] = [];
 
-    for(let i=0; i<numBuckets; i++) {
-      buckets[i] = []
-      priceBuckets[i] = []
-      for(let j=0; j<numBuckets; j++) {
+    for (let i = 0; i < numBuckets; i++) {
+      buckets[i] = [];
+      priceBuckets[i] = [];
+      for (let j = 0; j < numBuckets; j++) {
         buckets[i][j] = {sum: 0, count: 0};
         priceBuckets[i][j] = {sum: 0, count: 0};
       }
     }
-    if(this.showPrices) {
-      for(let i=0; i<this.zindexMarker.length; i++) {
-        if(this.zindexMarker[i].lat > bottomBound && this.zindexMarker[i].lat < topBound && this.zindexMarker[i].lng > leftBound && this.zindexMarker[i].lng < rightBound) {
-          var lngBucket = this.zindexMarker[i].lng - leftBound;
+    if (this.showPrices) {
+      for (const zindexMarker of this.zindexMarkers) {
+        if (zindexMarker.lat > bottomBound && zindexMarker.lat < topBound &&
+            zindexMarker.lng > leftBound && zindexMarker.lng < rightBound) {
+          let lngBucket = zindexMarker.lng - leftBound;
           lngBucket = Math.floor(lngBucket / bucketWidth);
-          var latBucket = this.zindexMarker[i].lat - bottomBound;
+          let latBucket = zindexMarker.lat - bottomBound;
           latBucket = Math.floor(latBucket / bucketHeight);
-          priceBuckets[lngBucket][latBucket].sum += this.zindexMarker[i].zindex;
+          priceBuckets[lngBucket][latBucket].sum += zindexMarker.zindex;
           priceBuckets[lngBucket][latBucket].count += 1;
         }
       }
-  
-      let leftRect = leftBound
-      for(let i=0; i<numBuckets; i++) {
-        let bottomRect = bottomBound
-        for(let j=0; j<numBuckets; j++) {
-          if(priceBuckets[i][j].count != 0) {
-            var average = priceBuckets[i][j].sum / priceBuckets[i][j].count;
-            //const opacity = average > 700000 ? 0.5 : average / 1400000;
-            //const color = this.rgbToHex(255, 46, 0);
-            average = average >= 700000 ? 510 : Math.round((average - 100000)/(600000/510))
+
+      let leftRect = leftBound;
+      for (let i = 0; i < numBuckets; i++) {
+        let bottomRect = bottomBound;
+        for (let j = 0; j < numBuckets; j++) {
+          if (priceBuckets[i][j].count !== 0) {
+            let average = priceBuckets[i][j].sum / priceBuckets[i][j].count;
+            average = average >= 700000 ? 510 : Math.round((average - 100000) / (600000 / 510));
             const redValue = average <= 255 ? 0 : average - 255;
             const greenValue = average >= 255 ? 0 : 255 - average;
-            const color = this.rgbToHex(redValue, greenValue, 255);
-            rectangle(latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)), {color: color, weight: 0, fillOpacity: 0.35}).addTo(this.priceLayer);
+            const color = rgbToHex(redValue, greenValue, 255);
+            rectangle(latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)), {
+              color,
+              weight: 0,
+              fillOpacity: 0.35
+            }).addTo(this.priceLayer);
           }
-          bottomRect += bucketHeight
+          bottomRect += bucketHeight;
         }
-        leftRect += bucketWidth
+        leftRect += bucketWidth;
       }
       this.priceLayer.addTo(this.map);
     }
-    
-    if(this.showTraffic) {
-      let command = "select * from traffic where lat>" + bottomBound + " and lat<" + topBound + " and lng>" + leftBound + " and lng<" + rightBound;
-      this.http.post('/api', {command:command}).subscribe((info: any[]) => {
-        for(let point of info) {
-          var lngBucket = point.lng - leftBound;
+
+    if (this.showTraffic) {
+      const command = getSqlSelectCommand({
+        whatToSelect: '*', tableToSelectFrom: 'traffic', whereStatements: [
+          `lat>${bottomBound}`, `lat<${topBound}`, `lng>${leftBound}`, `lng<${rightBound}`
+        ]
+      });
+      this.http.post('/api', {command}).subscribe((trafficData: ITrafficData[]) => {
+        for (const point of trafficData) {
+          let lngBucket = point.lng - leftBound;
           lngBucket = Math.floor(lngBucket / bucketWidth);
-          var latBucket = point.lat - bottomBound;
+          let latBucket = point.lat - bottomBound;
           latBucket = Math.floor(latBucket / bucketHeight);
           buckets[lngBucket][latBucket].sum += point.volume;
           buckets[lngBucket][latBucket].count += 1;
         }
 
-        let leftRect = leftBound
-        for(let i=0; i<numBuckets; i++) {
-          let bottomRect = bottomBound
-          for(let j=0; j<numBuckets; j++) {
-            if(buckets[i][j].count != 0) {
-              var average = buckets[i][j].sum / buckets[i][j].count;
+        let leftRect = leftBound;
+        for (let i = 0; i < numBuckets; i++) {
+          let bottomRect = bottomBound;
+          for (let j = 0; j < numBuckets; j++) {
+            if (buckets[i][j].count !== 0) {
+              let average = buckets[i][j].sum / buckets[i][j].count;
               average = average > 5100 ? 510 : Math.round(average / 10);
               const redValue = average >= 255 ? 255 : average;
               const greenValue = average <= 255 ? 255 : 510 - average;
-              const color = this.rgbToHex(redValue, greenValue, 0);
-              //const opacity = average > 510 ? 0.5 : average / 1020;
-              //const color = this.rgbToHex(0, 140, 255);
-              rectangle(latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)), {color: color, weight: 0, fillOpacity: 0.35}).addTo(this.heatMap);
+              const color = rgbToHex(redValue, greenValue, 0);
+              rectangle(latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)), {
+                color,
+                weight: 0,
+                fillOpacity: 0.35
+              }).addTo(this.heatMap);
             }
-            bottomRect += bucketHeight
+            bottomRect += bucketHeight;
           }
-          leftRect += bucketWidth
+          leftRect += bucketWidth;
         }
-        this.heatMap.addTo(this.map)
-      }, (error: any) => {
-        alert("Cannot get information. Check that you are connected to the internet.")
-      });
-    }    
+        this.heatMap.addTo(this.map);
+      }, () => displayGeneralErrorMessage());
+    }
   }
 
-  public toggleData() {
+  public toggleData(): void {
     this.showTraffic = !this.showTraffic;
     this.showPrices = !this.showPrices;
     this.updateHeatMap();
-  }
-
-  // Source: https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
-  public componentToHex(c: number) {
-    let hex = c.toString(16);
-    return hex.length == 1 ? "0" + hex : hex;
-  }
-
-  public rgbToHex(r: number, g: number, b: number) {
-    return "#" + this.componentToHex(r) + this.componentToHex(g) + this.componentToHex(b);
   }
 }
