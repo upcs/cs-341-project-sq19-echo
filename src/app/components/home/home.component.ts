@@ -121,30 +121,26 @@ export class HomeComponent implements OnInit {
     this.map = map;
     this.http.get(
       '/webservice/GetRegionChildren.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&state=or&city=portland&childtype=neighborhood',
-      {responseType: 'text'}).subscribe((zillowXML) => {
-      const regions = zillowXML.split('<region>').splice(2);
-      for (const region of regions) {
-        if (region.indexOf('zindex currency=') === -1) {
-          continue;
+      {responseType: 'text'}).subscribe((zillowXml) => {
+
+      parseString(zillowXml, (err, zillowJson) => {
+        const zillowRegions = zillowJson['RegionChildren:regionchildren'].response[0].list[0].region;
+
+        for (const region of zillowRegions) {
+          const zIndex = region.zindex;
+          if (zIndex === undefined) {
+            continue;
+          }
+
+          this.zindexMarkers.push({
+            name: region.name[0],
+            zindex: parseInt(zIndex[0]._, 10),
+            lat: parseFloat(region.latitude[0]),
+            lng: parseFloat(region.longitude[0])
+          });
         }
-        const zStart = region.indexOf('zindex currency=') + 22;
-        const zEnd = region.indexOf('</zindex>');
-        const zIndex = +region.substring(zStart, zEnd);
+      });
 
-        const nStart = region.indexOf('<name>') + 6;
-        const nEnd = region.indexOf('</name>');
-        const regionName = region.substring(nStart, nEnd);
-
-        const latStart = region.indexOf('<latitude>') + 10;
-        const latEnd = region.indexOf('</latitude>');
-        const latitude = +region.substring(latStart, latEnd);
-
-        const lngStart = region.indexOf('<longitude>') + 11;
-        const lngEnd = region.indexOf('</longitude>');
-        const longitude = +region.substring(lngStart, lngEnd);
-
-        this.zindexMarkers.push({name: regionName, zindex: zIndex, lat: latitude, lng: longitude});
-      }
       this.updateHeatMap();
     });
   }
@@ -183,8 +179,8 @@ export class HomeComponent implements OnInit {
             return;
           }
 
-          const zestimateAmount: number = zillowSearchResult.response[0].results[0].result[0].zestimate[0].amount[0]._;
-          this.zestimateTextContent += zestimateAmount !== undefined ? `$${zestimateAmount.toLocaleString()}` : 'N/A';
+          const zestimateAmount = zillowSearchResult.response[0].results[0].result[0].zestimate[0].amount[0]._;
+          this.zestimateTextContent += zestimateAmount !== undefined ? `$${parseInt(zestimateAmount, 10).toLocaleString()}` : 'N/A';
         });
       }, () => displayGeneralErrorMessage()
     );
