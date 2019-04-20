@@ -1,4 +1,4 @@
-import {Component} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {sha512} from 'js-sha512';
@@ -6,6 +6,8 @@ import {CookieService} from 'ngx-cookie-service';
 import {ILoginControls, ISignUpControls, IResetControls, IUser} from './login.component.interfaces';
 import {getSqlSelectUserCommand, matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
+import {Router} from '@angular/router';
+
 import {displayGeneralErrorMessage} from '../../../helpers/helpers.functions';
 
 @Component({
@@ -13,8 +15,10 @@ import {displayGeneralErrorMessage} from '../../../helpers/helpers.functions';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })
-export class LoginComponent {
+export class LoginComponent implements OnInit {
   private MIN_PASSWORD_LENGTH = 8;
+  public savedData: { address: string, level: string, volume: string }[] = [];
+
   public SECURITY_QUESTIONS: string[] = [
     'What was the last name of your third grade teacher?',
     'What street did you live on in third grade?',
@@ -45,15 +49,14 @@ export class LoginComponent {
   public signupForm: FormGroup;
   public loginForm: FormGroup;
   public resetForm: FormGroup;
-
-  public loggedIn = false;
   public resetQuestionTextContent: string;
 
   public constructor(
     private titleService: Title,
     private formBuilder: FormBuilder,
     private cookie: CookieService,
-    private http: HttpClient
+    private http: HttpClient,
+    private router: Router
   ) {
     titleService.setTitle('Login Page');
 
@@ -62,33 +65,47 @@ export class LoginComponent {
     );
     this.loginForm = this.formBuilder.group(this.loginControls);
     this.resetForm = this.formBuilder.group(this.resetControls);
+
+    if (this.cookie.check('authenticated')) {
+      this.loadData();
+    }
+  }
+
+  ngOnInit(): void {
+    if (this.cookie.check('authenticated')) {
+      document.getElementById('bigCard').style.display = 'none';
+      document.getElementById('logoutCard').style.display = 'block';
+    } else {
+      document.getElementById('bigCard').style.display = 'block';
+      document.getElementById('logoutCard').style.display = 'none';
+    }
   }
 
   public signUp(): void {
-    const email = this.signupControls.email.value;
-    const hashedPassword = sha512(this.signupControls.password.value);
-
+    const unhashedEmail = this.signupControls.email.value;
+    const email = sha512(this.signupControls.email.value);
+    const password = sha512(this.signupControls.password.value);
     const question = this.signupControls.questionRequire.value;
-    const hashedAnswer = sha512(this.signupControls.answerRequire.value.toLowerCase());
+    const answer = sha512(this.signupControls.answerRequire.value.toLowerCase());
 
     this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((users: IUser[]) => {
-        if (users.length) {
-          alert('An account has already been created with this email.');
-          return;
-        }
+      if (users.length) {
+        alert('An account has already been created with this email.');
+        return;
+      }
 
-        this.http.post(
-          '/api',
-          {
-            command: `INSERT INTO users (user, password, question, answer)
-                      VALUES ('${email}', '${hashedPassword}', '${question}', '${hashedAnswer}')`
-          }).subscribe(() => {
-            alert(`Account created with email: ${email}.`);
-            this.signupForm.reset();
-          }, () => displayGeneralErrorMessage()
-        );
-      }, () => displayGeneralErrorMessage()
-    );
+      this.http.post(
+        '/api',
+        {
+          command: `INSERT INTO users (user, password, question, answer)
+                    VALUES ('${email}', '${password}', '${question}', '${answer}')`
+        }).subscribe(() => {
+        alert(`Account created with email: ${unhashedEmail}.`);
+        this.router.navigateByUrl('/about', {skipLocationChange: true})
+          .then(() => this.router.navigate(['user']));
+        return;
+      }, () => displayGeneralErrorMessage());
+    }, () => displayGeneralErrorMessage());
   }
 
   public getFormError(formControl: FormControl): string {
@@ -109,14 +126,13 @@ export class LoginComponent {
 
   public login(): void {
     const email = this.loginControls.email.value;
+    const hashedEmail = sha512(email);
     const hashedPassword = sha512(this.loginControls.password.value);
 
-    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((users: IUser[]) => {
+    this.http.post('/api', {command: getSqlSelectUserCommand(hashedEmail)}).subscribe((users: IUser[]) => {
         if (users.length && users[0].password === hashedPassword) {
           this.cookie.set('authenticated', email);
-          this.loginForm.reset();
-          this.loggedIn = true;
-          alert(`User with email ${email} successfully logged in.`);
+          location.href = '/home';
           return;
         }
 
@@ -126,8 +142,9 @@ export class LoginComponent {
   }
 
   public continueReset(): void {
+    const email = sha512(this.resetControls.emailReset.value);
     this.http.post(
-      '/api', {command: getSqlSelectUserCommand(this.resetControls.emailReset.value)}
+      '/api', {command: getSqlSelectUserCommand(email)}
     ).subscribe((users: IUser[]) => {
         if (!users.length) {
           alert('No user with that email was found.');
@@ -147,7 +164,7 @@ export class LoginComponent {
   }
 
   public resetPass(): void {
-    const email = this.resetControls.emailReset.value;
+    const email = sha512(this.resetControls.emailReset.value);
     const hashedPassword = sha512(this.resetControls.passwordReset.value);
     const hashedAnswer = sha512(this.resetControls.answerReset.value.toLowerCase());
 
@@ -169,12 +186,43 @@ export class LoginComponent {
             document.getElementById('passwordHide').style.display = 'none';
             document.getElementById('resetButton').style.display = 'none';
             document.getElementById('resetQuestion').style.display = 'none';
-
-            this.resetQuestionTextContent = '';
-            this.resetForm.reset();
+            this.router.navigateByUrl('/about', {skipLocationChange: true})
+              .then(() => this.router.navigate(['user']));
+            return;
           }, () => displayGeneralErrorMessage()
         );
       }, () => displayGeneralErrorMessage()
     );
+  }
+
+  public loadData(): void {
+    const user = sha512(this.cookie.get('authenticated'));
+    const command = `SELECT * FROM saves WHERE user='${user}'`;
+    this.http.post('/api', {command}).subscribe((data: any[]) => {
+      if (data.length > 0) {
+        for (const save of data) {
+          this.savedData.push({address: save.address, level: save.level, volume: save.volume});
+        }
+      }
+    }, () => displayGeneralErrorMessage());
+  }
+
+  public removeSave(address: string): void {
+    const command = `DELETE FROM saves WHERE address='${address}'`;
+    this.http.post('/api', {command}).subscribe(() => {
+        this.router.navigateByUrl('/about', {skipLocationChange: true})
+          .then(() => this.router.navigate(['user']));
+      }, () => displayGeneralErrorMessage()
+    );
+  }
+
+  public viewOnMap(address: string): void {
+    this.cookie.set('address', address);
+    this.router.navigate(['home']);
+  }
+
+  public logout(): void {
+    this.cookie.delete('authenticated');
+    location.reload();
   }
 }

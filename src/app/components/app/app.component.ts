@@ -1,6 +1,5 @@
 import {Component} from '@angular/core';
 import {Title} from '@angular/platform-browser';
-import {mainRoutes} from '../../app-routing.module';
 import {CookieService} from 'ngx-cookie-service';
 
 @Component({
@@ -8,16 +7,13 @@ import {CookieService} from 'ngx-cookie-service';
   templateUrl: './app.component.html'
 })
 export class AppComponent {
-  public navLabels: string[] = mainRoutes.map(x => x.path);
+  public navLabels: {label: string, route: string}[] = [{label: 'home', route: 'home'}, {label: 'about', route: 'about'}];
 
   public constructor(private titleService: Title, private cookie: CookieService) {
     titleService.setTitle('Echo App');
 
-    let loggedInUser = cookie.get('authenticated');
-    if (!loggedInUser) {
-      loggedInUser = 'GUEST';
-    }
-
-    this.navLabels.push(`WELCOME, ${loggedInUser}`);
+    const loggedInUser = `${cookie.get('authenticated')}`;
+    const label = loggedInUser ? loggedInUser : 'login';
+    this.navLabels.push({label, route: 'user'});
   }
 }

@@ -8,7 +8,8 @@ import {GameComponent} from "./components/game/game.component";
 export const mainRoutes: Routes = [
   {
     path: 'home',
-    component: HomeComponent
+    component: HomeComponent,
+    pathMatch: 'prefix'
   },
   {
     path: 'about',
@@ -19,14 +20,14 @@ export const mainRoutes: Routes = [
     component: GameComponent
   },
   {
-    path: 'login',
+    path: 'user',
     component: LoginComponent
   }
 ];
 
 const allRoutes: Routes = mainRoutes;
 allRoutes.push({
-    path: '',
+    path: '**',
     redirectTo: '/home',
     pathMatch: 'full'
 });

@@ -38,3 +38,15 @@ export function alphaNumericSpacebarOrBackspaceSelected(keyCode: number): boolea
 
   return keyCode >= 65 && keyCode <= 90;
 }
+
+/**
+ *  Source: https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+ */
+export function componentToHex(c: number): string {
+  const hex = c.toString(16);
+  return hex.length === 1 ? `0${hex}` : hex;
+}
+
+export function rgbToHex(red: number, green: number, blue: number): string {
+  return `#${componentToHex(red)}${componentToHex(green)}${componentToHex(blue)}`;
+}
