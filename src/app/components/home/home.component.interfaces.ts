@@ -24,3 +24,8 @@ export interface ITspProject {
   readonly lat: number;
   readonly lng: number;
 }
+
+export interface IBucket {
+  sum: number;
+  count: number;
+}

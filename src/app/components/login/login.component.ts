@@ -3,12 +3,12 @@ import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {sha512} from 'js-sha512';
 import {CookieService} from 'ngx-cookie-service';
-import {ILoginControls, ISignUpControls, IResetControls, IUser} from './login.component.interfaces';
+import {ILoginControls, ISignUpControls, IResetControls, IUser, ISave} from './login.component.interfaces';
 import {getSqlSelectUserCommand, matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 
-import {displayGeneralErrorMessage} from '../../../helpers/helpers.functions';
+import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/helpers.functions';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +17,7 @@ import {displayGeneralErrorMessage} from '../../../helpers/helpers.functions';
 })
 export class LoginComponent implements OnInit {
   private MIN_PASSWORD_LENGTH = 8;
-  public savedData: { address: string, level: string, volume: string }[] = [];
+  public savedData: ISave[] = [];
 
   public SECURITY_QUESTIONS: string[] = [
     'What was the last name of your third grade teacher?',
@@ -67,7 +67,7 @@ export class LoginComponent implements OnInit {
     this.resetForm = this.formBuilder.group(this.resetControls);
 
     if (this.cookie.check('authenticated')) {
-      this.loadData();
+      this.loadSavedAddresses();
     }
   }
 
@@ -195,12 +195,13 @@ export class LoginComponent implements OnInit {
     );
   }
 
-  public loadData(): void {
+  public loadSavedAddresses(): void {
     const user = sha512(this.cookie.get('authenticated'));
-    const command = `SELECT * FROM saves WHERE user='${user}'`;
-    this.http.post('/api', {command}).subscribe((data: any[]) => {
-      if (data.length > 0) {
-        for (const save of data) {
+    this.http.post('/api', {
+      command: getSqlSelectCommand({whatToSelect: '*', tableToSelectFrom: 'saves', whereStatements: [`user='${user}'`]})
+    }).subscribe((saves: ISave[]) => {
+      if (saves.length) {
+        for (const save of saves) {
           this.savedData.push({address: save.address, level: save.level, volume: save.volume});
         }
       }

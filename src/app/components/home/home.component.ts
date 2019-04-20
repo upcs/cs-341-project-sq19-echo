@@ -12,20 +12,16 @@ import {
   marker,
   tileLayer,
   LatLngBounds,
-  rectangle,
+  rectangle, LatLng,
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
-import {
-  alphaNumericSpacebarOrBackspaceSelected,
-  getLeafletMarkerFromTrafficMarker, rgbToHex,
-  valueSelectedBesidesAny
-} from './home.component.functions';
+import {alphaNumericSpacebarOrBackspaceSelected, rgbToHex} from './home.component.functions';
 import {TrafficLocation, VehicleType} from './home.component.enums';
 import {CookieService} from 'ngx-cookie-service';
 import {sha512} from 'js-sha512';
 import {DEFAULT_ICON, HOUSE_ICON} from './home.component.constants';
 import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/helpers.functions';
-import {IAddress, ITrafficData, ITspProject} from './home.component.interfaces';
+import {IAddress, IBucket, ITrafficData, ITspProject} from './home.component.interfaces';
 import {parseString} from 'xml2js';
 
 @Component({
@@ -53,10 +49,13 @@ export class HomeComponent implements OnInit {
   private loggedOut: boolean;
   private selectedTab = 0;
 
-  private DEFAULT_COORDS: LatLngExpression = [45.5122, -122.6587];
-  private MAX_BOUNDS: LatLngBounds = latLngBounds(latLng(45.5122 - 0.5, -122.6587 - 0.5), latLng(45.5122 + 0.5, -122.6587 + 0.5));
+  private DEFAULT_COORDS: LatLng = latLng(45.5122, -122.6587);
+  private BOUND_DELTA = 0.5;
+  private MAX_BOUNDS: LatLngBounds = latLngBounds(
+    latLng(this.DEFAULT_COORDS.lat - this.BOUND_DELTA, this.DEFAULT_COORDS.lng - this.BOUND_DELTA),
+    latLng(this.DEFAULT_COORDS.lat + this.BOUND_DELTA, this.DEFAULT_COORDS.lng + this.BOUND_DELTA)
+  );
 
-  private trafficLayer: LayerGroup = new LayerGroup();
   private houseLayer: LayerGroup = new LayerGroup();
   private map: LeafletMap;
   private heatMap: LayerGroup = new LayerGroup();
@@ -64,7 +63,6 @@ export class HomeComponent implements OnInit {
   private zindexMarkers: { name: string, zindex: number, lat: number, lng: number }[] = [];
   private showPrices = false;
   private showTraffic = true;
-  private filterWhereStatements: string[];
 
   // Fields accessed by the HTML (template).
   public objectKeys = Object.keys;
@@ -105,45 +103,10 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  private updateLeafletMapLocation(): void {
+  public updateLeafletMapLocation(): void {
     const coordinates = this.areaSelector.empty ? this.DEFAULT_COORDS : this.areaSelector.value;
     const zoom = this.areaSelector.empty ? 11 : this.areaSelector.value === this.DEFAULT_COORDS ? 11 : 12.5;
     this.map.flyTo(coordinates, zoom);
-  }
-
-  private updateDisplayedLeafletMarkers(): void {
-    this.filterWhereStatements = [];
-
-    if (valueSelectedBesidesAny(this.densitySelector)) {
-      const density = this.densitySelector.value === 'Medium' ? 'med' : this.densitySelector.value;
-      this.filterWhereStatements.push(`level='${density}'`);
-    }
-
-    if (valueSelectedBesidesAny(this.yearSelector)) {
-      this.filterWhereStatements.push(`date='${this.yearSelector.value}'`);
-    }
-
-    this.trafficLayer.clearLayers();
-
-    this.http.post(
-      '/api', {
-        command: getSqlSelectCommand(
-          {whatToSelect: '*', tableToSelectFrom: 'traffic', whereStatements: this.filterWhereStatements}
-        )
-      }).subscribe((trafficData: ITrafficData[]) => {
-        trafficData.map(trafficMarker => {
-          const leafletMarker = getLeafletMarkerFromTrafficMarker(trafficMarker);
-          this.trafficLayer.addLayer(leafletMarker);
-        });
-        this.map.addLayer(this.trafficLayer);
-      }, () => displayGeneralErrorMessage()
-    );
-  }
-
-  public updateMap(): void {
-    // this.houseLayer.clearLayers()
-    // this.updateDisplayedLeafletMarkers();
-    this.updateLeafletMapLocation();
   }
 
   public clearFiltersAndUpdateMap(): void {
@@ -151,13 +114,14 @@ export class HomeComponent implements OnInit {
     this.yearSelector.value = '';
     this.densitySelector.value = '';
 
-    this.updateMap();
+    this.updateLeafletMapLocation();
   }
 
   public onMapReady(map: LeafletMap): void {
     this.map = map;
-    const url = '/webservice/GetRegionChildren.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&state=or&city=portland&childtype=neighborhood';
-    this.http.get(url, {responseType: 'text'}).subscribe((zillowXML) => {
+    this.http.get(
+      '/webservice/GetRegionChildren.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&state=or&city=portland&childtype=neighborhood',
+      {responseType: 'text'}).subscribe((zillowXML) => {
       const regions = zillowXML.split('<region>').splice(2);
       for (const region of regions) {
         if (region.indexOf('zindex currency=') === -1) {
@@ -205,7 +169,7 @@ export class HomeComponent implements OnInit {
   }
 
   public getZestimate(): void {
-    const addressSearchValue = (document.getElementById('addressSearch') as HTMLInputElement).value;
+    const addressSearchValue = this.autocompleteFormControl.value;
     const address = addressSearchValue.split(' ').join('+');
 
     this.zestimateTextContent = 'Zestimate: ';
@@ -219,11 +183,8 @@ export class HomeComponent implements OnInit {
             return;
           }
 
-          let zestimateAmount = zillowSearchResult.response[0].results[0].result[0].zestimate[0].amount[0]._;
-          for (let i = zestimateAmount.length - 3; i > 0; i -= 3) {
-            zestimateAmount = zestimateAmount.substring(0, i) + ',' + zestimateAmount.substring(i);
-          }
-          this.zestimateTextContent += zestimateAmount !== undefined ? `$${zestimateAmount}` : 'N/A';
+          const zestimateAmount: number = zillowSearchResult.response[0].results[0].result[0].zestimate[0].amount[0]._;
+          this.zestimateTextContent += zestimateAmount !== undefined ? `$${zestimateAmount.toLocaleString()}` : 'N/A';
         });
       }, () => displayGeneralErrorMessage()
     );
@@ -245,7 +206,8 @@ export class HomeComponent implements OnInit {
           this.cityZipTextContent = `Portland, OR ${addresses[0].zip}`;
 
           this.houseLayer.addLayer(
-            marker([addresses[0].lat, addresses[0].lng], {riseOnHover: true, icon: HOUSE_ICON}).bindPopup(addresses[0].address)
+            marker([addresses[0].lat, addresses[0].lng], {riseOnHover: true, icon: HOUSE_ICON})
+              .bindPopup(addresses[0].address)
           );
 
           const DELTA = 0.0075;
@@ -268,9 +230,6 @@ export class HomeComponent implements OnInit {
   }
 
   public getTrafficInformation(minLatitude: number, maxLatitude: number, minLongitude: number, maxLongitude: number): void {
-    // const whereStatements = this.filterWhereStatements.concat(
-    //   [`lat>${minLatitude}`, `lat<${maxLatitude}`, `lng>${minLongitude}`, `lng<${maxLongitude}`]
-    // );
     this.http.post('/api', {
       command: getSqlSelectCommand({whatToSelect: 'volume', tableToSelectFrom: 'traffic', whereStatements: []})
     }).subscribe((volumeTrafficData: ITrafficData[]) => {
@@ -318,17 +277,17 @@ export class HomeComponent implements OnInit {
     const user = sha512(this.cookie.get('authenticated'));
     const level = this.trafficLevelTextContent;
     const volume = this.trafficVolumeTextContent;
+
     const command = `INSERT ignore INTO saves (user, address, level, volume) VALUES ('${user}', '${address}', '${level}', '${volume}')`;
-    this.http.post('/api', {command}).subscribe(() => {
-        alert('Address has been saved to account!');
-      }, () => displayGeneralErrorMessage()
+    this.http.post('/api', {command}).subscribe(
+      () => alert('Address has been saved to account!'),
+      () => displayGeneralErrorMessage()
     );
   }
 
   public showSearch(): void {
     if (this.selectedTab === 1 && this.cookie.check('address')) {
-      const searchBar: HTMLInputElement = document.getElementById('addressSearch') as HTMLInputElement;
-      searchBar.value = this.cookie.get('address');
+      this.autocompleteFormControl.setValue(this.cookie.get('address'));
       this.cookie.delete('address');
       this.getZestimate();
     }
@@ -337,56 +296,53 @@ export class HomeComponent implements OnInit {
   public updateHeatMap(): void {
     this.heatMap.clearLayers();
     this.priceLayer.clearLayers();
-    const bounds = this.map.getBounds();
-    const topBound = bounds.getNorth();
-    const rightBound = bounds.getEast();
-    const bottomBound = bounds.getSouth();
-    const leftBound = bounds.getWest();
-    const numBuckets = 10;
-    const bucketWidth = (rightBound - leftBound) / numBuckets;
-    const bucketHeight = (topBound - bottomBound) / numBuckets;
-    const buckets: { sum: number, count: number }[][] = [];
-    const priceBuckets: { sum: number, count: number }[][] = [];
 
-    for (let i = 0; i < numBuckets; i++) {
-      buckets[i] = [];
-      priceBuckets[i] = [];
-      for (let j = 0; j < numBuckets; j++) {
-        buckets[i][j] = {sum: 0, count: 0};
-        priceBuckets[i][j] = {sum: 0, count: 0};
-      }
-    }
+    const topBound = this.map.getBounds().getNorth();
+    const rightBound = this.map.getBounds().getEast();
+    const bottomBound = this.map.getBounds().getSouth();
+    const leftBound = this.map.getBounds().getWest();
+
+    const NUM_BUCKETS = 10;
+    const bucketWidth = (rightBound - leftBound) / NUM_BUCKETS;
+    const bucketHeight = (topBound - bottomBound) / NUM_BUCKETS;
+
+    const trafficBuckets: IBucket[][] = Array.from(
+      {length: NUM_BUCKETS}, () => Array.from({length: NUM_BUCKETS}, () => ({sum: 0, count: 0}))
+    );
+    const priceBuckets: IBucket[][] = JSON.parse(JSON.stringify(trafficBuckets));
+
     if (this.showPrices) {
-      for (const zindexMarker of this.zindexMarkers) {
-        if (zindexMarker.lat > bottomBound && zindexMarker.lat < topBound &&
-            zindexMarker.lng > leftBound && zindexMarker.lng < rightBound) {
-          let lngBucket = zindexMarker.lng - leftBound;
-          lngBucket = Math.floor(lngBucket / bucketWidth);
-          let latBucket = zindexMarker.lat - bottomBound;
-          latBucket = Math.floor(latBucket / bucketHeight);
-          priceBuckets[lngBucket][latBucket].sum += zindexMarker.zindex;
+      for (const zMarker of this.zindexMarkers) {
+        if (zMarker.lat > bottomBound && zMarker.lat < topBound && zMarker.lng > leftBound && zMarker.lng < rightBound) {
+          const lngBucket = Math.floor((zMarker.lng - leftBound) / bucketWidth);
+          const latBucket = Math.floor((zMarker.lat - bottomBound) / bucketHeight);
+
+          priceBuckets[lngBucket][latBucket].sum += zMarker.zindex;
           priceBuckets[lngBucket][latBucket].count += 1;
         }
       }
 
       let leftRect = leftBound;
-      for (let i = 0; i < numBuckets; i++) {
+      for (const buckets of priceBuckets) {
         let bottomRect = bottomBound;
-        for (let j = 0; j < numBuckets; j++) {
-          if (priceBuckets[i][j].count !== 0) {
-            let average = priceBuckets[i][j].sum / priceBuckets[i][j].count;
+
+        for (const priceBucket of buckets) {
+          if (priceBucket.count !== 0) {
+            let average = priceBucket.sum / priceBucket.count;
             average = average >= 700000 ? 510 : Math.round((average - 100000) / (600000 / 510));
+
             const redValue = average <= 255 ? 0 : average - 255;
             const greenValue = average >= 255 ? 0 : 255 - average;
             const color = rgbToHex(redValue, greenValue, 255);
-            rectangle(latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)), {
-              color,
-              weight: 0,
-              fillOpacity: 0.35
-            }).addTo(this.priceLayer);
+
+            rectangle(
+              latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)),
+              {color, weight: 0, fillOpacity: 0.35}
+            ).addTo(this.priceLayer);
           }
           bottomRect += bucketHeight;
         }
+
         leftRect += bucketWidth;
       }
       this.priceLayer.addTo(this.map);
@@ -400,32 +356,34 @@ export class HomeComponent implements OnInit {
       });
       this.http.post('/api', {command}).subscribe((trafficData: ITrafficData[]) => {
         for (const point of trafficData) {
-          let lngBucket = point.lng - leftBound;
-          lngBucket = Math.floor(lngBucket / bucketWidth);
-          let latBucket = point.lat - bottomBound;
-          latBucket = Math.floor(latBucket / bucketHeight);
-          buckets[lngBucket][latBucket].sum += point.volume;
-          buckets[lngBucket][latBucket].count += 1;
+          const lngBucket = Math.floor((point.lng - leftBound) / bucketWidth);
+          const latBucket = Math.floor((point.lat - bottomBound) / bucketHeight);
+
+          trafficBuckets[lngBucket][latBucket].sum += point.volume;
+          trafficBuckets[lngBucket][latBucket].count += 1;
         }
 
         let leftRect = leftBound;
-        for (let i = 0; i < numBuckets; i++) {
+        for (let i = 0; i < NUM_BUCKETS; i++) {
           let bottomRect = bottomBound;
-          for (let j = 0; j < numBuckets; j++) {
-            if (buckets[i][j].count !== 0) {
-              let average = buckets[i][j].sum / buckets[i][j].count;
+
+          for (let j = 0; j < NUM_BUCKETS; j++) {
+            if (trafficBuckets[i][j].count !== 0) {
+              let average = trafficBuckets[i][j].sum / trafficBuckets[i][j].count;
               average = average > 5100 ? 510 : Math.round(average / 10);
+
               const redValue = average >= 255 ? 255 : average;
               const greenValue = average <= 255 ? 255 : 510 - average;
               const color = rgbToHex(redValue, greenValue, 0);
-              rectangle(latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)), {
-                color,
-                weight: 0,
-                fillOpacity: 0.35
-              }).addTo(this.heatMap);
+
+              rectangle(
+                latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)),
+                {color, weight: 0, fillOpacity: 0.35}
+              ).addTo(this.heatMap);
             }
             bottomRect += bucketHeight;
           }
+
           leftRect += bucketWidth;
         }
         this.heatMap.addTo(this.map);

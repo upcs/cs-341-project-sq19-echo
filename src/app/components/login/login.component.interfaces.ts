@@ -25,3 +25,9 @@ export interface IUser {
   readonly question: string;
   readonly answer: string;
 }
+
+export interface ISave {
+  readonly address: string;
+  readonly level: string;
+  readonly volume: string;
+}
