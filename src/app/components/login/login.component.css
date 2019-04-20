@@ -3,41 +3,9 @@ mat-card {
   margin: 30px auto;
 }
 
-.topInputs {
-  margin-top: 10px;
-  margin-bottom: 5px;
-}
-
-.midInputs {
-  margin-bottom: 5px;
-}
-
-#forgotPass {
-  font-size: 12pt;
-  color: #673ab7;
-  margin-top: 7px;
-  float: left;
-}
-
 button {
   float: right;
   width: 100px;
-}
-
-#answerHide {
-  display: none;
-}
-
-#resetButton {
-  display: none;
-}
-
-#passwordHide {
-  display: none;
-}
-
-#resetQuestion {
-  display: none;
 }
 
 h6 {
@@ -55,31 +23,18 @@ h6 {
   width: 100%;
 }
 
-.example-large-box {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 16px;
-  padding: 16px;
-  border-radius: 8px;
+#answerHide {
+  display: none;
 }
 
-.example-large-box {
-  height: 300px;
-  width: 300px;
+#resetButton {
+  display: none;
 }
 
-#resetPass {
-  width: 100%;
-  margin-top: 1em;
-  float: left;
+#passwordHide {
+  display: none;
 }
 
-#savedHeader {
-  margin-top: 0.3em;
-  text-align: left;
-}
-
-.fullWidth {
-  width: 100%;
+#resetQuestion {
+  display: none;
 }

@@ -16,12 +16,12 @@ import {
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
 import {alphaNumericSpacebarOrBackspaceSelected, rgbToHex} from './home.component.functions';
-import {TrafficLocation, VehicleType} from './home.component.enums';
+import {TrafficLocation} from './home.component.enums';
 import {CookieService} from 'ngx-cookie-service';
 import {sha512} from 'js-sha512';
 import {DEFAULT_ICON, HOUSE_ICON} from './home.component.constants';
 import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/helpers.functions';
-import {IAddress, IBucket, ITrafficData, ITspProject} from './home.component.interfaces';
+import {IAddress, IBucket, ITrafficData, ITspProject, IZillowNeighborhood} from './home.component.interfaces';
 import {parseString} from 'xml2js';
 
 @Component({
@@ -40,13 +40,15 @@ export class HomeComponent implements OnInit {
 
   @ViewChild('areaSelector') private areaSelector: MatSelect;
   @ViewChild('yearSelector') private yearSelector: MatSelect;
-  @ViewChild('vehicleSelector') private vehicleSelector: MatSelect;
   @ViewChild('densitySelector') private densitySelector: MatSelect;
 
   autocompleteFormControl = new FormControl();
   options: string[] = [];
 
-  private loggedOut: boolean;
+  public loggedOut: boolean;
+  public errorMessageVisible = false;
+  public infoCardVisible = false;
+
   private selectedTab = 0;
 
   private DEFAULT_COORDS: LatLng = latLng(45.5122, -122.6587);
@@ -60,7 +62,7 @@ export class HomeComponent implements OnInit {
   private map: LeafletMap;
   private heatMap: LayerGroup = new LayerGroup();
   private priceLayer: LayerGroup = new LayerGroup();
-  private zindexMarkers: { name: string, zindex: number, lat: number, lng: number }[] = [];
+  private zillowNeighborhoods: IZillowNeighborhood[] = [];
   private showPrices = false;
   private showTraffic = true;
 
@@ -68,7 +70,6 @@ export class HomeComponent implements OnInit {
   public objectKeys = Object.keys;
   public densities = ['Any', 'High', 'Medium', 'Low'];
   public years: string[] = ['Any', '2019', '2018', '2017', '2016', '2015', '2014'];
-  public vehicles: string[] = Object.values(VehicleType);
   public areas: { [location: string]: LatLngExpression } = {
     ['Any']: this.DEFAULT_COORDS,
     [TrafficLocation.North]: [45.6075, -122.7236],
@@ -132,7 +133,7 @@ export class HomeComponent implements OnInit {
             continue;
           }
 
-          this.zindexMarkers.push({
+          this.zillowNeighborhoods.push({
             name: region.name[0],
             zindex: parseInt(zIndex[0]._, 10),
             lat: parseFloat(region.latitude[0]),
@@ -194,8 +195,9 @@ export class HomeComponent implements OnInit {
       }).subscribe((addresses: IAddress[]) => {
         this.houseLayer.clearLayers();
 
-        document.getElementById('errorMessage').style.display = addresses.length ? 'none' : 'block';
-        document.getElementById('infoCard').style.display = addresses.length ? 'block' : 'none';
+        const addressRequestSucceeded = Boolean(addresses.length);
+        this.infoCardVisible = addressRequestSucceeded;
+        this.errorMessageVisible = !addressRequestSucceeded;
 
         if (addresses.length) {
           this.currentAddressTextContent = addresses[0].address;
@@ -308,7 +310,7 @@ export class HomeComponent implements OnInit {
     const priceBuckets: IBucket[][] = JSON.parse(JSON.stringify(trafficBuckets));
 
     if (this.showPrices) {
-      for (const zMarker of this.zindexMarkers) {
+      for (const zMarker of this.zillowNeighborhoods) {
         if (zMarker.lat > bottomBound && zMarker.lat < topBound && zMarker.lng > leftBound && zMarker.lng < rightBound) {
           const lngBucket = Math.floor((zMarker.lng - leftBound) / bucketWidth);
           const latBucket = Math.floor((zMarker.lat - bottomBound) / bucketHeight);

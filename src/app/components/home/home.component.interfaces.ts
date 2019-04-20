@@ -29,3 +29,10 @@ export interface IBucket {
   sum: number;
   count: number;
 }
+
+export interface IZillowNeighborhood {
+  readonly name: string;
+  readonly zindex: number;
+  readonly lat: number;
+  readonly lng: number;
+}

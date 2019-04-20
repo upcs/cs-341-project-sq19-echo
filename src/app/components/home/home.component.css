@@ -3,22 +3,13 @@ mat-card {
   margin: 10px auto 20px auto;
 }
 
-#resetButton {
-  margin-bottom: 15px;
-}
-
-#toggleButtons {
-  margin-bottom: 0.5em;
-}
-
-#container {
-  margin-top: 1em;
-  height: 38em;
-}
-
 mat-tab-group {
   width: 20em;
   float: left;
+}
+
+.toggles {
+  pointer-events: none;
 }
 
 .formContainer {
@@ -31,61 +22,11 @@ mat-tab-group {
   width: 100%;
 }
 
-.formInput {
-  width: 100%;
-}
-
-#hideVehicle {
-  display: none;
-}
-
-#infoCard {
-  max-width: 100%;
-  text-align: left;
-  max-height: 23em;
-  overflow: auto;
-  display: none;
-}
-
-#searchBar {
-  width: 100%;
-}
-
-#errorMessage {
-  background-color: #e73c26;
-  color: #e6e6e6;
-  display: none;
-}
-
-#map {
-  height: 45em;
-  width: 50em;
-  float: right;
-}
-
-#tspProjects {
-  white-space: pre-line;
-}
-
-#keys {
-  float: right;
-}
-
 .keyImage {
   width: 18.5em;
   height: 2em;
   margin-left: 1em;
   margin-top: 0.5em;
-}
-
-.zindex {
-  background-color: #1b1b1b;
-  color: #e6e6e6;
-  font-size: 1em;
-}
-
-.toggles {
-  pointer-events: none;
 }
 
 .toggleContainer {
