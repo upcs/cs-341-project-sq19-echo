@@ -1,5 +1,5 @@
 /* Adam Mercer */
-var query = require('./dbms');
+var query = require('../public/javascripts/dbms');
 var express = require('express');
 var router = express.Router();
 
