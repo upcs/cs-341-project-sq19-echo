@@ -11,15 +11,14 @@ import {
   MapOptions,
   marker,
   tileLayer,
-  LatLngBounds,
-  rectangle, LatLng,
+  rectangle
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
 import {alphaNumericSpacebarOrBackspaceSelected, rgbToHex} from './home.component.functions';
 import {TrafficLocation} from './home.component.enums';
 import {CookieService} from 'ngx-cookie-service';
 import {sha512} from 'js-sha512';
-import {DEFAULT_ICON, HOUSE_ICON} from './home.component.constants';
+import {DEFAULT_COORDS, DEFAULT_ICON, HOUSE_ICON, MAX_BOUNDS} from './home.component.constants';
 import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/helpers.functions';
 import {IAddress, IBucket, ITrafficData, ITspProject, IZillowNeighborhood} from './home.component.interfaces';
 import {parseString} from 'xml2js';
@@ -53,18 +52,12 @@ export class HomeComponent implements OnInit {
 
   private selectedTab = 0;
 
-  private DEFAULT_COORDS: LatLng = latLng(45.5122, -122.6587);
-  private BOUND_DELTA = 0.5;
-  private MAX_BOUNDS: LatLngBounds = latLngBounds(
-    latLng(this.DEFAULT_COORDS.lat - this.BOUND_DELTA, this.DEFAULT_COORDS.lng - this.BOUND_DELTA),
-    latLng(this.DEFAULT_COORDS.lat + this.BOUND_DELTA, this.DEFAULT_COORDS.lng + this.BOUND_DELTA)
-  );
-
   private houseLayer: LayerGroup = new LayerGroup();
   private map: LeafletMap;
   private heatMap: LayerGroup = new LayerGroup();
   private priceLayer: LayerGroup = new LayerGroup();
   private zillowNeighborhoods: IZillowNeighborhood[] = [];
+
   private showPrices = false;
   private showTraffic = true;
 
@@ -73,7 +66,7 @@ export class HomeComponent implements OnInit {
   public densities = ['Any', 'High', 'Medium', 'Low'];
   public years: string[] = ['Any', '2019', '2018', '2017', '2016', '2015', '2014'];
   public areas: { [location: string]: LatLngExpression } = {
-    ['Any']: this.DEFAULT_COORDS,
+    [TrafficLocation.Any]: DEFAULT_COORDS,
     [TrafficLocation.North]: [45.6075, -122.7236],
     [TrafficLocation.South]: [45.4886, -122.6755],
     [TrafficLocation.Northwest]: [45.5586, -122.7609],
@@ -90,9 +83,9 @@ export class HomeComponent implements OnInit {
     ],
     zoom: 11,
     minZoom: 10,
-    maxBounds: this.MAX_BOUNDS,
+    maxBounds: MAX_BOUNDS,
     maxBoundsViscosity: 1.0,
-    center: latLng(this.DEFAULT_COORDS)
+    center: latLng(DEFAULT_COORDS)
   };
 
   public constructor(private titleService: Title, private http: HttpClient, private cookie: CookieService) {
@@ -107,8 +100,8 @@ export class HomeComponent implements OnInit {
   }
 
   public updateLeafletMapLocation(): void {
-    const coordinates = this.areaSelector.empty ? this.DEFAULT_COORDS : this.areaSelector.value;
-    const zoom = this.areaSelector.empty ? 11 : this.areaSelector.value === this.DEFAULT_COORDS ? 11 : 12.5;
+    const coordinates = this.areaSelector.empty ? DEFAULT_COORDS : this.areaSelector.value;
+    const zoom = this.areaSelector.empty ? 11 : this.areaSelector.value === DEFAULT_COORDS ? 11 : 12.5;
     this.map.flyTo(coordinates, zoom);
   }
 

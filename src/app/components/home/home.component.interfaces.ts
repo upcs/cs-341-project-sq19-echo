@@ -1,8 +1,3 @@
-export interface IDensityInfo {
-  readonly min: number;
-  readonly max: number;
-}
-
 export interface IAddress {
   readonly address: string;
   readonly zip: number;
