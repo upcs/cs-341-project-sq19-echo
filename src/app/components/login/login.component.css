@@ -22,19 +22,3 @@ h6 {
 .formContainer > * {
   width: 100%;
 }
-
-#answerHide {
-  display: none;
-}
-
-#resetButton {
-  display: none;
-}
-
-#passwordHide {
-  display: none;
-}
-
-#resetQuestion {
-  display: none;
-}

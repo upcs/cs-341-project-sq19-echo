@@ -16,6 +16,8 @@ import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
+  public passwordResetInProgress = false;
+
   private MIN_PASSWORD_LENGTH = 8;
   public savedData: ISave[] = [];
 
@@ -141,7 +143,7 @@ export class LoginComponent implements OnInit {
     );
   }
 
-  public continueReset(): void {
+  public promptUserWithSecurityQuestion(): void {
     const email = sha512(this.resetControls.emailReset.value);
     this.http.post(
       '/api', {command: getSqlSelectUserCommand(email)}
@@ -151,19 +153,13 @@ export class LoginComponent implements OnInit {
           return;
         }
 
-        document.getElementById('emailHide').style.display = 'none';
-        document.getElementById('continue').style.display = 'none';
-        document.getElementById('answerHide').style.display = 'block';
-        document.getElementById('passwordHide').style.display = 'block';
-        document.getElementById('resetButton').style.display = 'block';
-        document.getElementById('resetQuestion').style.display = 'block';
-
+        this.passwordResetInProgress = true;
         this.resetQuestionTextContent = users[0].question;
       }, () => displayGeneralErrorMessage()
     );
   }
 
-  public resetPass(): void {
+  public validateEnteredSecurityAnswer(): void {
     const email = sha512(this.resetControls.emailReset.value);
     const hashedPassword = sha512(this.resetControls.passwordReset.value);
     const hashedAnswer = sha512(this.resetControls.answerReset.value.toLowerCase());
@@ -180,12 +176,7 @@ export class LoginComponent implements OnInit {
             command: `REPLACE INTO users VALUES ('${email}', '${hashedPassword}', '${users[0].question}', '${users[0].answer}')`
           }).subscribe(() => {
             alert('Password was reset');
-            document.getElementById('emailHide').style.display = 'block';
-            document.getElementById('continue').style.display = 'block';
-            document.getElementById('answerHide').style.display = 'none';
-            document.getElementById('passwordHide').style.display = 'none';
-            document.getElementById('resetButton').style.display = 'none';
-            document.getElementById('resetQuestion').style.display = 'none';
+            this.passwordResetInProgress = false;
             this.router.navigateByUrl('/about', {skipLocationChange: true})
               .then(() => this.router.navigate(['user']));
             return;
