@@ -30,21 +30,23 @@ import {parseString} from 'xml2js';
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  cityZipTextContent: string;
-  currentAddressTextContent: string;
-  zestimateTextContent: string;
-  trafficLevelTextContent: string;
-  trafficVolumeTextContent: string;
-  tspProjectsTextContent: string;
-  projectsTextContent = 'TSP Projects';
+  // Used in the HTML template to store string values.
+  public cityZipTextContent: string;
+  public currentAddressTextContent: string;
+  public zestimateTextContent: string;
+  public trafficLevelTextContent: string;
+  public trafficVolumeTextContent: string;
+  public tspProjectsTextContent: string;
+  public projectsTextContent: string;
 
   @ViewChild('areaSelector') private areaSelector: MatSelect;
   @ViewChild('yearSelector') private yearSelector: MatSelect;
   @ViewChild('densitySelector') private densitySelector: MatSelect;
 
-  autocompleteFormControl = new FormControl();
-  options: string[] = [];
+  public autocompleteFormControl = new FormControl();
+  public options: string[] = [];
 
+  // Boolean flags that are used in the form template.
   public loggedOut: boolean;
   public errorMessageVisible = false;
   public infoCardVisible = false;
@@ -66,7 +68,7 @@ export class HomeComponent implements OnInit {
   private showPrices = false;
   private showTraffic = true;
 
-  // Fields accessed by the HTML (template).
+  // Used for the selection dialogs.
   public objectKeys = Object.keys;
   public densities = ['Any', 'High', 'Medium', 'Low'];
   public years: string[] = ['Any', '2019', '2018', '2017', '2016', '2015', '2014'];
@@ -242,6 +244,7 @@ export class HomeComponent implements OnInit {
         const trafficLevel = averageVolume < 1000 ? 'Low' : averageVolume < 5000 ? 'Medium' : 'High';
         this.trafficLevelTextContent = `Traffic Level: ${trafficLevel}`;
         this.trafficVolumeTextContent = `Average traffic flow of area: ${averageVolume} cars per day`;
+
         this.getProjects(minLatitude, maxLatitude, minLongitude, maxLongitude);
       }, () => displayGeneralErrorMessage()
     );

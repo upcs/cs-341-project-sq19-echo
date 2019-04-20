@@ -16,6 +16,7 @@ import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
+  public loggedIn: boolean;
   public passwordResetInProgress = false;
 
   private MIN_PASSWORD_LENGTH = 8;
@@ -74,23 +75,17 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if (this.cookie.check('authenticated')) {
-      document.getElementById('bigCard').style.display = 'none';
-      document.getElementById('logoutCard').style.display = 'block';
-    } else {
-      document.getElementById('bigCard').style.display = 'block';
-      document.getElementById('logoutCard').style.display = 'none';
-    }
+    this.loggedIn = this.cookie.check('authenticated');
   }
 
   public signUp(): void {
-    const unhashedEmail = this.signupControls.email.value;
-    const email = sha512(this.signupControls.email.value);
+    const email = this.signupControls.email.value;
+    const hashedEmail = sha512(email);
     const password = sha512(this.signupControls.password.value);
     const question = this.signupControls.questionRequire.value;
     const answer = sha512(this.signupControls.answerRequire.value.toLowerCase());
 
-    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((users: IUser[]) => {
+    this.http.post('/api', {command: getSqlSelectUserCommand(hashedEmail)}).subscribe((users: IUser[]) => {
       if (users.length) {
         alert('An account has already been created with this email.');
         return;
@@ -100,9 +95,9 @@ export class LoginComponent implements OnInit {
         '/api',
         {
           command: `INSERT INTO users (user, password, question, answer)
-                    VALUES ('${email}', '${password}', '${question}', '${answer}')`
+                    VALUES ('${hashedEmail}', '${password}', '${question}', '${answer}')`
         }).subscribe(() => {
-        alert(`Account created with email: ${unhashedEmail}.`);
+        alert(`Account created with email: ${email}.`);
         this.router.navigateByUrl('/about', {skipLocationChange: true})
           .then(() => this.router.navigate(['user']));
         return;
