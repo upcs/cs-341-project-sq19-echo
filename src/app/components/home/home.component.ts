@@ -142,11 +142,9 @@ export class HomeComponent implements OnInit {
               ]
             }
           )
-        }).subscribe((addresses: IAddress[]) => {
-        this.options = addresses.map(x => x.address);
-      }, () => {
-        this.options = ['Error. Cannot autocomplete'];
-      });
+        }).subscribe((addresses: IAddress[]) => this.options = addresses.map(x => x.address),
+        () => this.options = ['Error. Cannot autocomplete']
+      );
     }
   }
 
@@ -157,9 +155,7 @@ export class HomeComponent implements OnInit {
     this.http.get(
       `/webservice/GetSearchResults.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&address=${address}&citystatezip=Portland%2C+OR`,
       {responseType: 'text'}).subscribe((zillowXml) => {
-        parseString(zillowXml, (err, zillowJson) => {
-          this.zestimateTextContent = `Zestimate: ${getZestimateValue(zillowJson)}`;
-        });
+        parseString(zillowXml, (err, zillowJson) => this.zestimateTextContent = `Zestimate: ${getZestimateValue(zillowJson)}`);
       }, () => displayGeneralErrorMessage()
     );
 
