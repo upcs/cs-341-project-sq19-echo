@@ -1,23 +1,27 @@
-export interface IAddress {
-  readonly address: string;
-  readonly zip: number;
+export interface ILocation {
   readonly lat: number;
   readonly lng: number;
 }
 
-export interface ITrafficData {
+export interface IAddress extends ILocation {
+  readonly address: string;
+  readonly zip: number;
+}
+
+export interface ITrafficData extends ILocation {
   readonly date: number;
-  readonly lat: number;
-  readonly lng: number;
   readonly volume: number;
   readonly level: string;
 }
 
-export interface ITspProject {
+export interface ITspProject extends ILocation {
   readonly name: string;
   readonly description: string;
-  readonly lat: number;
-  readonly lng: number;
+}
+
+export interface IZillowNeighborhood extends ILocation {
+  readonly name: string;
+  readonly zindex: number;
 }
 
 export interface IBucket {
@@ -25,9 +29,14 @@ export interface IBucket {
   count: number;
 }
 
-export interface IZillowNeighborhood {
-  readonly name: string;
-  readonly zindex: number;
-  readonly lat: number;
-  readonly lng: number;
+export interface IBucketSize {
+  readonly width: number;
+  readonly height: number;
+}
+
+export interface IBounds {
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly left: number;
 }

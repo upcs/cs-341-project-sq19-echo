@@ -16,3 +16,5 @@ export const MAX_BOUNDS: LatLngBounds = latLngBounds(
   latLng(DEFAULT_COORDS.lat - BOUND_DELTA, DEFAULT_COORDS.lng - BOUND_DELTA),
   latLng(DEFAULT_COORDS.lat + BOUND_DELTA, DEFAULT_COORDS.lng + BOUND_DELTA)
 );
+
+export const NUM_BUCKETS = 10;

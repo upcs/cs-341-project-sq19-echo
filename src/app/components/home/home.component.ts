@@ -10,17 +10,24 @@ import {
   Map as LeafletMap,
   MapOptions,
   marker,
-  tileLayer,
-  rectangle
+  tileLayer
 } from 'leaflet';
 import {HttpClient} from '@angular/common/http';
-import {alphaNumericSpacebarOrBackspaceSelected, rgbToHex} from './home.component.functions';
+import {
+  alphaNumericSpacebarOrBackspaceSelected,
+  getBounds,
+  getColorForPriceBucket,
+  getColorForTrafficBucket,
+  getLayer,
+  getPriceBucketArray,
+  getTrafficBucketArray, getTrafficLevelFromAverageVolume, getZestimateValue, getZillowNeighborhoods
+} from './home.component.functions';
 import {TrafficLocation} from './home.component.enums';
 import {CookieService} from 'ngx-cookie-service';
 import {sha512} from 'js-sha512';
 import {DEFAULT_COORDS, DEFAULT_ICON, HOUSE_ICON, MAX_BOUNDS} from './home.component.constants';
 import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/helpers.functions';
-import {IAddress, IBucket, ITrafficData, ITspProject, IZillowNeighborhood} from './home.component.interfaces';
+import {IAddress, ITrafficData, ITspProject, IZillowNeighborhood} from './home.component.interfaces';
 import {parseString} from 'xml2js';
 
 @Component({
@@ -53,9 +60,10 @@ export class HomeComponent implements OnInit {
   private selectedTab = 0;
 
   private houseLayer: LayerGroup = new LayerGroup();
-  private map: LeafletMap;
-  private heatMap: LayerGroup = new LayerGroup();
+  private heatMapLayer: LayerGroup = new LayerGroup();
   private priceLayer: LayerGroup = new LayerGroup();
+
+  private map: LeafletMap;
   private zillowNeighborhoods: IZillowNeighborhood[] = [];
 
   private showPrices = false;
@@ -118,25 +126,7 @@ export class HomeComponent implements OnInit {
     this.http.get(
       '/webservice/GetRegionChildren.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&state=or&city=portland&childtype=neighborhood',
       {responseType: 'text'}).subscribe((zillowXml) => {
-
-      parseString(zillowXml, (err, zillowJson) => {
-        const zillowRegions = zillowJson['RegionChildren:regionchildren'].response[0].list[0].region;
-
-        for (const region of zillowRegions) {
-          const zIndex = region.zindex;
-          if (zIndex === undefined) {
-            continue;
-          }
-
-          this.zillowNeighborhoods.push({
-            name: region.name[0],
-            zindex: parseInt(zIndex[0]._, 10),
-            lat: parseFloat(region.latitude[0]),
-            lng: parseFloat(region.longitude[0])
-          });
-        }
-      });
-
+      parseString(zillowXml, (err, zillowJson) => this.zillowNeighborhoods.push(...getZillowNeighborhoods(zillowJson)));
       this.updateHeatMap();
     });
   }
@@ -155,7 +145,7 @@ export class HomeComponent implements OnInit {
         }).subscribe((addresses: IAddress[]) => {
         this.options = addresses.map(x => x.address);
       }, () => {
-        this.options = ['Error, cannot autocomplete'];
+        this.options = ['Error. Cannot autocomplete'];
       });
     }
   }
@@ -164,19 +154,11 @@ export class HomeComponent implements OnInit {
     const addressSearchValue = this.autocompleteFormControl.value;
     const address = addressSearchValue.split(' ').join('+');
 
-    this.zestimateTextContent = 'Zestimate: ';
     this.http.get(
       `/webservice/GetSearchResults.htm?zws-id=X1-ZWz181mfqr44y3_2jayc&address=${address}&citystatezip=Portland%2C+OR`,
       {responseType: 'text'}).subscribe((zillowXml) => {
         parseString(zillowXml, (err, zillowJson) => {
-          const zillowSearchResult = zillowJson['SearchResults:searchresults'];
-          if (zillowSearchResult.message[0].code[0] !== '0') {
-            this.zestimateTextContent += 'N/A';
-            return;
-          }
-
-          const zestimateAmount = zillowSearchResult.response[0].results[0].result[0].zestimate[0].amount[0]._;
-          this.zestimateTextContent += zestimateAmount !== undefined ? `$${parseInt(zestimateAmount, 10).toLocaleString()}` : 'N/A';
+          this.zestimateTextContent = `Zestimate: ${getZestimateValue(zillowJson)}`;
         });
       }, () => displayGeneralErrorMessage()
     );
@@ -211,7 +193,8 @@ export class HomeComponent implements OnInit {
             ), {maxZoom: 15}
           );
 
-          this.getTrafficInformation(
+          this.getTrafficInformation();
+          this.getProjects(
             addresses[0].lat - DELTA,
             addresses[0].lat + DELTA,
             addresses[0].lng - DELTA,
@@ -222,7 +205,7 @@ export class HomeComponent implements OnInit {
     );
   }
 
-  public getTrafficInformation(minLatitude: number, maxLatitude: number, minLongitude: number, maxLongitude: number): void {
+  public getTrafficInformation(): void {
     this.http.post('/api', {
       command: getSqlSelectCommand({whatToSelect: 'volume', tableToSelectFrom: 'traffic', whereStatements: []})
     }).subscribe((volumeTrafficData: ITrafficData[]) => {
@@ -234,11 +217,8 @@ export class HomeComponent implements OnInit {
           averageVolume = Math.round(summedVolume / volumeTrafficData.length);
         }
 
-        const trafficLevel = averageVolume < 1000 ? 'Low' : averageVolume < 5000 ? 'Medium' : 'High';
-        this.trafficLevelTextContent = `Traffic Level: ${trafficLevel}`;
+        this.trafficLevelTextContent = `Traffic Level: ${getTrafficLevelFromAverageVolume(averageVolume)}`;
         this.trafficVolumeTextContent = `Average traffic flow of area: ${averageVolume} cars per day`;
-
-        this.getProjects(minLatitude, maxLatitude, minLongitude, maxLongitude);
       }, () => displayGeneralErrorMessage()
     );
   }
@@ -256,7 +236,7 @@ export class HomeComponent implements OnInit {
           this.houseLayer.addLayer(marker(
             [project.lat, project.lng], {riseOnHover: true, icon: DEFAULT_ICON}).bindPopup(project.name)
           );
-          return 'Project Name: ' + project.name + '\nProject Description: ' + project.description + '\n\n';
+          return `Project Name: ${project.name}\nProject Description: ${project.description}\n\n`;
         }).join('');
 
         this.map.addLayer(this.houseLayer);
@@ -272,8 +252,10 @@ export class HomeComponent implements OnInit {
     const level = this.trafficLevelTextContent;
     const volume = this.trafficVolumeTextContent;
 
-    const command = `INSERT ignore INTO saves (user, address, level, volume) VALUES ('${user}', '${address}', '${level}', '${volume}')`;
-    this.http.post('/api', {command}).subscribe(
+    this.http.post(
+      '/api', {
+        command: `INSERT ignore INTO saves (user, address, level, volume) VALUES ('${user}', '${address}', '${level}', '${volume}')`
+      }).subscribe(
       () => alert('Address has been saved to account!'),
       () => displayGeneralErrorMessage()
     );
@@ -288,99 +270,25 @@ export class HomeComponent implements OnInit {
   }
 
   public updateHeatMap(): void {
-    this.heatMap.clearLayers();
+    const bounds = getBounds(this.map.getBounds());
+
     this.priceLayer.clearLayers();
-
-    const topBound = this.map.getBounds().getNorth();
-    const rightBound = this.map.getBounds().getEast();
-    const bottomBound = this.map.getBounds().getSouth();
-    const leftBound = this.map.getBounds().getWest();
-
-    const NUM_BUCKETS = 10;
-    const bucketWidth = (rightBound - leftBound) / NUM_BUCKETS;
-    const bucketHeight = (topBound - bottomBound) / NUM_BUCKETS;
-
-    const trafficBuckets: IBucket[][] = Array.from(
-      {length: NUM_BUCKETS}, () => Array.from({length: NUM_BUCKETS}, () => ({sum: 0, count: 0}))
-    );
-    const priceBuckets: IBucket[][] = JSON.parse(JSON.stringify(trafficBuckets));
-
     if (this.showPrices) {
-      for (const zMarker of this.zillowNeighborhoods) {
-        if (zMarker.lat > bottomBound && zMarker.lat < topBound && zMarker.lng > leftBound && zMarker.lng < rightBound) {
-          const lngBucket = Math.floor((zMarker.lng - leftBound) / bucketWidth);
-          const latBucket = Math.floor((zMarker.lat - bottomBound) / bucketHeight);
-
-          priceBuckets[lngBucket][latBucket].sum += zMarker.zindex;
-          priceBuckets[lngBucket][latBucket].count += 1;
-        }
-      }
-
-      let leftRect = leftBound;
-      for (const buckets of priceBuckets) {
-        let bottomRect = bottomBound;
-
-        for (const priceBucket of buckets) {
-          if (priceBucket.count !== 0) {
-            let average = priceBucket.sum / priceBucket.count;
-            average = average >= 700000 ? 510 : Math.round((average - 100000) / (600000 / 510));
-
-            const redValue = average <= 255 ? 0 : average - 255;
-            const greenValue = average >= 255 ? 0 : 255 - average;
-            const color = rgbToHex(redValue, greenValue, 255);
-
-            rectangle(
-              latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)),
-              {color, weight: 0, fillOpacity: 0.35}
-            ).addTo(this.priceLayer);
-          }
-          bottomRect += bucketHeight;
-        }
-
-        leftRect += bucketWidth;
-      }
+      this.priceLayer = getLayer(getPriceBucketArray(this.zillowNeighborhoods, bounds), bounds, getColorForPriceBucket);
       this.priceLayer.addTo(this.map);
     }
 
+    this.heatMapLayer.clearLayers();
     if (this.showTraffic) {
-      const command = getSqlSelectCommand({
-        whatToSelect: '*', tableToSelectFrom: 'traffic', whereStatements: [
-          `lat>${bottomBound}`, `lat<${topBound}`, `lng>${leftBound}`, `lng<${rightBound}`
-        ]
-      });
-      this.http.post('/api', {command}).subscribe((trafficData: ITrafficData[]) => {
-        for (const point of trafficData) {
-          const lngBucket = Math.floor((point.lng - leftBound) / bucketWidth);
-          const latBucket = Math.floor((point.lat - bottomBound) / bucketHeight);
-
-          trafficBuckets[lngBucket][latBucket].sum += point.volume;
-          trafficBuckets[lngBucket][latBucket].count += 1;
-        }
-
-        let leftRect = leftBound;
-        for (let i = 0; i < NUM_BUCKETS; i++) {
-          let bottomRect = bottomBound;
-
-          for (let j = 0; j < NUM_BUCKETS; j++) {
-            if (trafficBuckets[i][j].count !== 0) {
-              let average = trafficBuckets[i][j].sum / trafficBuckets[i][j].count;
-              average = average > 5100 ? 510 : Math.round(average / 10);
-
-              const redValue = average >= 255 ? 255 : average;
-              const greenValue = average <= 255 ? 255 : 510 - average;
-              const color = rgbToHex(redValue, greenValue, 0);
-
-              rectangle(
-                latLngBounds(latLng(bottomRect + bucketHeight, leftRect), latLng(bottomRect, leftRect + bucketWidth)),
-                {color, weight: 0, fillOpacity: 0.35}
-              ).addTo(this.heatMap);
-            }
-            bottomRect += bucketHeight;
-          }
-
-          leftRect += bucketWidth;
-        }
-        this.heatMap.addTo(this.map);
+      this.http.post('/api', {
+        command: getSqlSelectCommand({
+          whatToSelect: '*', tableToSelectFrom: 'traffic', whereStatements: [
+            `lat>${bounds.bottom}`, `lat<${bounds.top}`, `lng>${bounds.left}`, `lng<${bounds.right}`
+          ]
+        })
+      }).subscribe((trafficData: ITrafficData[]) => {
+        this.heatMapLayer = getLayer(getTrafficBucketArray(trafficData, bounds), bounds, getColorForTrafficBucket);
+        this.heatMapLayer.addTo(this.map);
       }, () => displayGeneralErrorMessage());
     }
   }

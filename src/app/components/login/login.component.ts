@@ -187,9 +187,7 @@ export class LoginComponent implements OnInit {
       command: getSqlSelectCommand({whatToSelect: '*', tableToSelectFrom: 'saves', whereStatements: [`user='${user}'`]})
     }).subscribe((saves: ISave[]) => {
       if (saves.length) {
-        for (const save of saves) {
-          this.savedData.push({address: save.address, level: save.level, volume: save.volume});
-        }
+        saves.forEach(save => this.savedData.push({address: save.address, level: save.level, volume: save.volume}));
       }
     }, () => displayGeneralErrorMessage());
   }
