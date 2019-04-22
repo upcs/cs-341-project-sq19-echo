@@ -94,10 +94,12 @@
           </label>
           <mat-error>{{getFormError(resetControls.passwordReset)}}</mat-error>
         </mat-form-field>
-        <button [disabled]="!resetForm.valid" [hidden]="!passwordResetInProgress" (click)="validateEnteredSecurityAnswer()"
-                mat-raised-button color="primary" type="submit">Reset Password</button>
-        <button mat-raised-button color="primary" [hidden]="passwordResetInProgress"
-                (click)="promptUserWithSecurityQuestion()">Continue</button>
+        <button mat-raised-button color="primary" type="submit" [disabled]="!resetForm.valid"
+                [hidden]="!passwordResetInProgress" (click)="validateEnteredSecurityAnswer()">Reset Password
+        </button>
+        <button mat-raised-button color="primary" [disabled]="!resetControls.emailReset.valid"
+                [hidden]="passwordResetInProgress" (click)="promptUserWithSecurityQuestion()">Continue
+        </button>
       </form>
     </mat-tab>
   </mat-tab-group>
@@ -113,9 +115,9 @@
           <mat-panel-title>{{save.address}}</mat-panel-title>
         </mat-expansion-panel-header>
         <ul style="float: left; text-align: left;">
-            <li>{{save.level}}</li>
-            <li>{{save.volume}}</li>
-        </ul>   
+          <li>{{save.level}}</li>
+          <li>{{save.volume}}</li>
+        </ul>
         <mat-action-row>
           <button mat-button color="warn" (click)="removeSave(save.address)">Remove</button>
           <button mat-button color="primary" (click)="viewOnMap(save.address)">View on map</button>
