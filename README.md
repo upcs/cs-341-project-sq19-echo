@@ -4,6 +4,9 @@
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 7.3.1.
 
+## Sprint 5 Features
+Housing and Traffic maps both got heat maps implemented. A user is now able to logout from the website. All bugs that were reported on github have been fixed. You can save adresses and load them directly into the map. Final Functionality has been implemented since this was the final sprint. The Web application is finished.
+
 ## Sprint 4 Features
 
 All data stored in data base. Added Express backend to access data from database. Access to housing price data via Zillow API. User data stored in database, passwords hashed. Reset forgotten password using security questions.
