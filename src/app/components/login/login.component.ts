@@ -3,12 +3,12 @@ import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {sha512} from 'js-sha512';
 import {CookieService} from 'ngx-cookie-service';
-import {ILoginControls, ISignUpControls, IResetControls, IUser} from './login.component.interfaces';
+import {ILoginControls, ISignUpControls, IResetControls, IUser, ISave} from './login.component.interfaces';
 import {getSqlSelectUserCommand, matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
 
-import {displayGeneralErrorMessage} from '../../../helpers/helpers.functions';
+import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/helpers.functions';
 
 @Component({
   selector: 'app-root',
@@ -16,8 +16,11 @@ import {displayGeneralErrorMessage} from '../../../helpers/helpers.functions';
   styleUrls: ['./login.component.css']
 })
 export class LoginComponent implements OnInit {
+  public loggedIn: boolean;
+  public passwordResetInProgress = false;
+
   private MIN_PASSWORD_LENGTH = 8;
-  public savedData: { address: string, level: string, volume: string }[] = [];
+  public savedData: ISave[] = [];
 
   public SECURITY_QUESTIONS: string[] = [
     'What was the last name of your third grade teacher?',
@@ -67,28 +70,22 @@ export class LoginComponent implements OnInit {
     this.resetForm = this.formBuilder.group(this.resetControls);
 
     if (this.cookie.check('authenticated')) {
-      this.loadData();
+      this.loadSavedAddresses();
     }
   }
 
   ngOnInit(): void {
-    if (this.cookie.check('authenticated')) {
-      document.getElementById('bigCard').style.display = 'none';
-      document.getElementById('logoutCard').style.display = 'block';
-    } else {
-      document.getElementById('bigCard').style.display = 'block';
-      document.getElementById('logoutCard').style.display = 'none';
-    }
+    this.loggedIn = this.cookie.check('authenticated');
   }
 
   public signUp(): void {
-    const unhashedEmail = this.signupControls.email.value;
-    const email = sha512(this.signupControls.email.value);
+    const email = this.signupControls.email.value;
+    const hashedEmail = sha512(email);
     const password = sha512(this.signupControls.password.value);
     const question = this.signupControls.questionRequire.value;
     const answer = sha512(this.signupControls.answerRequire.value.toLowerCase());
 
-    this.http.post('/api', {command: getSqlSelectUserCommand(email)}).subscribe((users: IUser[]) => {
+    this.http.post('/api', {command: getSqlSelectUserCommand(hashedEmail)}).subscribe((users: IUser[]) => {
       if (users.length) {
         alert('An account has already been created with this email.');
         return;
@@ -98,9 +95,9 @@ export class LoginComponent implements OnInit {
         '/api',
         {
           command: `INSERT INTO users (user, password, question, answer)
-                    VALUES ('${email}', '${password}', '${question}', '${answer}')`
+                    VALUES ('${hashedEmail}', '${password}', '${question}', '${answer}')`
         }).subscribe(() => {
-        alert(`Account created with email: ${unhashedEmail}.`);
+        alert(`Account created with email: ${email}.`);
         this.router.navigateByUrl('/about', {skipLocationChange: true})
           .then(() => this.router.navigate(['user']));
         return;
@@ -141,7 +138,7 @@ export class LoginComponent implements OnInit {
     );
   }
 
-  public continueReset(): void {
+  public promptUserWithSecurityQuestion(): void {
     const email = sha512(this.resetControls.emailReset.value);
     this.http.post(
       '/api', {command: getSqlSelectUserCommand(email)}
@@ -151,19 +148,13 @@ export class LoginComponent implements OnInit {
           return;
         }
 
-        document.getElementById('emailHide').style.display = 'none';
-        document.getElementById('continue').style.display = 'none';
-        document.getElementById('answerHide').style.display = 'block';
-        document.getElementById('passwordHide').style.display = 'block';
-        document.getElementById('resetButton').style.display = 'block';
-        document.getElementById('resetQuestion').style.display = 'block';
-
+        this.passwordResetInProgress = true;
         this.resetQuestionTextContent = users[0].question;
       }, () => displayGeneralErrorMessage()
     );
   }
 
-  public resetPass(): void {
+  public validateEnteredSecurityAnswer(): void {
     const email = sha512(this.resetControls.emailReset.value);
     const hashedPassword = sha512(this.resetControls.passwordReset.value);
     const hashedAnswer = sha512(this.resetControls.answerReset.value.toLowerCase());
@@ -180,12 +171,7 @@ export class LoginComponent implements OnInit {
             command: `REPLACE INTO users VALUES ('${email}', '${hashedPassword}', '${users[0].question}', '${users[0].answer}')`
           }).subscribe(() => {
             alert('Password was reset');
-            document.getElementById('emailHide').style.display = 'block';
-            document.getElementById('continue').style.display = 'block';
-            document.getElementById('answerHide').style.display = 'none';
-            document.getElementById('passwordHide').style.display = 'none';
-            document.getElementById('resetButton').style.display = 'none';
-            document.getElementById('resetQuestion').style.display = 'none';
+            this.passwordResetInProgress = false;
             this.router.navigateByUrl('/about', {skipLocationChange: true})
               .then(() => this.router.navigate(['user']));
             return;
@@ -195,14 +181,13 @@ export class LoginComponent implements OnInit {
     );
   }
 
-  public loadData(): void {
+  public loadSavedAddresses(): void {
     const user = sha512(this.cookie.get('authenticated'));
-    const command = `SELECT * FROM saves WHERE user='${user}'`;
-    this.http.post('/api', {command}).subscribe((data: any[]) => {
-      if (data.length > 0) {
-        for (const save of data) {
-          this.savedData.push({address: save.address, level: save.level, volume: save.volume});
-        }
+    this.http.post('/api', {
+      command: getSqlSelectCommand({whatToSelect: '*', tableToSelectFrom: 'saves', whereStatements: [`user='${user}'`]})
+    }).subscribe((saves: ISave[]) => {
+      if (saves.length) {
+        saves.forEach(save => this.savedData.push({address: save.address, level: save.level, volume: save.volume}));
       }
     }, () => displayGeneralErrorMessage());
   }

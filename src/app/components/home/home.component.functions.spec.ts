@@ -1,7 +1,7 @@
 import {
   getLeafletMarkerFromTrafficMarker,
 } from './home.component.functions';
-import {DENSITIES, GREEN_ICON, ORANGE_ICON, RED_ICON} from './home.component.constants';
+import {GREEN_ICON} from './home.component.constants';
 import {marker, Marker, LatLngExpression} from 'leaflet';
 
 

@@ -1,26 +1,42 @@
-export interface IDensityInfo {
-  readonly min: number;
-  readonly max: number;
+export interface ILocation {
+  readonly lat: number;
+  readonly lng: number;
 }
 
-export interface IAddress {
+export interface IAddress extends ILocation {
   readonly address: string;
   readonly zip: number;
-  readonly lat: number;
-  readonly lng: number;
 }
 
-export interface ITrafficData {
+export interface ITrafficData extends ILocation {
   readonly date: number;
-  readonly lat: number;
-  readonly lng: number;
   readonly volume: number;
   readonly level: string;
 }
 
-export interface ITspProject {
+export interface ITspProject extends ILocation {
   readonly name: string;
   readonly description: string;
-  readonly lat: number;
-  readonly lng: number;
+}
+
+export interface IZillowNeighborhood extends ILocation {
+  readonly name: string;
+  readonly zindex: number;
+}
+
+export interface IBucket {
+  sum: number;
+  count: number;
+}
+
+export interface IBucketSize {
+  readonly width: number;
+  readonly height: number;
+}
+
+export interface IBounds {
+  readonly top: number;
+  readonly right: number;
+  readonly bottom: number;
+  readonly left: number;
 }
