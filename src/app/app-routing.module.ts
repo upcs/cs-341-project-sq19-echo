@@ -1,5 +1,5 @@
 import {NgModule} from '@angular/core';
-import {Routes, RouterModule, Route} from '@angular/router';
+import {Routes, RouterModule} from '@angular/router';
 import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {AboutComponent} from './components/about/about.component';
@@ -21,14 +21,8 @@ export const mainRoutes: Routes = [
   }
 ];
 
-const allRoutes: Routes = mainRoutes.map(x => {
-  let route: Route = {path: x.path, component: x.component};
-  if (x.pathMatch) {
-    route.pathMatch = x.pathMatch;
-  }
-  return route;
-});
-
+const allRoutes: Routes = [];
+allRoutes.push(...mainRoutes);
 allRoutes.push({
   path: 'user',
   component: LoginComponent
