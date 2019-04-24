@@ -1,0 +1,13 @@
+.enemy {
+  background-image: url('../../../assets/images/portland_car.png');
+  height: 50px;
+  width: 50px;
+  position: absolute;
+}
+
+.missile {
+  background-image: url('../../../assets/images/house_projectile.png');
+  height: 20px;
+  width: 20px;
+  position: absolute;
+}

@@ -1,0 +1,11 @@
+<div style="width: 600px; height: 600px; background-image: url('../../../assets/images/portland_background.jpg');"
+     (keyup)="onKeyUp($event)" tabindex="0">
+  <div style="width: 60px; height: 60px; position: absolute; background-image: url('../../../assets/images/agent.png');"
+       [style.left.px]="playerPosition.leftPosition" [style.top.px]="playerPosition.topPosition"></div>
+  <div style="width: 550px; height: 600px; position: absolute;" *ngFor="let e of enemies">
+    <div class="enemy" [style.left.px]="e.leftPosition" [style.top.px]="e.topPosition"></div>
+  </div>
+  <div style="width: 600px; height: 550px; position: absolute;" *ngFor="let m of missiles">
+    <div class="missile" [style.left.px]="m.leftPosition" [style.top.px]="m.topPosition"></div>
+  </div>
+</div>
