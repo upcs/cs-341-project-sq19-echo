@@ -1,4 +1,4 @@
-# Echo
+# TrafficVisualizer
 
 [![codecov](https://codecov.io/gh/upcs/cs-341-project-sq19-echo/branch/master/graph/badge.svg)](https://codecov.io/gh/upcs/cs-341-project-sq19-echo) [![Build Status](https://travis-ci.com/upcs/cs-341-project-sq19-echo.svg?branch=master)](https://travis-ci.com/upcs/cs-341-project-sq19-echo)
 
