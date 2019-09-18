@@ -13,8 +13,7 @@ export class AboutComponent {
       name: 'Alex Hadi',
       classStanding: 'Junior',
       imageUrl: 'https://tinyurl.com/y25pe2wy',
-      mainContent: `Alex Hadi wants to teach you about angular.
-                    He really enjoys doing all of the sprints, and wants to become a usain bolt type sprinter.`,
+      mainContent: 'Enjoys TypeScript and Angular!',
       emailAddress: 'hadi20@up.edu'
     },
     {

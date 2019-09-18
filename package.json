@@ -1,5 +1,6 @@
 {
   "name": "echo",
+  "license": "UNLICENSED",
   "scripts": {
     "ng": "ng",
     "start": "./express/bin/www & ng serve --proxy-config proxy.conf.json",
@@ -79,10 +80,10 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/upcs/cs-341-project-sq19-echo.git"
+    "url": "git+https://github.com/hadi16/TrafficVisualizer.git"
   },
   "bugs": {
-    "url": "https://github.com/upcs/cs-341-project-sq19-echo/issues"
+    "url": "https://github.com/hadi16/TrafficVisualizer/issues"
   },
-  "homepage": "https://github.com/upcs/cs-341-project-sq19-echo#readme"
+  "homepage": "https://github.com/hadi16/TrafficVisualizer#readme"
 }
