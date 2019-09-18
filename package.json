@@ -3,7 +3,7 @@
   "license": "UNLICENSED",
   "scripts": {
     "ng": "ng",
-    "start": "./express/bin/www & ng serve --proxy-config proxy.conf.json",
+    "start": "server/bin/www & ng serve --proxy-config proxy.conf.json",
     "build": "ng build",
     "jest": "jest",
     "test": "jest && codecov",

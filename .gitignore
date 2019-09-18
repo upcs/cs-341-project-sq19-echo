@@ -6,8 +6,7 @@
 /out-tsc
 
 # dependencies
-/node_modules
-/express/node_modules
+node_modules/
 
 # profiling files
 chrome-profiler-events.json
@@ -43,6 +42,3 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
-
-# Code Coverage folder
-/coverage
