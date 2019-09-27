@@ -1,29 +1,29 @@
 import {NgModule} from '@angular/core';
 
 import {
+  MatAutocompleteModule,
   MatButtonModule,
-  MatMenuModule,
-  MatToolbarModule,
-  MatIconModule,
+  MatButtonToggleModule,
   MatCardModule,
   MatDialogModule,
-  MatFormFieldModule,
-  MatSelectModule,
-  MatTabsModule,
-  MatInputModule,
-  MatSnackBarModule,
-  MatProgressBarModule,
-  MatGridListModule,
-  MatAutocompleteModule,
   MatDividerModule,
-  MatListModule,
   MatExpansionModule,
-  MatTableModule,
+  MatFormFieldModule,
+  MatGridListModule,
+  MatIconModule,
+  MatInputModule,
+  MatListModule,
+  MatMenuModule,
   MatPaginatorModule,
+  MatProgressBarModule,
+  MatSelectModule,
+  MatSlideToggleModule,
+  MatSnackBarModule,
   MatSortModule,
   MatStepperModule,
-  MatSlideToggleModule,
-  MatButtonToggleModule
+  MatTableModule,
+  MatTabsModule,
+  MatToolbarModule
 } from '@angular/material';
 
 @NgModule({
@@ -78,4 +78,5 @@ import {
     MatButtonToggleModule
   ]
 })
-export class MaterialModule {}
+export class MaterialModule {
+}

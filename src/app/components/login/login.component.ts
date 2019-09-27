@@ -3,7 +3,7 @@ import {Title} from '@angular/platform-browser';
 import {FormBuilder, FormControl, FormGroup, Validators} from '@angular/forms';
 import {sha512} from 'js-sha512';
 import {CookieService} from 'ngx-cookie-service';
-import {ILoginControls, ISignUpControls, IResetControls, IUser, ISave} from './login.component.interfaces';
+import {ILoginControls, IResetControls, ISave, ISignUpControls, IUser} from './login.component.interfaces';
 import {getSqlSelectUserCommand, matchingPasswords} from './login.component.functions';
 import {HttpClient} from '@angular/common/http';
 import {Router} from '@angular/router';
@@ -18,10 +18,7 @@ import {displayGeneralErrorMessage, getSqlSelectCommand} from '../../../helpers/
 export class LoginComponent implements OnInit {
   public loggedIn: boolean;
   public passwordResetInProgress = false;
-
-  private MIN_PASSWORD_LENGTH = 8;
   public savedData: ISave[] = [];
-
   public SECURITY_QUESTIONS: string[] = [
     'What was the last name of your third grade teacher?',
     'What street did you live on in third grade?',
@@ -29,7 +26,15 @@ export class LoginComponent implements OnInit {
     'What is the name of your favorite childhood friend?',
     'In what city does your nearest sibling live?'
   ];
-
+  public loginControls: ILoginControls = {
+    email: new FormControl('', [Validators.required, Validators.email]),
+    password: new FormControl('', [Validators.required])
+  };
+  public signupForm: FormGroup;
+  public loginForm: FormGroup;
+  public resetForm: FormGroup;
+  public resetQuestionTextContent: string;
+  private MIN_PASSWORD_LENGTH = 8;
   public signupControls: ISignUpControls = {
     email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required, Validators.minLength(this.MIN_PASSWORD_LENGTH)]),
@@ -37,22 +42,11 @@ export class LoginComponent implements OnInit {
     questionRequire: new FormControl('', [Validators.required]),
     answerRequire: new FormControl('', [Validators.required])
   };
-
-  public loginControls: ILoginControls = {
-    email: new FormControl('', [Validators.required, Validators.email]),
-    password: new FormControl('', [Validators.required])
-  };
-
   public resetControls: IResetControls = {
     emailReset: new FormControl('', [Validators.required, Validators.email]),
     passwordReset: new FormControl('', [Validators.required, Validators.minLength(this.MIN_PASSWORD_LENGTH)]),
     answerReset: new FormControl('', [Validators.required])
   };
-
-  public signupForm: FormGroup;
-  public loginForm: FormGroup;
-  public resetForm: FormGroup;
-  public resetQuestionTextContent: string;
 
   public constructor(
     private titleService: Title,

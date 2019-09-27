@@ -3,15 +3,19 @@ class MockCookieService {
   constructor() {
     this._cookieReg = {};
   }
+
   check(name) {
     return !!this._cookieReg[name];
   }
+
   get(name) {
     return this._cookieReg[name];
   }
+
   getAll() {
     return this._cookieReg;
   }
+
   set(
     name,
     value,
@@ -23,9 +27,11 @@ class MockCookieService {
   ) {
     this._cookieReg[name] = name + '=' + value;
   }
+
   delete(name, path, domain) {
     delete this._cookieReg[name];
   }
+
   deleteAll(path, domain) {
     this._cookieReg = {};
   }

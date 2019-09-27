@@ -1,16 +1,16 @@
 <mat-card class="mat-elevation-z4" style="margin-top: 1em; height: 38em;">
-  <mat-tab-group dynamicHeight [selectedIndex]='selectedTab' (animationDone)="showSearch()">
+  <mat-tab-group (animationDone)="showSearch()" [selectedIndex]='selectedTab' dynamicHeight>
     <mat-tab label="Filter Data">
       <form class="formContainer">
-        <mat-button-toggle-group style="margin-bottom: 0.5em;" name="fontStyle" aria-label="Font Style" value="traffic"
-                                 (change)="toggleData()">
-          <mat-button-toggle value="traffic" class="toggleContainer">
-            <button mat-button color="warn" class="toggles">
+        <mat-button-toggle-group (change)="toggleData()" aria-label="Font Style" name="fontStyle" style="margin-bottom: 0.5em;"
+                                 value="traffic">
+          <mat-button-toggle class="toggleContainer" value="traffic">
+            <button class="toggles" color="warn" mat-button>
               Traffic Data
             </button>
           </mat-button-toggle>
-          <mat-button-toggle value="prices" class="toggleContainer">
-            <button mat-button color="primary" class="toggles">
+          <mat-button-toggle class="toggleContainer" value="prices">
+            <button class="toggles" color="primary" mat-button>
               Housing Prices
             </button>
           </mat-button-toggle>
@@ -35,31 +35,31 @@
           </mat-select>
         </mat-form-field>
 
-        <button style="margin-bottom: 15px;" mat-raised-button color="warn" (click)="clearFiltersAndUpdateMap()">
+        <button (click)="clearFiltersAndUpdateMap()" color="warn" mat-raised-button style="margin-bottom: 15px;">
           Clear Filters
         </button>
-        <button mat-raised-button color="primary" (click)="updateLeafletMapLocation()">Filter Data</button>
+        <button (click)="updateLeafletMapLocation()" color="primary" mat-raised-button>Filter Data</button>
       </form>
     </mat-tab>
 
     <mat-tab label="Search Address">
       <form class="formContainer">
         <mat-form-field style="width: 100%;">
-          <input type="text" (keyup)="autocompleteAddress($event)" placeholder="Enter Address"
-                 aria-label="Address" matInput [formControl]="autocompleteFormControl" [matAutocomplete]="auto">
-          <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete">
+          <input (keyup)="autocompleteAddress($event)" [formControl]="autocompleteFormControl" [matAutocomplete]="auto"
+                 aria-label="Address" matInput placeholder="Enter Address" type="text">
+          <mat-autocomplete #auto="matAutocomplete" autoActiveFirstOption>
             <mat-option *ngFor="let option of options" [value]="option">{{option}}</mat-option>
           </mat-autocomplete>
         </mat-form-field>
 
-        <button mat-raised-button color="primary" (click)="getZestimate()">Search</button>
+        <button (click)="getZestimate()" color="primary" mat-raised-button>Search</button>
 
         <mat-card [hidden]="!errorMessageVisible" style="background-color: #e73c26; color: #e6e6e6;">
           <mat-card-content><strong>Error, cannot find address</strong></mat-card-content>
         </mat-card>
 
-        <mat-card style="max-width: 100%; text-align: left; max-height: 23em; overflow: auto;"
-                  [hidden]="!infoCardVisible">
+        <mat-card [hidden]="!infoCardVisible"
+                  style="max-width: 100%; text-align: left; max-height: 23em; overflow: auto;">
           <mat-card-header>
             <mat-card-title>{{currentAddressTextContent}}</mat-card-title>
             <mat-card-subtitle>{{cityZipTextContent}}</mat-card-subtitle>
@@ -97,20 +97,20 @@
             </mat-accordion>
           </mat-card-content>
           <mat-card-actions>
-            <button mat-button (click)="saveSearch()" [disabled]="loggedOut">SAVE</button>
+            <button (click)="saveSearch()" [disabled]="loggedOut" mat-button>SAVE</button>
           </mat-card-actions>
         </mat-card>
       </form>
     </mat-tab>
   </mat-tab-group>
 
-  <div class="mat-elevation-z4" leaflet style="height: 45em; width: 50em; float: right;"
-       (leafletMapReady)="onMapReady($event)" (leafletMapMoveEnd)="updateHeatMap()" [leafletOptions]="leafletOptions">
+  <div (leafletMapMoveEnd)="updateHeatMap()" (leafletMapReady)="onMapReady($event)" [leafletOptions]="leafletOptions"
+       class="mat-elevation-z4" leaflet style="height: 45em; width: 50em; float: right;">
   </div>
 
   <div style="float: right;">
-    <img class="keyImage" src="../../../assets/images/traffic.png" alt="trafficKeyImage">
-    <img class="keyImage" src="../../../assets/images/prices.png" alt="pricesKeyImage">
+    <img alt="trafficKeyImage" class="keyImage" src="../../../assets/images/traffic.png">
+    <img alt="pricesKeyImage" class="keyImage" src="../../../assets/images/prices.png">
   </div>
 
 </mat-card>

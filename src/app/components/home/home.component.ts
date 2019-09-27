@@ -2,16 +2,7 @@ import {Component, OnInit, ViewChild} from '@angular/core';
 import {Title} from '@angular/platform-browser';
 import {MatSelect} from '@angular/material';
 import {FormControl} from '@angular/forms';
-import {
-  latLng,
-  latLngBounds,
-  LatLngExpression,
-  LayerGroup,
-  Map as LeafletMap,
-  MapOptions,
-  marker,
-  tileLayer
-} from 'leaflet';
+import {latLng, latLngBounds, LatLngExpression, LayerGroup, Map as LeafletMap, MapOptions, marker, tileLayer} from 'leaflet';
 import {HttpClient} from '@angular/common/http';
 import {
   alphaNumericSpacebarOrBackspaceSelected,
@@ -20,7 +11,10 @@ import {
   getColorForTrafficBucket,
   getLayer,
   getPriceBucketArray,
-  getTrafficBucketArray, getTrafficLevelFromAverageVolume, getZestimateValue, getZillowNeighborhoods
+  getTrafficBucketArray,
+  getTrafficLevelFromAverageVolume,
+  getZestimateValue,
+  getZillowNeighborhoods
 } from './home.component.functions';
 import {TrafficLocation} from './home.component.enums';
 import {CookieService} from 'ngx-cookie-service';
@@ -44,31 +38,12 @@ export class HomeComponent implements OnInit {
   public trafficVolumeTextContent: string;
   public tspProjectsTextContent: string;
   public projectsTextContent: string;
-
-  @ViewChild('areaSelector') private areaSelector: MatSelect;
-  @ViewChild('yearSelector') private yearSelector: MatSelect;
-  @ViewChild('densitySelector') private densitySelector: MatSelect;
-
   public autocompleteFormControl = new FormControl();
   public options: string[] = [];
-
   // Boolean flags that are used in the form template.
   public loggedOut: boolean;
   public errorMessageVisible = false;
   public infoCardVisible = false;
-
-  private selectedTab = 0;
-
-  private houseLayer: LayerGroup = new LayerGroup();
-  private heatMapLayer: LayerGroup = new LayerGroup();
-  private priceLayer: LayerGroup = new LayerGroup();
-
-  private map: LeafletMap;
-  private zillowNeighborhoods: IZillowNeighborhood[] = [];
-
-  private showPrices = false;
-  private showTraffic = true;
-
   // Used for the selection dialogs.
   public objectKeys = Object.keys;
   public densities = ['Any', 'High', 'Medium', 'Low'];
@@ -82,7 +57,6 @@ export class HomeComponent implements OnInit {
     [TrafficLocation.Southwest]: [45.4849, -122.7116],
     [TrafficLocation.Southeast]: [45.4914, -122.5930]
   };
-
   // Used by the HTML/template to set Leaflet's options.
   public leafletOptions: MapOptions = {
     layers: [
@@ -95,6 +69,17 @@ export class HomeComponent implements OnInit {
     maxBoundsViscosity: 1.0,
     center: latLng(DEFAULT_COORDS)
   };
+  @ViewChild('areaSelector') private areaSelector: MatSelect;
+  @ViewChild('yearSelector') private yearSelector: MatSelect;
+  @ViewChild('densitySelector') private densitySelector: MatSelect;
+  private selectedTab = 0;
+  private houseLayer: LayerGroup = new LayerGroup();
+  private heatMapLayer: LayerGroup = new LayerGroup();
+  private priceLayer: LayerGroup = new LayerGroup();
+  private map: LeafletMap;
+  private zillowNeighborhoods: IZillowNeighborhood[] = [];
+  private showPrices = false;
+  private showTraffic = true;
 
   public constructor(private titleService: Title, private http: HttpClient, private cookie: CookieService) {
     titleService.setTitle('Portland Housing Traffic Hotspots');

@@ -31,7 +31,7 @@ export class GameComponent implements OnInit {
   }
 
   onKeyUp(e: KeyboardEvent): void {
-     switch (e.code) {
+    switch (e.code) {
       case 'Space':
         this.missiles.push({
           leftPosition: this.playerPosition.leftPosition + 15,
@@ -74,7 +74,7 @@ export class GameComponent implements OnInit {
     for (const enemy of this.enemies) {
       for (const missile of this.missiles) {
         if (missile.leftPosition <= (enemy.leftPosition + DELTA) && missile.leftPosition >= enemy.leftPosition &&
-            missile.topPosition <= (enemy.topPosition + DELTA) && missile.topPosition >= enemy.topPosition) {
+          missile.topPosition <= (enemy.topPosition + DELTA) && missile.topPosition >= enemy.topPosition) {
           this.enemies.splice(this.enemies.indexOf(enemy), 1);
           this.missiles.splice(this.missiles.indexOf(missile), 1);
         }

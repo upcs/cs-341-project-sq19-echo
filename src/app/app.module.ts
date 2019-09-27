@@ -32,4 +32,5 @@ import {GameComponent} from './components/game/game.component';
   providers: [Title, CookieService],
   bootstrap: [AppComponent]
 })
-export class AppModule {}
+export class AppModule {
+}

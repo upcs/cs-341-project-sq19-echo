@@ -1,8 +1,6 @@
-import {
-  getLeafletMarkerFromTrafficMarker,
-} from './home.component.functions';
+import {getLeafletMarkerFromTrafficMarker,} from './home.component.functions';
 import {GREEN_ICON} from './home.component.constants';
-import {marker, Marker, LatLngExpression} from 'leaflet';
+import {LatLngExpression, Marker, marker} from 'leaflet';
 
 
 const regularTrafficMarker: any = {

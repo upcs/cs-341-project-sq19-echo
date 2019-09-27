@@ -1,11 +1,11 @@
-<mat-card class="mat-elevation-z4" [hidden]="loggedIn">
+<mat-card [hidden]="loggedIn" class="mat-elevation-z4">
   <mat-tab-group dynamicHeight>
     <mat-tab label="LOGIN">
-      <form class="formContainer" (ngSubmit)="login()" [formGroup]="loginForm">
+      <form (ngSubmit)="login()" [formGroup]="loginForm" class="formContainer">
         <mat-form-field appearance="outline">
           <mat-label>Email</mat-label>
           <label>
-            <input matInput placeholder="Enter Email" formControlName="email" required>
+            <input formControlName="email" matInput placeholder="Enter Email" required>
           </label>
           <mat-error>{{getFormError(loginControls.email)}}</mat-error>
         </mat-form-field>
@@ -13,20 +13,20 @@
         <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
           <label>
-            <input type="password" matInput placeholder="Enter Password" formControlName="password" required>
+            <input formControlName="password" matInput placeholder="Enter Password" required type="password">
           </label>
           <mat-error>{{getFormError(loginControls.password)}}</mat-error>
         </mat-form-field>
-        <button [disabled]="!loginForm.valid" mat-raised-button color="primary" type="submit">Login!</button>
+        <button [disabled]="!loginForm.valid" color="primary" mat-raised-button type="submit">Login!</button>
       </form>
     </mat-tab>
 
     <mat-tab label="SIGN UP">
-      <form class="formContainer" (ngSubmit)="signUp()" [formGroup]="signupForm">
+      <form (ngSubmit)="signUp()" [formGroup]="signupForm" class="formContainer">
         <mat-form-field appearance="outline">
           <mat-label>Email</mat-label>
           <label>
-            <input matInput placeholder="Enter Email" formControlName="email" required>
+            <input formControlName="email" matInput placeholder="Enter Email" required>
           </label>
           <mat-error>{{getFormError(signupControls.email)}}</mat-error>
         </mat-form-field>
@@ -34,7 +34,7 @@
         <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
           <label>
-            <input type="password" matInput placeholder="Enter Password" formControlName="password" required>
+            <input formControlName="password" matInput placeholder="Enter Password" required type="password">
           </label>
           <mat-error>{{getFormError(signupControls.password)}}</mat-error>
         </mat-form-field>
@@ -42,13 +42,13 @@
         <mat-form-field appearance="outline">
           <mat-label>Confirm Password</mat-label>
           <label>
-            <input type="password" matInput placeholder="Confirm Password" formControlName="confirmPassword" required>
+            <input formControlName="confirmPassword" matInput placeholder="Confirm Password" required type="password">
           </label>
           <mat-error>{{getFormError(signupControls.confirmPassword)}}</mat-error>
         </mat-form-field>
 
         <mat-form-field appearance="outline">
-          <mat-select placeholder="Security Question" formControlName="questionRequire" required>
+          <mat-select formControlName="questionRequire" placeholder="Security Question" required>
             <mat-option *ngFor="let question of SECURITY_QUESTIONS" [value]="question">{{question}}</mat-option>
           </mat-select>
           <mat-error>{{getFormError(signupControls.questionRequire)}}</mat-error>
@@ -57,57 +57,57 @@
         <mat-form-field appearance="outline">
           <mat-label>Answer</mat-label>
           <label>
-            <input matInput placeholder="Answer" formControlName="answerRequire" required>
+            <input formControlName="answerRequire" matInput placeholder="Answer" required>
           </label>
           <mat-error>{{getFormError(signupControls.answerRequire)}}</mat-error>
         </mat-form-field>
 
         <mat-error *ngIf="signupForm.hasError('mismatchedPasswords')">Passwords must match!</mat-error>
 
-        <button [disabled]="!signupForm.valid" mat-raised-button color="primary" type="submit">Sign Up!</button>
+        <button [disabled]="!signupForm.valid" color="primary" mat-raised-button type="submit">Sign Up!</button>
       </form>
     </mat-tab>
 
     <mat-tab label="RESET PASSWORD">
-      <form class="formContainer" [formGroup]="resetForm">
-        <mat-form-field appearance="outline" [hidden]="passwordResetInProgress">
+      <form [formGroup]="resetForm" class="formContainer">
+        <mat-form-field [hidden]="passwordResetInProgress" appearance="outline">
           <mat-label>Email</mat-label>
           <label>
-            <input matInput placeholder="Enter Email" formControlName="emailReset" required>
+            <input formControlName="emailReset" matInput placeholder="Enter Email" required>
           </label>
           <mat-error>{{getFormError(resetControls.emailReset)}}</mat-error>
         </mat-form-field>
 
         <h5 [hidden]="!passwordResetInProgress">{{resetQuestionTextContent}}</h5>
-        <mat-form-field appearance="outline" [hidden]="!passwordResetInProgress">
+        <mat-form-field [hidden]="!passwordResetInProgress" appearance="outline">
           <mat-label>Answer</mat-label>
           <label>
-            <input matInput placeholder="Enter Answer" formControlName="answerReset" required>
+            <input formControlName="answerReset" matInput placeholder="Enter Answer" required>
           </label>
           <mat-error>{{getFormError(resetControls.answerReset)}}</mat-error>
         </mat-form-field>
 
-        <mat-form-field appearance="outline" [hidden]="!passwordResetInProgress">
+        <mat-form-field [hidden]="!passwordResetInProgress" appearance="outline">
           <mat-label>New Password</mat-label>
           <label>
-            <input type="password" matInput placeholder="Enter New Password" formControlName="passwordReset" required>
+            <input formControlName="passwordReset" matInput placeholder="Enter New Password" required type="password">
           </label>
           <mat-error>{{getFormError(resetControls.passwordReset)}}</mat-error>
         </mat-form-field>
-        <button mat-raised-button color="primary" type="submit" [disabled]="!resetForm.valid"
-                [hidden]="!passwordResetInProgress" (click)="validateEnteredSecurityAnswer()">Reset Password
+        <button (click)="validateEnteredSecurityAnswer()" [disabled]="!resetForm.valid" [hidden]="!passwordResetInProgress" color="primary"
+                mat-raised-button type="submit">Reset Password
         </button>
-        <button mat-raised-button color="primary" [disabled]="!resetControls.emailReset.valid"
-                [hidden]="passwordResetInProgress" (click)="promptUserWithSecurityQuestion()">Continue
+        <button (click)="promptUserWithSecurityQuestion()" [disabled]="!resetControls.emailReset.valid" [hidden]="passwordResetInProgress"
+                color="primary" mat-raised-button>Continue
         </button>
       </form>
     </mat-tab>
   </mat-tab-group>
 </mat-card>
 
-<mat-card class="mat-elevation-z4" [hidden]="!loggedIn">
+<mat-card [hidden]="!loggedIn" class="mat-elevation-z4">
   <form class="formContainer">
-    <button mat-raised-button color="primary" type="submit" (click)="logout()">Logout!</button>
+    <button (click)="logout()" color="primary" mat-raised-button type="submit">Logout!</button>
     <h5 style="margin-top: 0.3em; text-align: left;">Saved Addresses</h5>
     <mat-accordion>
       <mat-expansion-panel *ngFor="let save of savedData">
@@ -119,8 +119,8 @@
           <li>{{save.volume}}</li>
         </ul>
         <mat-action-row>
-          <button mat-button color="warn" (click)="removeSave(save.address)">Remove</button>
-          <button mat-button color="primary" (click)="viewOnMap(save.address)">View on map</button>
+          <button (click)="removeSave(save.address)" color="warn" mat-button>Remove</button>
+          <button (click)="viewOnMap(save.address)" color="primary" mat-button>View on map</button>
         </mat-action-row>
       </mat-expansion-panel>
     </mat-accordion>

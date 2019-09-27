@@ -6,11 +6,11 @@
         <mat-card-subtitle>{{person.classStanding}}</mat-card-subtitle>
       </mat-card-header>
 
-      <img mat-card-image [src]="person.imageUrl" alt="Picture of {{person.name}}">
+      <img [src]="person.imageUrl" alt="Picture of {{person.name}}" mat-card-image>
       <mat-card-content>{{person.mainContent}}</mat-card-content>
       <mat-card-actions>
         <!-- Brings up contact info (email) -->
-        <button mat-flat-button color="primary" (click)="openEmail(person.emailAddress)">Contact</button>
+        <button (click)="openEmail(person.emailAddress)" color="primary" mat-flat-button>Contact</button>
       </mat-card-actions>
     </mat-card>
   </mat-grid-tile>
